@@ -1,0 +1,85 @@
+# MANIFEST
+
+Package: agent-system-pack-v4.7-yct-methods
+Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, agents, rules, and shortcut skills with merge-safe macOS/Linux installer.
+
+## Install policy
+
+- Default install targets: ~/.claude, ~/.codex, and ~/.agents/skills.
+- Existing unrelated skills are never deleted.
+- New shortcut skills are prefixed: yct-aa, yct-direct, yct-fix, yct-review, yct-risk.
+- Existing agents/rules are merged; same-path assets are backed up and updated, while different-path duplicate identities require `--replace-conflicts`.
+- Existing CLAUDE.md / AGENTS.md are merged via YCT marker blocks.
+
+## Files
+- .agents/skills/yct-aa/SKILL.md
+- .agents/skills/yct-aa/agents/openai.yaml
+- .agents/skills/yct-direct/SKILL.md
+- .agents/skills/yct-direct/agents/openai.yaml
+- .agents/skills/yct-fix/SKILL.md
+- .agents/skills/yct-fix/agents/openai.yaml
+- .agents/skills/yct-review/SKILL.md
+- .agents/skills/yct-review/agents/openai.yaml
+- .agents/skills/yct-risk/SKILL.md
+- .agents/skills/yct-risk/agents/openai.yaml
+- .claude/agents/alignment-recorder-agent.md
+- .claude/agents/batch-agent.md
+- .claude/agents/browser-agent.md
+- .claude/agents/code-reviewer-agent.md
+- .claude/agents/docs-agent.md
+- .claude/agents/executor-agent.md
+- .claude/agents/explorer-agent.md
+- .claude/agents/focused-fixer-agent.md
+- .claude/agents/general-agent.md
+- .claude/agents/plan-checker.md
+- .claude/agents/planner-agent.md
+- .claude/agents/research-agent.md
+- .claude/agents/security-reviewer-agent.md
+- .claude/agents/semantic-review-agent.md
+- .claude/agents/spark-agent.md
+- .claude/agents/verify-agent.md
+- .claude/agents/verify-runner-agent.md
+- .claude/rules/claude-model-routing.md
+- .claude/rules/instruction-system-maintenance.md
+- .claude/rules/method-orchestration.md
+- .claude/rules/subagent-orchestration.md
+- .claude/settings.example.json
+- .claude/skills/yct-aa/SKILL.md
+- .claude/skills/yct-direct/SKILL.md
+- .claude/skills/yct-fix/SKILL.md
+- .claude/skills/yct-review/SKILL.md
+- .claude/skills/yct-risk/SKILL.md
+- .codex/agents/alignment-recorder-agent.toml
+- .codex/agents/batch-agent.toml
+- .codex/agents/browser-agent.toml
+- .codex/agents/code-reviewer-agent.toml
+- .codex/agents/docs-agent.toml
+- .codex/agents/executor-agent.toml
+- .codex/agents/explorer-agent.toml
+- .codex/agents/focused-fixer-agent.toml
+- .codex/agents/general-agent.toml
+- .codex/agents/plan-checker.toml
+- .codex/agents/planner-agent.toml
+- .codex/agents/research-agent.toml
+- .codex/agents/security-reviewer-agent.toml
+- .codex/agents/semantic-review-agent.toml
+- .codex/agents/spark-agent.toml
+- .codex/agents/verify-agent.toml
+- .codex/agents/verify-runner-agent.toml
+- .codex/config.toml
+- AGENTS.md
+- CLAUDE.md
+- MANIFEST.txt
+- README.md
+- README_CLAUDE_NATIVE.md
+- README_SHORTCUTS.md
+- docs/CHANGELOG.md
+- docs/CLAUDE_NATIVE_NOTES.md
+- docs/METHODS.md
+- docs/METHOD_EVAL.md
+- docs/NOTES.md
+- docs/ROUTING.md
+- evals/evals.json
+- install.sh
+- docs/CLEAN_CONTEXT_AUDIT.md
+- tests/verify_pack.sh

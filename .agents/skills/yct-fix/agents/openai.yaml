@@ -1,0 +1,6 @@
+interface:
+  display_name: "YCT Focused Fix"
+  short_description: "Explicit focused-fix routing"
+  default_prompt: "Use $yct-fix for this bounded failure or small fix."
+policy:
+  allow_implicit_invocation: false

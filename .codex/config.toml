@@ -1,0 +1,80 @@
+# Codex project configuration for this agent system.
+# Keep platform-specific orchestration here, not in AGENTS.md.
+
+# Prevent merged YCT and existing user guidance from exceeding Codex's default
+# 32768-byte project-document limit.
+project_doc_max_bytes = 65536
+
+[agents]
+max_threads = 6
+max_depth = 1
+job_max_runtime_seconds = 1800
+
+# 显式注册角色，兼容不能只依赖独立 agent 文件发现的 Codex 版本。
+[agents."alignment-recorder-agent"]
+description = "Record confirmed status, alignment deltas, and decision notes."
+config_file = "agents/alignment-recorder-agent.toml"
+
+[agents."batch-agent"]
+description = "Apply one mechanical operation to an explicit small file list."
+config_file = "agents/batch-agent.toml"
+
+[agents."browser-agent"]
+description = "Collect read-only browser, UI, console, network, and screenshot evidence."
+config_file = "agents/browser-agent.toml"
+
+[agents."code-reviewer-agent"]
+description = "Review code for correctness, regressions, wiring, maintainability, and missing tests."
+config_file = "agents/code-reviewer-agent.toml"
+
+[agents."docs-agent"]
+description = "Write durable documentation from confirmed facts and decisions."
+config_file = "agents/docs-agent.toml"
+
+[agents."executor-agent"]
+description = "Implement an approved bounded change with explicit scope and done criteria."
+config_file = "agents/executor-agent.toml"
+
+[agents."explorer-agent"]
+description = "Map unfamiliar code paths, runtime facts, dependencies, and impact surface."
+config_file = "agents/explorer-agent.toml"
+
+[agents."focused-fixer-agent"]
+description = "Portable fast worker for one explicit localized failure or small fix."
+config_file = "agents/focused-fixer-agent.toml"
+
+[agents."general-agent"]
+description = "Fallback for small read-only work that matches no specialized role."
+config_file = "agents/general-agent.toml"
+
+[agents."plan-checker"]
+description = "Adversarially review plans for unsafe assumptions and verification gaps."
+config_file = "agents/plan-checker.toml"
+
+[agents."planner-agent"]
+description = "Plan ambiguous, cross-module, risky, or architectural work without implementing."
+config_file = "agents/planner-agent.toml"
+
+[agents."research-agent"]
+description = "Verify external, versioned, or document-based claims using primary sources."
+config_file = "agents/research-agent.toml"
+
+[agents."security-reviewer-agent"]
+description = "Review auth, data, injection, payment, migration, and security boundaries."
+config_file = "agents/security-reviewer-agent.toml"
+
+[agents."semantic-review-agent"]
+description = "Review instruction systems for conflicts, bloat, overlap, and routing drift."
+config_file = "agents/semantic-review-agent.toml"
+
+[agents."spark-agent"]
+description = "Optional Pro research-preview worker for near-instant text-only focused iteration."
+config_file = "agents/spark-agent.toml"
+
+[agents."verify-agent"]
+description = "Independently verify goal match, wiring, completeness, and regression risk."
+config_file = "agents/verify-agent.toml"
+
+[agents."verify-runner-agent"]
+description = "Run tests, lint, typecheck, builds, and smoke checks without editing source."
+config_file = "agents/verify-runner-agent.toml"

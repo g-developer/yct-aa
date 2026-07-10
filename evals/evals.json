@@ -1,0 +1,619 @@
+{
+  "skill_name": "yct-aa-routing-and-methods-pack",
+  "method_catalog": [
+    "First Principles",
+    "MECE",
+    "Hypothesis–Falsification",
+    "PDCA",
+    "Pre-mortem + FMEA-lite",
+    "Steelman + Red Team",
+    "Trust Boundary + Abuse Cases",
+    "Bidirectional Traceability + Adjacency Scan",
+    "One-way/Two-way Door + ADR",
+    "Expand–Migrate–Contract",
+    "Test Strategy Selection",
+    "OODA",
+    "Evidence Triangulation",
+    "Double-loop Learning"
+  ],
+  "expectation_policy": {
+    "closed_world": true,
+    "required_method_rule": "Every expected method must have prompt/task trigger evidence.",
+    "forbidden_method_rule": "Every catalog method absent from expected_methods is forbidden unless trigger evidence is added."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "$yct-aa fix the typo in README line 12",
+      "expected_criticality": "L0",
+      "expected_route": "direct-main",
+      "expected_output": "Classify as L0 and handle directly without spawning a subagent or method ceremony.",
+      "expected_methods": [],
+      "trigger_evidence": {},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-subagent",
+        "no-method-ceremony"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "$yct-aa pytest tests/auth/test_refresh.py::test_expired_token fails with the attached stack trace; fix only the involved files",
+      "expected_criticality": "L3",
+      "expected_route": "risk-overlay",
+      "expected_output": "Treat the exact auth test as L3 despite its narrow shape; use the risk pipeline, trust-boundary negative tests, PDCA implementation, traceability, runner evidence, and final static acceptance.",
+      "expected_methods": [
+        "First Principles",
+        "MECE",
+        "Pre-mortem + FMEA-lite",
+        "Steelman + Red Team",
+        "Trust Boundary + Abuse Cases",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan",
+        "Test Strategy Selection"
+      ],
+      "trigger_evidence": {
+        "First Principles": "auth behavior is a safety-sensitive L3 surface",
+        "MECE": "token expiry crosses identity, policy, handler, and test boundaries",
+        "Pre-mortem + FMEA-lite": "auth regression can fail open or lock out valid users",
+        "Steelman + Red Team": "L3 plan requires adversarial challenge",
+        "Trust Boundary + Abuse Cases": "auth refresh crosses an authentication/trust boundary",
+        "PDCA": "the prompt requests a fix",
+        "Bidirectional Traceability + Adjacency Scan": "non-trivial auth implementation requires requirement/diff/test closure",
+        "Test Strategy Selection": "security boundary requires positive, negative, and abuse-case tests"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-focused-risk-downgrade",
+        "plan-reaccepted",
+        "pre-post-security-review",
+        "runner-before-verifier",
+        "composite-l3-gate"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "$yct-aa use Spark for near-instant text-only iteration on this one-file CSS regression; if Spark is unavailable use the normal fast fixer",
+      "expected_criticality": "L1",
+      "expected_route": "focused-spark-optional",
+      "expected_output": "Use spark-agent only when available, with one fallback to focused-fixer-agent and a bounded PDCA check.",
+      "expected_methods": [
+        "Hypothesis–Falsification",
+        "PDCA"
+      ],
+      "trigger_evidence": {
+        "Hypothesis–Falsification": "the CSS regression cause is not stated",
+        "PDCA": "the prompt requests a one-file fix"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "spark-known-available",
+        "single-fallback",
+        "runner-before-verifier"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "$yct-aa fix an authorization bypass in the workspace admin endpoint",
+      "expected_criticality": "L3",
+      "expected_route": "risk-overlay",
+      "expected_output": "Risk overrides focused-fix shape; use first-principles/MECE planning, FMEA and red-team challenge, pre/post trust-boundary review, PDCA implementation, bidirectional traceability, negative tests, runner evidence, and final static acceptance.",
+      "expected_methods": [
+        "First Principles",
+        "MECE",
+        "Pre-mortem + FMEA-lite",
+        "Steelman + Red Team",
+        "Trust Boundary + Abuse Cases",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan",
+        "Test Strategy Selection"
+      ],
+      "trigger_evidence": {
+        "First Principles": "authorization bypass is an L3 safety boundary",
+        "MECE": "route, identity, workspace policy, side effect, and tests must be separated",
+        "Pre-mortem + FMEA-lite": "the fix can leave sibling bypasses or reject valid admins",
+        "Steelman + Red Team": "L3 plan requires counterexample and exploit-path challenge",
+        "Trust Boundary + Abuse Cases": "the prompt explicitly names authorization bypass",
+        "PDCA": "the prompt requests implementation",
+        "Bidirectional Traceability + Adjacency Scan": "the bypass requirement and every changed surface need two-way mapping",
+        "Test Strategy Selection": "authorization requires negative and abuse-case testing"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-focused-risk-downgrade",
+        "plan-reaccepted",
+        "pre-post-security-review",
+        "runner-before-verifier",
+        "composite-l3-gate"
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "$yct-review review this branch against main for correctness and missing tests",
+      "expected_criticality": "L2",
+      "expected_route": "review-only",
+      "expected_output": "Use review-only agents, steelman the intended behavior, trace requirements and changed surfaces both directions, scan adjacency, and do not invent a special test strategy without a triggering surface.",
+      "expected_methods": [
+        "Steelman + Red Team",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "Steelman + Red Team": "review must steelman before challenging the intended change",
+        "Bidirectional Traceability + Adjacency Scan": "branch-against-main review requires requirement/diff and adjacency coverage"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-implementation",
+        "evidence-backed-findings"
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "$yct-aa optimize AGENTS.md, Claude rules, Codex agents, and shortcut routing without changing business code",
+      "expected_criticality": "L2",
+      "expected_route": "semantic-instruction-change",
+      "expected_output": "Use a MECE instruction-boundary decomposition, bounded PDCA edits, and bidirectional rule/parity traceability. Do not select Double-loop Learning without recurrence evidence.",
+      "expected_methods": [
+        "MECE",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "MECE": "the prompt spans AGENTS, Claude rules, Codex agents, and shortcuts",
+        "PDCA": "the prompt requests bounded instruction changes",
+        "Bidirectional Traceability + Adjacency Scan": "each rule change must trace to a requested routing outcome and parity check"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-business-code",
+        "semantic-review",
+        "method-parity",
+        "runner-before-verifier"
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "$yct-aa verify whether our pinned SDK supports this option in the current official docs",
+      "expected_criticality": "L1",
+      "expected_route": "research",
+      "expected_output": "Use research-agent with version-matched primary-source triangulation; do not route to browser unless browser state is needed.",
+      "expected_methods": [
+        "Evidence Triangulation"
+      ],
+      "trigger_evidence": {
+        "Evidence Triangulation": "the prompt asks for current official version support"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "pinned-version-first",
+        "primary-source-evidence"
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "$yct-aa reproduce the logged-in settings modal bug and capture console and network evidence",
+      "expected_criticality": "L2",
+      "expected_route": "browser-evidence",
+      "expected_output": "Preflight a child-visible browser tool, collect read-only evidence, and use hypotheses to distinguish UI, API, and session causes.",
+      "expected_methods": [
+        "Hypothesis–Falsification"
+      ],
+      "trigger_evidence": {
+        "Hypothesis–Falsification": "the modal symptom can originate in UI, API, network, or session state"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "child-browser-preflight",
+        "read-only-browser",
+        "evidence-before-fix"
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "$yct-aa rename the same metadata key in these four explicit files and make no other changes",
+      "expected_criticality": "L1",
+      "expected_route": "mechanical-batch",
+      "expected_output": "Use batch-agent on the explicit list with a small PDCA cycle, then static acceptance and any targeted check.",
+      "expected_methods": [
+        "PDCA"
+      ],
+      "trigger_evidence": {
+        "PDCA": "the prompt requests one repeated bounded edit"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "explicit-file-list",
+        "no-scope-expansion",
+        "static-acceptance"
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "$yct-aa add a multi-module feature but first map the unknown request path and decide the smallest safe design",
+      "expected_criticality": "L2",
+      "expected_route": "explore-plan-execute",
+      "expected_output": "Use exploration, first-principles planning with a named MECE lens, bounded execution, bidirectional traceability, and independent verification.",
+      "expected_methods": [
+        "First Principles",
+        "MECE",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "First Principles": "the request path and safe design are unknown",
+        "MECE": "the feature is explicitly multi-module",
+        "PDCA": "the prompt requests implementation",
+        "Bidirectional Traceability + Adjacency Scan": "multi-module requirements and changed surfaces need two-way mapping"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "explore-before-plan",
+        "bounded-execution",
+        "runner-before-verifier"
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "$yct-direct explain the security implications of this auth change without editing files",
+      "expected_criticality": "L3-analysis",
+      "expected_route": "direct-main",
+      "expected_output": "Stay in the main thread, map the relevant trust boundary and abuse cases, and do not spawn or silently switch mode.",
+      "expected_methods": [
+        "Trust Boundary + Abuse Cases"
+      ],
+      "trigger_evidence": {
+        "Trust Boundary + Abuse Cases": "the prompt explicitly requests security implications of an auth change"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-subagent",
+        "no-edit",
+        "no-silent-mode-switch"
+      ],
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "$yct-risk replace the public persistence schema and migrate production data irreversibly",
+      "expected_criticality": "L4",
+      "expected_route": "risk-plan-only",
+      "expected_output": "Treat as L4; classify the one-way door, produce and challenge a first-principles MECE plan with FMEA and Expand–Migrate–Contract, and wait for explicit approval.",
+      "expected_methods": [
+        "First Principles",
+        "MECE",
+        "Pre-mortem + FMEA-lite",
+        "Steelman + Red Team",
+        "One-way/Two-way Door + ADR",
+        "Expand–Migrate–Contract",
+        "Test Strategy Selection"
+      ],
+      "trigger_evidence": {
+        "First Principles": "irreversible production schema replacement is strategic",
+        "MECE": "schema, data, callers, deployment, and recovery are separate surfaces",
+        "Pre-mortem + FMEA-lite": "irreversible migration has credible data-loss failure modes",
+        "Steelman + Red Team": "L4 plan requires adversarial review",
+        "One-way/Two-way Door + ADR": "the prompt explicitly says irreversible",
+        "Expand–Migrate–Contract": "the task is a persistence schema migration",
+        "Test Strategy Selection": "migration requires compatibility and old-data tests"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-implementation-before-approval",
+        "plan-reaccepted",
+        "rollback-recovery-proof"
+      ],
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "$yct-aa turn these already verified architecture decisions into durable repository documentation without changing code",
+      "expected_criticality": "L2",
+      "expected_route": "documentation",
+      "expected_output": "Use docs-agent and create an ADR only for durable consequential decisions, including alternatives, consequences, and reversal or expiry conditions.",
+      "expected_methods": [
+        "One-way/Two-way Door + ADR"
+      ],
+      "trigger_evidence": {
+        "One-way/Two-way Door + ADR": "the prompt names verified architecture decisions needing durable records"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "confirmed-decisions-only",
+        "adr-only-if-durable",
+        "docs-verification"
+      ],
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "$yct-aa record this confirmed release status and decision delta in the existing alignment log",
+      "expected_criticality": "L1",
+      "expected_route": "alignment-recording",
+      "expected_output": "Use alignment-recorder-agent to record the already-confirmed release status and decision delta with source evidence; do not rerun a decision method or infer missing rationale.",
+      "expected_methods": [],
+      "trigger_evidence": {},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "confirmed-state-only",
+        "no-rationale-inference"
+      ],
+      "files": []
+    },
+    {
+      "id": 15,
+      "prompt": "$yct-aa delegate this small read-only repository lookup; none of the specialized exploration, research, review, browser, or documentation routes applies",
+      "expected_criticality": "L1",
+      "expected_route": "general-read-only-fallback",
+      "expected_output": "Use general-agent only as the explicit small read-only fallback because no specialist or method contract is needed.",
+      "expected_methods": [],
+      "trigger_evidence": {},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-specialist-fit",
+        "read-only"
+      ],
+      "files": []
+    },
+    {
+      "id": 16,
+      "prompt": "$yct-aa production requests are intermittently timing out right now; contain impact, keep checking live state, then identify root cause",
+      "expected_criticality": "L3",
+      "expected_route": "incident-response",
+      "expected_output": "Use an OODA loop for timestamped containment and live signals, then switch to hypothesis-falsification once state is stable.",
+      "expected_methods": [
+        "OODA",
+        "Hypothesis–Falsification",
+        "First Principles"
+      ],
+      "trigger_evidence": {
+        "OODA": "production state is changing now",
+        "Hypothesis–Falsification": "intermittent timeout root cause is unknown",
+        "First Principles": "production impact requires current-reality and invariant framing"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "timestamped-live-state",
+        "reversible-containment",
+        "rollback-threshold",
+        "transition-to-root-cause"
+      ],
+      "files": []
+    },
+    {
+      "id": 17,
+      "prompt": "$yct-fix the parser fails on a few Unicode inputs but we do not know the full failing space",
+      "expected_criticality": "L2-diagnostic",
+      "expected_route": "diagnostic-then-focused-if-gated",
+      "expected_output": "Enter diagnostic orchestration immediately with explorer-only and no other agent or writer; rank and falsify parser hypotheses; before writing require an invariant/oracle, selected property or metamorphic technique, and rejected alternatives; return to focused fixing only after localization/scope/L1-L2-risk/command gates; run runner before verifier.",
+      "expected_methods": [
+        "Hypothesis–Falsification",
+        "Test Strategy Selection",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "Hypothesis–Falsification": "Unicode failure cause and exact failing space are unknown",
+        "Test Strategy Selection": "parser and combinatorial inputs require property/metamorphic strategy selection",
+        "PDCA": "the prompt requests a fix after diagnosis",
+        "Bidirectional Traceability + Adjacency Scan": "parser contract and changed surfaces require adjacency verification"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "diagnostic-first",
+        "explorer-only",
+        "no-writer-before-localization",
+        "focused-return-evidence",
+        "test-strategy-before-writer",
+        "runner-before-verifier"
+      ],
+      "files": []
+    },
+    {
+      "id": 18,
+      "prompt": "$yct-aa refactor this legacy pricing module without changing any observable behavior; current coverage is weak",
+      "expected_criticality": "L2",
+      "expected_route": "characterize-then-refactor",
+      "expected_output": "Add characterization tests before restructuring, use PDCA, and verify behavior and call-site adjacency.",
+      "expected_methods": [
+        "PDCA",
+        "Test Strategy Selection",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "PDCA": "the prompt requests a refactor",
+        "Test Strategy Selection": "behavior preservation with weak coverage requires characterization tests",
+        "Bidirectional Traceability + Adjacency Scan": "legacy module callers and changed surfaces need adjacency coverage"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "characterization-before-refactor",
+        "no-observable-change",
+        "runner-before-verifier"
+      ],
+      "files": []
+    },
+    {
+      "id": 19,
+      "prompt": "$yct-risk migrate a published event schema while old and new consumers will coexist for two weeks",
+      "expected_criticality": "L3",
+      "expected_route": "risk-migration",
+      "expected_output": "Use explicit First Principles and MECE, adversarial FMEA and reversibility analysis, Expand–Migrate–Contract, staged PDCA execution, bidirectional consumer traceability, compatibility tests, and the composite risk gate.",
+      "expected_methods": [
+        "First Principles",
+        "MECE",
+        "Pre-mortem + FMEA-lite",
+        "Steelman + Red Team",
+        "One-way/Two-way Door + ADR",
+        "Expand–Migrate–Contract",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan",
+        "Test Strategy Selection"
+      ],
+      "trigger_evidence": {
+        "First Principles": "published schema migration is L3 contract work",
+        "MECE": "producer, consumers, wire format, data, rollout, and removal must be separated",
+        "Pre-mortem + FMEA-lite": "coexistence and partial deployment have credible failures",
+        "Steelman + Red Team": "explicit yct-risk requires plan challenge",
+        "One-way/Two-way Door + ADR": "published schema changes are costly to reverse",
+        "Expand–Migrate–Contract": "old and new consumers explicitly coexist",
+        "PDCA": "the prompt requests migration execution",
+        "Bidirectional Traceability + Adjacency Scan": "every compatibility change and consumer migration needs two-way trace",
+        "Test Strategy Selection": "wire compatibility and migration need old/new tests"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "plan-reaccepted",
+        "expand-before-contract",
+        "coexistence-window",
+        "removal-proof",
+        "runner-before-verifier",
+        "composite-l3-gate"
+      ],
+      "files": []
+    },
+    {
+      "id": 20,
+      "prompt": "$yct-risk duplicate payment capture appears under concurrent retries; design and fix the boundary safely",
+      "expected_criticality": "L3",
+      "expected_route": "risk-security-concurrency",
+      "expected_output": "Use First Principles and MECE, FMEA and red-team challenge, trust-boundary analysis, scoped PDCA implementation, bidirectional traceability, deterministic concurrency/fault-injection tests, and the composite risk gate.",
+      "expected_methods": [
+        "First Principles",
+        "MECE",
+        "Pre-mortem + FMEA-lite",
+        "Steelman + Red Team",
+        "Trust Boundary + Abuse Cases",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan",
+        "Test Strategy Selection"
+      ],
+      "trigger_evidence": {
+        "First Principles": "duplicate payment is a high-impact invariant failure",
+        "MECE": "request, idempotency store, payment provider, retry, and recovery are separate surfaces",
+        "Pre-mortem + FMEA-lite": "concurrent retries create credible duplicate side effects",
+        "Steelman + Red Team": "explicit yct-risk requires adversarial challenge",
+        "Trust Boundary + Abuse Cases": "payments and entitlement side effects cross a protected boundary",
+        "PDCA": "the prompt asks to design and fix",
+        "Bidirectional Traceability + Adjacency Scan": "idempotency requirements and every changed surface need two-way mapping",
+        "Test Strategy Selection": "concurrency/retries require deterministic scheduling or fault injection"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "plan-reaccepted",
+        "pre-post-security-review",
+        "idempotency-invariant",
+        "fault-injection",
+        "runner-before-verifier",
+        "composite-l3-gate"
+      ],
+      "files": []
+    },
+    {
+      "id": 21,
+      "prompt": "$yct-review attack this proposal to replace the cache layer globally next week",
+      "expected_criticality": "L4-review",
+      "expected_route": "review-plan-only",
+      "expected_output": "Steelman the proposal first, then use counterexamples, FMEA, and one-way-door analysis to find a smaller reversible option.",
+      "expected_methods": [
+        "First Principles",
+        "MECE",
+        "Pre-mortem + FMEA-lite",
+        "Steelman + Red Team",
+        "One-way/Two-way Door + ADR"
+      ],
+      "trigger_evidence": {
+        "First Principles": "global cache replacement is an architecture decision",
+        "MECE": "callers, consistency, capacity, rollout, operations, and recovery are separate",
+        "Pre-mortem + FMEA-lite": "global replacement has production failure modes",
+        "Steelman + Red Team": "the prompt explicitly asks to attack the proposal",
+        "One-way/Two-way Door + ADR": "global next-week replacement is costly to reverse"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-implementation",
+        "steelman-before-attack",
+        "smaller-reversible-alternative"
+      ],
+      "files": []
+    },
+    {
+      "id": 22,
+      "prompt": "$yct-aa this is the third time the same task was routed to general-agent instead of the specialist; fix the rules",
+      "expected_criticality": "L2",
+      "expected_route": "semantic-system-fix",
+      "expected_output": "Correct the immediate route and use double-loop learning to repair the underlying trigger, ownership, and regression signal.",
+      "expected_methods": [
+        "Double-loop Learning",
+        "MECE",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "Double-loop Learning": "the prompt says this is the third identical route misfire",
+        "MECE": "trigger, route owner, agent description, fixture, and regression test are distinct surfaces",
+        "PDCA": "the prompt requests a rule fix",
+        "Bidirectional Traceability + Adjacency Scan": "the immediate route and underlying rule change need two-way regression evidence"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "specialist-route-restored",
+        "underlying-rule-corrected",
+        "regression-signal"
+      ],
+      "files": []
+    },
+    {
+      "id": 23,
+      "prompt": "$yct-aa official docs and maintainer source disagree about the SDK default in our pinned version",
+      "expected_criticality": "L1",
+      "expected_route": "research-conflict",
+      "expected_output": "Triangulate version-matched primary evidence, report the disagreement without averaging it, and name the next decisive check.",
+      "expected_methods": [
+        "Evidence Triangulation"
+      ],
+      "trigger_evidence": {
+        "Evidence Triangulation": "official docs and maintainer source explicitly disagree for a pinned version"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "version-match",
+        "no-source-averaging",
+        "next-decisive-check"
+      ],
+      "files": []
+    },
+    {
+      "id": 24,
+      "prompt": "$yct-review verify the implementation against the design and also flag code changes that were never authorized by the design",
+      "expected_criticality": "L2",
+      "expected_route": "review-contract-compliance",
+      "expected_output": "Build both requirement-to-diff-to-test and diff-to-requirement mappings, then scan adjacent producers and consumers.",
+      "expected_methods": [
+        "Steelman + Red Team",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "Steelman + Red Team": "review must reconstruct the strongest design obligation before challenging implementation",
+        "Bidirectional Traceability + Adjacency Scan": "the prompt explicitly asks for requirement-to-diff and unauthorized diff-to-requirement checks"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-implementation",
+        "forward-matrix",
+        "reverse-matrix",
+        "adjacency-scan"
+      ],
+      "files": []
+    }
+  ]
+}

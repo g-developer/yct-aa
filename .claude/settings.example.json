@@ -1,0 +1,5 @@
+{
+  "comment": "Example only. Copy to .claude/settings.json or .claude/settings.local.json after reviewing for your environment.",
+  "autoMemoryEnabled": true,
+  "spinnerTipsEnabled": false
+}

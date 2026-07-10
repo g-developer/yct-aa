@@ -1,0 +1,6 @@
+interface:
+  display_name: "YCT Review"
+  short_description: "Explicit review-only routing"
+  default_prompt: "Use $yct-review to review this target without implementation."
+policy:
+  allow_implicit_invocation: false

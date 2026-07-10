@@ -1,0 +1,6 @@
+interface:
+  display_name: "YCT Auto Agent"
+  short_description: "Explicit multi-agent routing for engineering work"
+  default_prompt: "Use $yct-aa to route this engineering task."
+policy:
+  allow_implicit_invocation: false
