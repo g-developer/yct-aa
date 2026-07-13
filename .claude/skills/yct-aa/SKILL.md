@@ -37,3 +37,61 @@ Risk override: auth, security/data boundaries, migrations, concurrency, public A
 Recurring routing/instruction failures use Double-loop Learning through `semantic-review-agent`: correct both the immediate defect and the underlying rule or feedback gap.
 
 Final response must start with the conclusion and include changed files, verification, and residual risk.
+
+Model availability, fallback and budget:
+
+- Capability probe: at session start, if account alias availability is unknown,
+  the FIRST spawn of each pinned alias is the probe. Record results in a
+  session model-availability table and consult it before every later spawn —
+  an alias that failed once is never attempted again this session.
+- Fallback chain: on a model/alias-unavailable spawn error, retry with an
+  explicit per-call `model` override on the Agent tool, walking
+  fable -> opus -> sonnet -> haiku -> inherit, ONE attempt per hop; report the
+  tier actually used. Never claim the pinned alias ran after a downgrade;
+  BLOCKED only after the chain is exhausted.
+- Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
+  polling, status reads, test execution, evidence formatting, file location,
+  diff self-checks, trace updates — MUST take `haiku` or plain scripts, never
+  opus/fable. L2 exploration/implementation/targeted review runs `sonnet`.
+  ONLY architecture adjudication, adversarial plan review, conflict
+  arbitration and final security audit may use opus/fable.
+- Quality floor: adjudication roles (planner/plan-checker/verify/security/
+  code-review/semantic) floor at `sonnet` — never auto-degrade adjudication to
+  `haiku`; below the floor report BLOCKED instead (operator may explicitly
+  authorize, recorded in the trace). Mechanical/recording roles may go to
+  `haiku`; execution/exploration roles floor at `sonnet` unless the packet
+  explicitly allows `haiku` for trivial mechanical slices.
+- A top-tier round that adds no new evidence to the ledger is a routing
+  defect: log it and downgrade the next similar round.
+
+Long goals (many-item contracts, e.g. GDR-01..24):
+
+- Slice into bounded packets of 3-5 items; never hand one agent the whole span.
+- Reuse the SAME agent instance for adjacent slices (continuation reuses its
+  cached context); do not respawn per slice.
+- Maintain evidence/trace matrices incrementally - append delta rows per slice,
+  never rebuild the full matrix from scratch.
+- Do not re-read unchanged files across slices; cite prior slice anchors
+  (file:line) instead.
+
+Parallel exploration hygiene & evidence cache:
+
+- Assign parallel explorers DISJOINT file scopes (MECE, each packet lists
+  explicit "not-yours" exclusions); overlapping scopes pay twice for the same
+  files.
+- Cap each returned evidence summary (~120 lines, tables + file:line anchors);
+  request gaps later instead of accepting full dumps.
+- Maintain a session evidence ledger; later packets carry
+  "already-established facts (do not re-derive)" with anchors, and agents only
+  fill gaps.
+- Before spawning a new explorer, check the ledger and reuse standing
+  conclusions instead of re-deriving them.
+
+Routing & budget trace:
+
+- For every spawn, record in the session routing ledger: role, criticality,
+  model requested vs actually used (downgrade y/n), and on completion its
+  token usage plus the evidence delta it added.
+- Review the ledger at each phase boundary: top-tier spend with no evidence
+  delta, or repeated re-reads of the same files, must change the next round's
+  routing (double-loop).
