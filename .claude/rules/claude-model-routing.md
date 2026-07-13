@@ -26,3 +26,13 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
 - Do not use `fable` by default. The parent may override planner-agent or plan-checker per invocation for justified L4 work; fall back to their Opus defaults when unavailable.
 - Use aliases unless reproducibility requires pinned full model IDs.
 - If an alias is unavailable in the account or provider, change that agent to `inherit` or a permitted full model ID.
+
+## Parent-tier economy (2026-07-13)
+
+- A parent session running on `fable`/`opus` must not do inline work that the route table
+  assigns to cheaper tiers: scoped implementation belongs to `executor-agent` (sonnet)，
+  mechanical batch/verification belongs to `batch-agent`/`haiku` workers. The parent's
+  inline turns are the most expensive tokens in the system — reserve them for adjudication,
+  packet construction, and integration of results.
+- Exception: single-file edits where the packet-writing overhead exceeds the edit itself
+  (L0/L1), per the AGENTS.md criticality table.

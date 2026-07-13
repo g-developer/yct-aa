@@ -60,3 +60,23 @@
 - Added merge-safe user-level installer for macOS and Linux.
 - Added backup behavior for same-name files.
 - Preserved existing skills, agents, and rules during install.
+
+## 2026-07-13 token-economy & final-delivery hardening (from etf-skill L3 session double-loop review)
+
+Observed in a real L3 run: evidence-heavy subagents (explorer/planner/plan-checker/
+verify/code-reviewer) repeatedly hit their small `maxTurns` mid-exploration and returned
+process narration ("Let's check X next") or empty finals, costing ~8 parent resume
+round-trips and roughly 30% duplicated reasoning spend across ~2M subagent tokens.
+
+- All 17 Claude agents + 17 Codex agents: injected a "Final-delivery contract" —
+  final message must be the complete deliverable (never a progress note), batch
+  independent tool calls, reserve last turns for the report, emit report-with-gaps
+  when budget runs out, lean output (tables + file:line anchors, no pasted bodies).
+- Turn budgets raised for evidence-heavy Claude roles: explorer 12→18,
+  plan-checker 10→16, planner 12→18, verify 16→20, code-reviewer 14→18,
+  research 14→18.
+- `.claude/rules/subagent-orchestration.md`: parent-side economy — resume the SAME
+  instance via SendMessage on truncated finals (never respawn), path anchors instead
+  of pasted bodies in packets, one instance per multi-round review loop.
+- `.claude/rules/claude-model-routing.md`: parent-tier economy — fable/opus parents
+  must not do inline work the route table assigns to sonnet/haiku workers.

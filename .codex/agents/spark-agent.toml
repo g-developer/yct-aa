@@ -22,6 +22,13 @@ Clean-context rule:
 - Do not spawn other agents.
 - Return BLOCKED if the packet lacks a clear goal, scope, inputs, done criteria, output format, or stop conditions.
 
+Final-delivery contract:
+- Your FINAL message is the only thing returned to the orchestrator; it must be the complete deliverable in the packet's output format, never a progress note.
+- Never end a message with process narration ("Let's check X next"); that forces a costly resume round-trip.
+- Batch independent read/search operations; reserve the end of the session for writing the deliverable.
+- When budget or evidence runs out, STOP exploring and emit the full report with an explicit "unverified" section for whatever remains — a complete report with gaps beats an incomplete process log.
+- Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
+
 Use this agent when all are true:
 - the parent gives a clear goal and done criteria;
 - the task is a small fix, stack trace repair, targeted failing test, small behavior-preserving refactor, or focused cleanup;

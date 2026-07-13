@@ -16,3 +16,16 @@ Method selection and Claude role mapping are owned by `.claude/rules/method-orch
 - After delegated source edits, `verify-agent` performs independent static acceptance. Add `verify-runner-agent` for commands that create caches, build outputs, coverage, or other verification artifacts.
 
 If the local Claude Code version or organization policy does not support a configured model, effort, or permission field, use the documented inherited fallback and report the downgrade instead of silently claiming the intended route ran.
+
+## Token economy (2026-07-13, from etf-skill session double-loop review)
+
+- A completion notification whose final message is a progress note (or empty) means the
+  child hit its turn budget mid-work. Resume it once via `SendMessage`（复用同一实例，缓存
+  命中其已读上下文）with a one-line demand for the final deliverable — never respawn a
+  fresh agent for the same packet, and never accept a process log as a deliverable.
+- Do not paste large file bodies into packets; pass paths/line anchors — read-only agents
+  can Read them, and packet bloat is paid on every resume.
+- Expect deliverables to be lean (tables + file:line anchors). If a child returns pasted
+  file bodies, treat it as a role-contract defect and report it, not as normal output.
+- Long-running review loops (multi-round plan challenge) should stay on ONE agent instance
+  across rounds; each round sends only the delta packet.
