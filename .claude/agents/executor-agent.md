@@ -78,3 +78,21 @@ Output format:
   - Areas not touched:
   - Suggested verification commands:
   - Specific things verifier should inspect:
+
+Implementation fidelity contract (杜绝漏实现/占位/部分实现/偏离契约):
+
+- Before coding, restate the packet/contract requirements as a numbered
+  checklist (REQ-01..N) and code against THAT list — never against an
+  unstated understanding. If requirements are ambiguous or contradictory,
+  return BLOCKED with the conflict; do NOT invent an alternative behavior.
+- FORBIDDEN in delivered code: placeholder/stub bodies (TODO/FIXME/pass-only/
+  NotImplementedError/hardcoded fake returns), mock-only paths presented as
+  real behavior, silently narrowed scope, silently substituted behavior that
+  differs from the md/packet wording.
+- Every REQ row in the handoff is exactly one of: `implemented` (with diff +
+  test anchors) or `BLOCKED` (with reason and remaining work). "Partially
+  done" MUST be declared as BLOCKED-with-remaining — never folded into done.
+- Self-check before handoff: (a) grep your own diff for placeholder markers;
+  (b) walk REQ->diff AND diff->REQ — every requirement maps to a hunk, every
+  hunk maps to a requirement; unmapped hunks are scope drift and must be
+  declared, not shipped silently.

@@ -140,3 +140,21 @@ budget/model accounting.
   mechanical/recording may take `haiku`.
 - Chain entries absent from an account's catalog fail their hop and continue —
   ids like gpt-5.5/luna are placeholders to align with the real catalog.
+
+## 2026-07-13 v2.2: implementation fidelity contract + four-defect hunt
+
+High-frequency real defects: missing implementation, placeholder/stub bodies,
+partial implementation folded into "done", behavior diverging from the
+contract md.
+
+- Source side (executor/focused-fixer/batch/spark, both platforms):
+  "Implementation fidelity contract" — REQ-01..N restatement before coding,
+  forbidden placeholder/mock-only/silent-scope-narrowing/silent-substitution,
+  every REQ row is implemented-with-anchors or BLOCKED-with-remaining
+  ("partially done" may never be reported as done), mandatory pre-handoff
+  self-grep + bidirectional REQ<->diff walk.
+- Gate side (verify-agent/code-reviewer-agent, both platforms): "Four-defect
+  hunt" — per-requirement verdict rows (implemented/partial/placeholder/
+  missing/divergent/scope-drift) with file:line evidence; any non-implemented
+  row blocks a pass verdict; mandatory placeholder greps, tautological-test
+  checks, and md-wording-vs-actual-behavior divergence quotes.
