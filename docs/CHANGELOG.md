@@ -158,3 +158,22 @@ contract md.
   missing/divergent/scope-drift) with file:line evidence; any non-implemented
   row blocks a pass verdict; mandatory placeholder greps, tautological-test
   checks, and md-wording-vs-actual-behavior divergence quotes.
+
+## 2026-07-13 v2.3: fake/mock implementation ban + detection battery
+
+Extends v2.2 from stub/placeholder to the full fabrication family:
+
+- Writers (executor/focused-fixer/batch/spark, both platforms): ban on fake
+  data presented as computation, test doubles on production paths (doubles
+  live only in tests; packet authorization required otherwise), simulated
+  success (catch-and-return-ok, log-done-without-work, echo expected output),
+  demo-input hardcoding, unwired features counted as done; any
+  double/simulation-only satisfaction is a BLOCKED row, never silent done.
+- Gates (verify/code-reviewer, both platforms): mandatory detection battery —
+  runtime-diff greps for doubles/monkeypatch/DI-default fakes, simulated
+  success patterns, wiring proof from real entrypoints, test-side fakery
+  (mock-of-SUT, assert-on-mock, new skip/xfail, golden updated to broken
+  output); mock-based test pass ≠ runtime completion, at least one non-double
+  evidence path per runtime REQ.
+- verify-runner (both platforms): honest-green rule — report skipped/removed/
+  weakened tests alongside any green summary, never bare exit codes.

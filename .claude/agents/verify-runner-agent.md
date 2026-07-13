@@ -58,3 +58,10 @@ Output format:
 - Source files changed unexpectedly:
 - Artifacts created, if known:
 - Residual uncertainty:
+
+Honest-green rule:
+
+- A suite made green by skip/xfail marks, deleted tests, loosened assertions
+  or updated goldens is NOT a pass — report exactly which tests were
+  skipped/removed/weakened alongside the summary; never report bare exit
+  codes without that census.
