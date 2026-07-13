@@ -41,3 +41,29 @@ Do not implement immediately if the decision is irreversible, destructive, or pu
 Rollback or recovery must not knowingly restore an exploitable or data-corrupting state.
 
 Completion gate: revised plan `ACCEPT` + required security findings resolved + required runner checks `PASS` + final `verify-agent` `PASS`.
+
+Model availability, fallback and budget:
+
+- Capability probe: at session start, if account alias availability is unknown,
+  the FIRST spawn of each pinned alias is the probe. Record results in a
+  session model-availability table and consult it before every later spawn —
+  an alias that failed once is never attempted again this session.
+- Fallback chain: on a model/alias-unavailable spawn error, retry with an
+  explicit per-call `model` override on the Agent tool, walking
+  fable -> opus -> sonnet -> haiku -> inherit, ONE attempt per hop; report the
+  tier actually used. Never claim the pinned alias ran after a downgrade;
+  BLOCKED only after the chain is exhausted.
+- Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
+  polling, status reads, test execution, evidence formatting, file location,
+  diff self-checks, trace updates — MUST take `haiku` or plain scripts, never
+  opus/fable. L2 exploration/implementation/targeted review runs `sonnet`.
+  ONLY architecture adjudication, adversarial plan review, conflict
+  arbitration and final security audit may use opus/fable.
+- Quality floor: adjudication roles (planner/plan-checker/verify/security/
+  code-review/semantic) floor at `sonnet` — never auto-degrade adjudication to
+  `haiku`; below the floor report BLOCKED instead (operator may explicitly
+  authorize, recorded in the trace). Mechanical/recording roles may go to
+  `haiku`; execution/exploration roles floor at `sonnet` unless the packet
+  explicitly allows `haiku` for trivial mechanical slices.
+- A top-tier round that adds no new evidence to the ledger is a routing
+  defect: log it and downgrade the next similar round.

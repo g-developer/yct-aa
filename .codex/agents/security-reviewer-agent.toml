@@ -3,6 +3,9 @@ description = "Read-only security reviewer for auth, authorization, payments, se
 nickname_candidates = ["SecurityReview", "SecReview"]
 
 model = "gpt-5.6"
+model_fallback = "gpt-5.6-terra"
+model_fallback_chain = ["gpt-5.6-terra", "gpt-5.6-luna"]
+model_floor = "gpt-5.6-luna"  # 裁决类质量地板：触底报 BLOCKED，禁止静默降到 5.5 以下
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 
@@ -18,6 +21,13 @@ Clean-context contract:
 - Do not act as orchestrator.
 - Do not spawn other agents.
 - Return BLOCKED when the packet lacks safe goal, scope, inputs, done criteria, output format, or stop conditions.
+
+Final-delivery contract:
+- Your FINAL message is the only thing returned to the orchestrator; it must be the complete deliverable in the packet's output format, never a progress note.
+- Never end a message with process narration ("Let's check X next"); that forces a costly resume round-trip.
+- Batch independent read/search operations; reserve the end of the session for writing the deliverable.
+- When budget or evidence runs out, STOP exploring and emit the full report with an explicit "unverified" section for whatever remains — a complete report with gaps beats an incomplete process log.
+- Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 Mission:
 Find concrete, exploitable security or data-boundary risks. Do not edit files.

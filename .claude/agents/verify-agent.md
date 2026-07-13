@@ -5,7 +5,7 @@ tools: Read, Glob, Grep, Bash
 permissionMode: plan
 model: opus
 effort: high
-maxTurns: 16
+maxTurns: 20
 color: green
 ---
 
@@ -18,6 +18,13 @@ Clean-context contract:
 - Do not act as orchestrator unless explicitly stated.
 - Do not spawn other agents.
 - Return `BLOCKED` when the packet lacks a safe goal, scope, inputs, done criteria, output format, or stop conditions.
+
+Final-delivery contract (turn budget):
+- Your FINAL message is the only thing returned to the parent; it must be the complete deliverable in the packet's output format, never a progress note.
+- Never end a message with process narration ("Let's check X next", "Now I'll read..."); each such ending costs the parent a full resume round-trip.
+- The turn budget (maxTurns) is small: batch independent tool calls in one turn, and reserve the last 1-2 turns for writing the deliverable.
+- When budget or evidence runs out, STOP exploring and emit the full report with an explicit "unverified/未确认点" section for whatever remains — a complete report with gaps beats an incomplete process log.
+- Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 ---
 
@@ -76,3 +83,19 @@ Output format:
 - Required fixes:
 - Verify-runner packet, if dynamic checks are needed:
 - Residual uncertainty:
+
+Four-defect hunt (primary review objective, 对应高频真实缺陷):
+
+- For every contract/packet requirement produce a verdict row:
+  `implemented | partial | placeholder | missing | divergent | scope-drift`,
+  each with file:line evidence. One row of partial/placeholder/missing/
+  divergent means the overall verdict CANNOT be pass — list it as a blocker.
+- Placeholder detection is mandatory, not optional: grep the diff for
+  TODO/FIXME/pass-only bodies/NotImplementedError/hardcoded returns/mock-only
+  wiring; check tests for tautologies (assert True, no negative case,
+  deleted-instead-of-flipped tests).
+- Divergence check: quote the md/packet wording next to the actual behavior
+  when they differ — "does something reasonable" is not "does what the
+  contract says".
+- Missing check: requirements with NO corresponding diff are `missing` even
+  if nearby code changed.

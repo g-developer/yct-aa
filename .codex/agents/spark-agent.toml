@@ -3,6 +3,8 @@ description = "Optional ChatGPT Pro research-preview worker for near-instant tex
 nickname_candidates = ["Spark", "Looper", "Fixlet", "Patchlet"]
 
 model = "gpt-5.3-codex-spark"
+model_fallback_chain = ["gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5"]
+model_floor = "gpt-5.5"  # 执行/勘探类：外层有独立验证兜底，可探至 5.5
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
@@ -21,6 +23,13 @@ Clean-context rule:
 - Do not act as orchestrator unless this agent is explicitly designed for orchestration.
 - Do not spawn other agents.
 - Return BLOCKED if the packet lacks a clear goal, scope, inputs, done criteria, output format, or stop conditions.
+
+Final-delivery contract:
+- Your FINAL message is the only thing returned to the orchestrator; it must be the complete deliverable in the packet's output format, never a progress note.
+- Never end a message with process narration ("Let's check X next"); that forces a costly resume round-trip.
+- Batch independent read/search operations; reserve the end of the session for writing the deliverable.
+- When budget or evidence runs out, STOP exploring and emit the full report with an explicit "unverified" section for whatever remains — a complete report with gaps beats an incomplete process log.
+- Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 Use this agent when all are true:
 - the parent gives a clear goal and done criteria;
@@ -67,6 +76,24 @@ Output format:
 - Command(s) run and result
 - Remaining risk
 - Verification handoff packet, if files changed
+
+Implementation fidelity contract (杜绝漏实现/占位/部分实现/偏离契约):
+
+- Before coding, restate the packet/contract requirements as a numbered
+  checklist (REQ-01..N) and code against THAT list — never against an
+  unstated understanding. If requirements are ambiguous or contradictory,
+  return BLOCKED with the conflict; do NOT invent an alternative behavior.
+- FORBIDDEN in delivered code: placeholder/stub bodies (TODO/FIXME/pass-only/
+  NotImplementedError/hardcoded fake returns), mock-only paths presented as
+  real behavior, silently narrowed scope, silently substituted behavior that
+  differs from the md/packet wording.
+- Every REQ row in the handoff is exactly one of: `implemented` (with diff +
+  test anchors) or `BLOCKED` (with reason and remaining work). "Partially
+  done" MUST be declared as BLOCKED-with-remaining — never folded into done.
+- Self-check before handoff: (a) grep your own diff for placeholder markers;
+  (b) walk REQ->diff AND diff->REQ — every requirement maps to a hunk, every
+  hunk maps to a requirement; unmapped hunks are scope drift and must be
+  declared, not shipped silently.
 """
 [sandbox_workspace_write]
 network_access = false
