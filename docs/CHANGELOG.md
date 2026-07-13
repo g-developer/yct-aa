@@ -125,3 +125,18 @@ budget/model accounting.
   conclusion reuse) and a routing & budget trace (per-spawn model
   requested/used + token usage + evidence delta; top-tier spend without
   evidence delta = routing defect -> downgrade next round).
+
+## 2026-07-13 v2.1: per-role quality floors; chains extended to gpt-5.5
+
+- Chains may now descend to gpt-5.5 (and, for mechanical roles, the account's
+  lowest available tier), but with per-role `model_floor`:
+  adjudication roles (planner/plan-checker/verify/security/code-review/
+  semantic) floor at gpt-5.6-luna — a weak model rubber-stamping a review is a
+  fake-completion vector, so below the floor the round reports BLOCKED unless
+  the operator explicitly authorizes (trace-recorded). Execution/exploration
+  floor at gpt-5.5 (independent verification guards them); mechanical floor
+  none.
+- Claude symmetric floors: adjudication never auto-degrades below `sonnet`;
+  mechanical/recording may take `haiku`.
+- Chain entries absent from an account's catalog fail their hop and continue —
+  ids like gpt-5.5/luna are placeholders to align with the real catalog.

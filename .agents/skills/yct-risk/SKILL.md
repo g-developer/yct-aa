@@ -61,5 +61,13 @@ Model availability, fallback and budget:
   exploration/implementation/targeted review runs mid tier. ONLY architecture
   adjudication, adversarial plan review, conflict arbitration and final
   security audit may use the top tier.
+- Quality floor: each agent may declare `model_floor`. Adjudication roles
+  (planner/plan-checker/verify/security/code-review/semantic) floor at
+  gpt-5.6-luna — a weak model rubber-stamping a review is worse than BLOCKED,
+  so below the floor report BLOCKED instead of degrading silently; the
+  operator may explicitly authorize a below-floor run, recorded in the trace.
+  Execution/exploration roles floor at gpt-5.5 (independent verification
+  guards them); mechanical roles may take the lowest available tier. Chain
+  entries below an account's real catalog simply fail their hop and continue.
 - A top-tier round that adds no new evidence to the ledger is a routing
   defect: log it and downgrade the next similar round.

@@ -58,3 +58,7 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
 
 机械操作强制低成本路径是硬规则；每轮的模型选择与 token 消耗记入会话路由台账，
 高档消耗无证据增量 → 记为路由缺陷并在下一轮降档（Double-loop）。
+
+质量地板：裁决类角色（planner/plan-checker/verify/security/code-review/semantic）
+降档地板为 `sonnet`——弱模型盖章式通过比 BLOCKED 更危险；触底改报 BLOCKED，
+操作者显式授权方可破例（记入路由台账）。机械/记录类可至 `haiku`。

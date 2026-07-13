@@ -51,5 +51,11 @@ Model availability, fallback and budget:
   opus/fable. L2 exploration/implementation/targeted review runs `sonnet`.
   ONLY architecture adjudication, adversarial plan review, conflict
   arbitration and final security audit may use opus/fable.
+- Quality floor: adjudication roles (planner/plan-checker/verify/security/
+  code-review/semantic) floor at `sonnet` — never auto-degrade adjudication to
+  `haiku`; below the floor report BLOCKED instead (operator may explicitly
+  authorize, recorded in the trace). Mechanical/recording roles may go to
+  `haiku`; execution/exploration roles floor at `sonnet` unless the packet
+  explicitly allows `haiku` for trivial mechanical slices.
 - A top-tier round that adds no new evidence to the ledger is a routing
   defect: log it and downgrade the next similar round.

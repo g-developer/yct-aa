@@ -3,7 +3,8 @@ description = "Read-only explorer for macOS/Linux codebase structure, imports, d
 nickname_candidates = ["Scout", "Mapper", "Pathfinder"]
 
 model = "gpt-5.6-terra"
-model_fallback_chain = ["gpt-5.6-luna"]
+model_fallback_chain = ["gpt-5.6-luna", "gpt-5.5"]
+model_floor = "gpt-5.5"  # 执行/勘探类：外层有独立验证兜底，可探至 5.5
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 
