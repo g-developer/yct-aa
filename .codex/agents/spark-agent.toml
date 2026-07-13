@@ -3,6 +3,7 @@ description = "Optional ChatGPT Pro research-preview worker for near-instant tex
 nickname_candidates = ["Spark", "Looper", "Fixlet", "Patchlet"]
 
 model = "gpt-5.3-codex-spark"
+model_fallback_chain = ["gpt-5.6-terra", "gpt-5.6-luna"]
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 

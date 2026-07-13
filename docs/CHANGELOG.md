@@ -101,3 +101,27 @@ was per-role static, not availability/budget-aware; long many-item goals
 - yct-aa skills + `.claude/rules/subagent-orchestration.md`: long-goal slicing
   (3-5 items/packet, same-instance continuation, incremental delta matrices,
   no re-reading unchanged files across slices).
+
+## 2026-07-13 v2: capability probe, fallback chains, tier matrix, exploration dedup, routing trace (from second external Codex review, ~5.15M-token blocked goal)
+
+Second review confirmed the pack acted as a "task router" but not an
+"entitlement-aware, capability-aware, budget-aware orchestrator": role-bound
+static models, no probe, dead failures on gpt-5.6-only pins, top-tier models
+doing mechanical rounds, overlapping parallel exploration, no per-round
+budget/model accounting.
+
+- All 17 Codex agents: `model_fallback_chain` (gpt-5.6 -> gpt-5.6-terra ->
+  gpt-5.6-luna; terra pins -> luna; spark -> terra -> luna).
+- Both platforms' routing skills upgraded to v2 protocol: session capability
+  probe + availability table (a failed model is never re-attempted), one
+  attempt per chain hop, mandatory downgrade reporting.
+- Tier-by-criticality hard rule (skills + claude-model-routing.md matrix):
+  mechanical operations (polling/status/tests/evidence formatting/file
+  location/diff self-checks/trace updates) forced to lowest tier or scripts;
+  top tier reserved exclusively for architecture adjudication, adversarial
+  review, conflict arbitration, final security audit.
+- yct-aa skills: parallel exploration hygiene (disjoint MECE scopes, ~120-line
+  evidence caps, session evidence ledger with "do not re-derive" facts,
+  conclusion reuse) and a routing & budget trace (per-spawn model
+  requested/used + token usage + evidence delta; top-tier spend without
+  evidence delta = routing defect -> downgrade next round).

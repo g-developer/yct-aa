@@ -27,13 +27,22 @@ Use `$yct-risk` discipline for auth, security/data boundaries, migrations, concu
 
 Model availability, fallback and budget:
 
-- Role model pins are ceilings, not guarantees. If an agent spawn fails with a
-  model-unavailable/entitlement error, retry ONCE with that agent's
-  `model_fallback` from `.codex/agents/*.toml` (default `gpt-5.6-terra`), then
-  report the downgrade in the final answer. Never retry the same unavailable
-  model, and never claim the pinned tier ran after a downgrade.
-- Remember availability for the rest of the session: after one failure of a
-  pinned model, spawn later agents of that tier directly on the fallback.
-- Within a role's ceiling, pick the model by task complexity and remaining
-  budget: an L2 plan may run on the fallback tier; reserve top-tier spend for
-  L3/L4 adjudication, adversarial review and security.
+- Capability probe: at session start, if account model availability is unknown,
+  probe once (CLI model list if the runtime exposes one; otherwise the FIRST
+  spawn of each pinned tier is the probe). Record results in a session
+  model-availability table and consult it before every later spawn — a model
+  that failed once is never attempted again this session.
+- Fallback chain: on a model-unavailable/entitlement error, walk the agent's
+  `model_fallback_chain` from `.codex/agents/*.toml`
+  (default gpt-5.6 -> gpt-5.6-terra -> gpt-5.6-luna), ONE attempt per hop;
+  report the tier actually used. Never claim the pinned tier ran after a
+  downgrade; BLOCKED only after the chain is exhausted.
+- Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
+  polling, status reads, test execution, evidence formatting, file location,
+  migration-number checks, diff self-checks, trace updates — MUST take the
+  lowest available tier or plain scripts, never a top-tier model. L2
+  exploration/implementation/targeted review runs mid tier. ONLY architecture
+  adjudication, adversarial plan review, conflict arbitration and final
+  security audit may use the top tier.
+- A top-tier round that adds no new evidence to the ledger is a routing
+  defect: log it and downgrade the next similar round.

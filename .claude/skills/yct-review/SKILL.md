@@ -48,13 +48,20 @@ Final output:
 
 Model availability, fallback and budget:
 
-- Role model pins (agent frontmatter) are ceilings, not guarantees. If a spawn
-  fails with a model/alias-unavailable error, retry ONCE with an explicit
-  per-call `model` override on the Agent tool, walking down
-  fable -> opus -> sonnet -> inherit, and report the downgrade. Never retry the
-  same unavailable alias, and never claim the pinned tier ran after a downgrade.
-- Remember availability for the rest of the session: after one failure of an
-  alias, spawn later agents of that tier directly on the working override.
-- Within a role's ceiling, pick the model by task complexity and remaining
-  budget: an L2 plan may run planner on `sonnet` via per-call override; reserve
-  top-tier spend for L3/L4 adjudication, adversarial review and security.
+- Capability probe: at session start, if account alias availability is unknown,
+  the FIRST spawn of each pinned alias is the probe. Record results in a
+  session model-availability table and consult it before every later spawn —
+  an alias that failed once is never attempted again this session.
+- Fallback chain: on a model/alias-unavailable spawn error, retry with an
+  explicit per-call `model` override on the Agent tool, walking
+  fable -> opus -> sonnet -> haiku -> inherit, ONE attempt per hop; report the
+  tier actually used. Never claim the pinned alias ran after a downgrade;
+  BLOCKED only after the chain is exhausted.
+- Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
+  polling, status reads, test execution, evidence formatting, file location,
+  diff self-checks, trace updates — MUST take `haiku` or plain scripts, never
+  opus/fable. L2 exploration/implementation/targeted review runs `sonnet`.
+  ONLY architecture adjudication, adversarial plan review, conflict
+  arbitration and final security audit may use opus/fable.
+- A top-tier round that adds no new evidence to the ledger is a routing
+  defect: log it and downgrade the next similar round.
