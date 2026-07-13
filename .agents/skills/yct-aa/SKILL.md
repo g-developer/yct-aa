@@ -57,3 +57,26 @@ Final response:
 - Changed files.
 - Verification.
 - Risks / not checked.
+
+Model availability, fallback and budget:
+
+- Role model pins are ceilings, not guarantees. If an agent spawn fails with a
+  model-unavailable/entitlement error, retry ONCE with that agent's
+  `model_fallback` from `.codex/agents/*.toml` (default `gpt-5.6-terra`), then
+  report the downgrade in the final answer. Never retry the same unavailable
+  model, and never claim the pinned tier ran after a downgrade.
+- Remember availability for the rest of the session: after one failure of a
+  pinned model, spawn later agents of that tier directly on the fallback.
+- Within a role's ceiling, pick the model by task complexity and remaining
+  budget: an L2 plan may run on the fallback tier; reserve top-tier spend for
+  L3/L4 adjudication, adversarial review and security.
+
+Long goals (many-item contracts, e.g. GDR-01..24):
+
+- Slice into bounded packets of 3-5 items; never hand one agent the whole span.
+- Reuse the SAME agent instance for adjacent slices (continuation reuses its
+  cached context); do not respawn per slice.
+- Maintain evidence/trace matrices incrementally - append delta rows per slice,
+  never rebuild the full matrix from scratch.
+- Do not re-read unchanged files across slices; cite prior slice anchors
+  (file:line) instead.

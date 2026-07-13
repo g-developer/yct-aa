@@ -29,3 +29,13 @@ If the local Claude Code version or organization policy does not support a confi
   file bodies, treat it as a role-contract defect and report it, not as normal output.
 - Long-running review loops (multi-round plan challenge) should stay on ONE agent instance
   across rounds; each round sends only the delta packet.
+
+Long goals (many-item contracts, e.g. GDR-01..24):
+
+- Slice into bounded packets of 3-5 items; never hand one agent the whole span.
+- Reuse the SAME agent instance for adjacent slices (continuation reuses its
+  cached context); do not respawn per slice.
+- Maintain evidence/trace matrices incrementally - append delta rows per slice,
+  never rebuild the full matrix from scratch.
+- Do not re-read unchanged files across slices; cite prior slice anchors
+  (file:line) instead.

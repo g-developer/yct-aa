@@ -37,3 +37,26 @@ Risk override: auth, security/data boundaries, migrations, concurrency, public A
 Recurring routing/instruction failures use Double-loop Learning through `semantic-review-agent`: correct both the immediate defect and the underlying rule or feedback gap.
 
 Final response must start with the conclusion and include changed files, verification, and residual risk.
+
+Model availability, fallback and budget:
+
+- Role model pins (agent frontmatter) are ceilings, not guarantees. If a spawn
+  fails with a model/alias-unavailable error, retry ONCE with an explicit
+  per-call `model` override on the Agent tool, walking down
+  fable -> opus -> sonnet -> inherit, and report the downgrade. Never retry the
+  same unavailable alias, and never claim the pinned tier ran after a downgrade.
+- Remember availability for the rest of the session: after one failure of an
+  alias, spawn later agents of that tier directly on the working override.
+- Within a role's ceiling, pick the model by task complexity and remaining
+  budget: an L2 plan may run planner on `sonnet` via per-call override; reserve
+  top-tier spend for L3/L4 adjudication, adversarial review and security.
+
+Long goals (many-item contracts, e.g. GDR-01..24):
+
+- Slice into bounded packets of 3-5 items; never hand one agent the whole span.
+- Reuse the SAME agent instance for adjacent slices (continuation reuses its
+  cached context); do not respawn per slice.
+- Maintain evidence/trace matrices incrementally - append delta rows per slice,
+  never rebuild the full matrix from scratch.
+- Do not re-read unchanged files across slices; cite prior slice anchors
+  (file:line) instead.

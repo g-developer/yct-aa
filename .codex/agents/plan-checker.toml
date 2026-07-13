@@ -3,6 +3,7 @@ description = "Adversarial plan reviewer for missing requirements, unsafe assump
 nickname_candidates = ["Skeptic", "Auditor", "Breaker", "RiskReader"]
 
 model = "gpt-5.6"
+model_fallback = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 

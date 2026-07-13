@@ -36,3 +36,13 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
   packet construction, and integration of results.
 - Exception: single-file edits where the packet-writing overhead exceeds the edit itself
   (L0/L1), per the AGENTS.md criticality table.
+
+## Failure re-route & dynamic selection (2026-07-13)
+
+- Spawn failure with a model/alias-unavailable error -> retry once with an
+  explicit per-call `model` override on the Agent tool, walking down
+  fable -> opus -> sonnet -> inherit; report the downgrade. Never repeat the
+  same unavailable alias, and never claim the pinned tier ran after a downgrade.
+- Frontmatter pins are ceilings: for low-complexity instances of a role
+  (an L2 plan, a light diff review), the parent should pass a cheaper per-call
+  `model` override, guided by criticality and remaining budget.

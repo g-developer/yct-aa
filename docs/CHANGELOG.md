@@ -80,3 +80,24 @@ round-trips and roughly 30% duplicated reasoning spend across ~2M subagent token
   of pasted bodies in packets, one instance per multi-round review loop.
 - `.claude/rules/claude-model-routing.md`: parent-tier economy — fable/opus parents
   must not do inline work the route table assigns to sonnet/haiku workers.
+
+## 2026-07-13 model fallback, dynamic selection & long-goal economy (from external Codex-session review)
+
+Observed on a ChatGPT account without gpt-5.6: eight Codex agents pinned to
+gpt-5.6 (planner/verify/plan-checker/executor/code-reviewer/security/semantic/
+browser) failed to launch with no downgrade path, burning dead calls; routing
+was per-role static, not availability/budget-aware; long many-item goals
+(GDR-01..24) re-read context and rebuilt evidence matrices per round.
+
+- Codex agents pinned to gpt-5.6: added `model_fallback = "gpt-5.6-terra"`;
+  spark keeps its existing agent-level reroute.
+- All four routing skills on BOTH platforms (.agents + .claude yct-aa/risk/
+  fix/review): "Model availability, fallback and budget" protocol — one retry
+  on the declared fallback, session-wide availability memory, per-task tier
+  choice within the role ceiling, mandatory downgrade reporting.
+- `.claude/rules/claude-model-routing.md`: failure re-route via per-call Agent
+  `model` override (fable→opus→sonnet→inherit) + "pins are ceilings" dynamic
+  selection.
+- yct-aa skills + `.claude/rules/subagent-orchestration.md`: long-goal slicing
+  (3-5 items/packet, same-instance continuation, incremental delta matrices,
+  no re-reading unchanged files across slices).

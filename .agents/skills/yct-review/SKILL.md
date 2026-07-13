@@ -36,3 +36,16 @@ Return:
 - Test-strategy adequacy when triggered.
 - What was not checked.
 - Residual uncertainty and the exact next evidence needed.
+
+Model availability, fallback and budget:
+
+- Role model pins are ceilings, not guarantees. If an agent spawn fails with a
+  model-unavailable/entitlement error, retry ONCE with that agent's
+  `model_fallback` from `.codex/agents/*.toml` (default `gpt-5.6-terra`), then
+  report the downgrade in the final answer. Never retry the same unavailable
+  model, and never claim the pinned tier ran after a downgrade.
+- Remember availability for the rest of the session: after one failure of a
+  pinned model, spawn later agents of that tier directly on the fallback.
+- Within a role's ceiling, pick the model by task complexity and remaining
+  budget: an L2 plan may run on the fallback tier; reserve top-tier spend for
+  L3/L4 adjudication, adversarial review and security.

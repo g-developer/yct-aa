@@ -3,6 +3,7 @@ description = "Read-only code reviewer for diffs or specified files. Use for cor
 nickname_candidates = ["CodeReview", "Reviewer"]
 
 model = "gpt-5.6"
+model_fallback = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 

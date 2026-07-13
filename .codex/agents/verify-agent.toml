@@ -3,6 +3,7 @@ description = "Independent static verifier for goal match, code correctness, imp
 nickname_candidates = ["Verifier", "Inspector", "Sentinel", "Checkmate"]
 
 model = "gpt-5.6"
+model_fallback = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 

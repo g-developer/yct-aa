@@ -41,3 +41,16 @@ Do not implement immediately if the decision is irreversible, destructive, or pu
 Rollback or recovery must not knowingly restore an exploitable or data-corrupting state.
 
 Completion gate: revised plan `ACCEPT` + required security findings resolved + required runner checks `PASS` + final `verify-agent` `PASS`.
+
+Model availability, fallback and budget:
+
+- Role model pins (agent frontmatter) are ceilings, not guarantees. If a spawn
+  fails with a model/alias-unavailable error, retry ONCE with an explicit
+  per-call `model` override on the Agent tool, walking down
+  fable -> opus -> sonnet -> inherit, and report the downgrade. Never retry the
+  same unavailable alias, and never claim the pinned tier ran after a downgrade.
+- Remember availability for the rest of the session: after one failure of an
+  alias, spawn later agents of that tier directly on the working override.
+- Within a role's ceiling, pick the model by task complexity and remaining
+  budget: an L2 plan may run planner on `sonnet` via per-call override; reserve
+  top-tier spend for L3/L4 adjudication, adversarial review and security.
