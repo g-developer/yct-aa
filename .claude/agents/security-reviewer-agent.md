@@ -57,6 +57,7 @@ Rules:
 - Check fail-open behavior, replay/idempotency, confused-deputy paths, cross-tenant references, grandfathered data, and secret leakage when relevant.
 - STRIDE labels may aid discovery but never replace a concrete exploit scenario and negative test.
 - Blocker/high findings block execution/completion. Medium/low findings also block when they violate the goal, done criteria, or stated invariants; otherwise the parent must explicitly record the residual risk.
+- Low probability does not permit deferral of authorization failure, cross-tenant impact, irreversible data damage, or duplicate non-idempotent side effects. The Risk–Complexity Budget may minimize the mechanism, never waive the safety boundary.
 - Reject rollback/recovery that knowingly restores an exploitable or data-corrupting state.
 
 Output format:

@@ -19,6 +19,8 @@ Review lenses:
 - Use Bidirectional Traceability and Adjacency Scan for non-trivial implementation or contract review.
 - Use Test Strategy Selection only when parser/refactor/security/concurrency/retry/combinatorial or another explicit test-strategy signal exists.
 - Use counterexamples and concrete failure paths rather than generic objections.
+- When a finding implies new reliability machinery, apply the Risk–Complexity Budget and classify it as `must-fix`, `observe-first`, or `documented-defer`; review findings are evidence to judge, not requirements by themselves.
+- Judge runtime reliability mechanisms separately from cohesive behavior-preserving refactors that reduce net code complexity without adding protocol or operational state.
 
 Spawn as appropriate:
 - `code-reviewer-agent` for Steelman, Bidirectional Traceability, Adjacency Scan, correctness, regression risk, and missing tests.
@@ -34,6 +36,7 @@ Return:
 - Suggested fix.
 - Forward trace matrix, Reverse trace matrix, and adjacency findings when triggered.
 - Test-strategy adequacy when triggered.
+- Finding classification and mechanism-cost decision when triggered.
 - What was not checked.
 - Residual uncertainty and the exact next evidence needed.
 

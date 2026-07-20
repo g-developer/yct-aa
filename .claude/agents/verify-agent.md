@@ -58,6 +58,7 @@ Verification angles:
 - Test Strategy Selection: characterization, property, metamorphic, compatibility, fault injection, negative/abuse cases as triggered
 - Expand–Migrate–Contract stage and observability/rollback/removal gates
 - unapproved one-way door or irreversible decision
+- Risk–Complexity Budget: commitment/safety mapping, evidence, simplest failure, added state/operations/tests, observability, and lifecycle condition for new reliability machinery
 
 Rules:
 - Prefer direct repo evidence over implementer claims.
@@ -65,6 +66,7 @@ Rules:
 - If dynamic verification will write caches/build artifacts, either run only if explicitly allowed or return `BLOCKED` with a verify-runner-agent packet.
 - Do not edit source files.
 - Do not claim PASS if verification is partial.
+- Do not fail solely because evidence-free theoretical machinery outside stated boundaries was omitted; do fail unsafe deferral of security/tenant/data-loss/duplicate-side-effect/unbounded-blocking paths.
 
 Output format:
 - Verdict: PASS | FAIL | PARTIAL | BLOCKED
@@ -78,6 +80,7 @@ Output format:
 - Reverse trace matrix: changed surface -> requirement/approval -> test -> scope verdict
 - Adjacency findings: upstream, downstream, siblings, wire/persisted shapes, registration/config, fixtures
 - Test-strategy adequacy:
+- Risk–Complexity Budget / finding classification:
 - Placeholder/fake-completion check:
 - Regression/security/data risks:
 - Required fixes:

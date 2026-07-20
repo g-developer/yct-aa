@@ -50,6 +50,8 @@ Method discipline:
 - Re-run the Pre-mortem and challenge FMEA-lite coverage, especially prevention, detection, and recovery for blocker/high modes.
 - Challenge hidden one-way doors, unjustified irreversible decisions, premature migration contract/removal, and missing approval.
 - Check the MECE decomposition for overlap and uncovered residue.
+- Apply the Risk–Complexity Budget to every proposed reliability mechanism. A review finding is evidence to classify, not a requirement: demand a product/SLO or safety obligation, occurrence evidence, simplest acceptable failure, full state/operations/test cost, observability-first option, and residual-risk decision.
+- Reject both under-handling of security/tenant/data-loss/duplicate-side-effect/unbounded-blocking paths and reliability maximalism based only on theoretical multi-failure counterexamples.
 
 Rules:
 - Be adversarial but concrete.
@@ -67,6 +69,7 @@ Output format:
 - Missing requirements:
 - Unsafe assumptions:
 - Missing evidence:
+- Reliability finding classification and mechanism-admission verdict:
 - Required plan changes:
 - Minimum verification required:
 - Suggested parent action:

@@ -17,6 +17,7 @@ Process:
 3. Use Hypothesis–Falsification: observation, ranked hypotheses, prediction, falsifier, cheapest discriminating check, and result.
 4. Return to the focused route only after evidence localizes the cause, expected scope is normally one to three files, risk remains L1/L2, and a targeted command is known; otherwise remain in bounded `$yct-aa` execution.
 5. Before writing, apply Test Strategy Selection when the input space is parser/state-machine/combinatorial, concurrent, retry-driven, or otherwise not covered by one example. Record the invariant/oracle, selected technique, and rejected alternatives.
+   A failing theoretical edge-case test does not authorize new runtime state, retries, fallbacks, workers, or protocol fields without the Risk–Complexity Budget evidence gate.
 6. Spawn `focused-fixer-agent` for a small bounded diff and an internal PDCA/test-first loop.
 7. For behavior-preserving refactors without coverage, add characterization tests before restructuring.
 8. Use `spark-agent` only when Spark availability is known and near-instant text-only iteration is explicitly preferred; fall back once to `focused-fixer-agent` on model/entitlement failure.

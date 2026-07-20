@@ -5,10 +5,11 @@
 - Added a compact task-signal method matrix to `AGENTS.md` and a single detailed owner in `docs/METHODS.md`.
 - Restored executable First Principles, MECE, Assumption/Invariant Ledger, PDCA, Pre-mortem, FMEA-lite, adversarial review, decision-record, and negative-testing contracts while keeping the shared `AGENTS.md` below its 22KB static budget.
 - Added Hypothesis–Falsification debugging, Steelman + Red Team, Trust Boundary + Abuse Cases, Bidirectional Traceability + Adjacency Scan, One-way/Two-way Door classification, Expand–Migrate–Contract, Test Strategy Selection, OODA, Evidence Triangulation, and Double-loop Learning.
+- Added Risk–Complexity Budget and observability-first reliability: must-handle safety/product paths, evidence-based deferral of theoretical multi-failure findings, admission gates for new runtime/protocol machinery, bounded retry ownership, lifecycle conditions, and separate treatment of code-quality refactors.
 - Wired task-appropriate methods into matching Codex and Claude explorer, fixer, planner, plan-checker, executor, reviewer, verifier, security, research, docs, alignment, and semantic-review roles.
 - Updated `yct-aa`, `yct-risk`, `yct-fix`, and `yct-review` on both platforms to select and transmit method contracts without method ceremony.
 - Added Claude-specific method-to-role mapping while keeping detailed definitions tool-neutral.
-- Expanded routing fixtures from 15 to 24 cases with structured `expected_methods` coverage.
+- Expanded routing fixtures from 15 to 28 cases with structured `expected_methods` coverage, including duplicate side effects, SLO reconnects, evidence-free reliability maximalism, and refactor/mechanism separation.
 - Added static cross-platform method-parity tests and method over-trigger safeguards.
 - Added clean-context qualitative comparison evidence for auth-risk and unknown-parser scenarios; used evaluator findings to close security timing/composite gates and diagnostic/test-strategy regression locks.
 - Upgraded fixtures to closed-world per-case criticality, route, trigger-evidence, forbidden-method, and gate contracts; removed the arbitrary method-count ceiling.

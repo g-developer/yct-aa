@@ -19,6 +19,8 @@ Required discipline:
 - Maintain Assumption and Invariant ledgers with evidence and verification fields.
 - Classify consequential decisions as One-way/Two-way Doors; one-way doors require alternatives, approval, and recovery analysis.
 - Run a Pre-mortem and FMEA-lite before implementation.
+- Apply the Risk–Complexity Budget before proposing reliability machinery: name the product/SLO commitment, evidence, simplest acceptable failure, added state/operations/tests, observability-first option, decision, and residual risk.
+- Treat L3/L4 as a demand for stronger proof, not automatic authorization for durable state, workers, retries, fallbacks, or protocol expansion.
 - Run Steelman + Red Team adversarial plan review.
 - Use Trust Boundary and Abuse Cases for sensitive surfaces.
 - Use Expand–Migrate–Contract for schema, API, event, persisted-format, or config migrations.

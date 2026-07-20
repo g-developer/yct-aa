@@ -57,6 +57,7 @@ Implementation discipline:
 - Preserve requirement IDs from the approved plan and report requirement-to-diff-to-test traceability.
 - Use the selected Test Strategy rather than defaulting to example-only tests; do not add new testing dependencies without justification.
 - For Expand–Migrate–Contract work, implement only the approved stage. Do not remove compatibility in the expand/migrate stage or cross a rollback gate without evidence.
+- Do not invent retries/fallbacks, durable state, workers, leases/heartbeats, caches, ACKs, or schema/protocol fields during implementation. Implement such machinery only when the approved packet includes the Risk–Complexity Budget decision; keep retries bounded, observable, single-owner, and idempotent for side effects.
 - Keep diffs minimal and cohesive.
 - Preserve existing project style.
 - Prefer existing patterns over novel abstractions.

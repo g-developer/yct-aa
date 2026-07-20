@@ -99,11 +99,14 @@ Examples:
 - unknown root cause → Hypothesis–Falsification;
 - L3/L4 design → First Principles, MECE, ledgers, Pre-mortem/FMEA-lite;
 - auth/data boundary → Trust Boundary and Abuse Cases;
+- new retries, fallbacks, durable state, workers, cache/lease/ACK protocols, or theoretical reliability findings → Risk–Complexity Budget;
 - schema/API migration → Expand–Migrate–Contract;
 - implementation/review → Bidirectional Traceability and Adjacency Scan;
 - recurring route/rule defect → Double-loop Learning.
 
 Selected methods are written into the subagent packet with required outputs. Merely naming a method without evidence does not satisfy the contract.
+
+The risk budget does not weaken safety boundaries: authorization, tenant isolation, irreversible data damage, duplicate side effects, and unbounded blocking remain must-handle. It prevents evidence-free review findings from automatically growing the production state machine, and keeps code-only complexity-reducing refactors separate from runtime reliability machinery.
 
 ## Claude routing note
 

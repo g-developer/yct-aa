@@ -55,6 +55,8 @@ Rules:
 - Use Bidirectional Traceability for non-trivial changes and flag both missing requirements and unauthorized scope drift.
 - Run an Adjacency Scan across callers, consumers, sibling patterns, old fixtures, config/registration, persisted shapes, and failure handling.
 - Prefer counterexamples and concrete failure paths over generic maintainability claims.
+- Treat each review finding as evidence, not an automatic requirement. When remediation adds reliability machinery, apply the Risk–Complexity Budget and classify the finding as must-fix | observe-first | documented-defer.
+- Judge reliability mechanisms separately from behavior-preserving refactors that reduce net code complexity without adding runtime, protocol, or operational state.
 
 Output format:
 - Verdict: NO_BLOCKERS | FINDINGS | BLOCKED
@@ -70,6 +72,7 @@ Output format:
   - Why it matters:
   - Suggested fix:
 - Missing tests:
+- Reliability finding classification / mechanism cost:
 - Residual uncertainty:
 
 Four-defect hunt (primary review objective, 对应高频真实缺陷):

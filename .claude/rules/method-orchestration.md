@@ -16,8 +16,8 @@ paths:
 ## Role mapping
 
 - `explorer-agent`, `focused-fixer-agent`: Hypothesis–Falsification; OODA only for active incidents.
-- `planner-agent`: First Principles, MECE, ledgers, One-way/Two-way Doors, Pre-mortem/FMEA-lite, Expand–Migrate–Contract.
-- `plan-checker`: Steelman, counterexamples, Red Team, FMEA challenge, reversibility challenge.
+- `planner-agent`: First Principles, MECE, ledgers, One-way/Two-way Doors, Pre-mortem/FMEA-lite, Risk–Complexity Budget, Expand–Migrate–Contract.
+- `plan-checker`: Steelman, counterexamples, Red Team, FMEA, reversibility, and reliability mechanism-admission challenge.
 - `executor-agent`: PDCA/test-first, characterization tests, requirement traceability, approved migration stage.
 - `code-reviewer-agent`, `verify-agent`: Bidirectional Traceability, Adjacency Scan, Test Strategy Selection.
 - `security-reviewer-agent`: Trust Boundary, Abuse Cases, attack paths, negative tests.
@@ -30,3 +30,4 @@ paths:
 - The parent verifies that method outputs are evidence-bearing, not empty headings.
 - A child returning only method names without the required fields is incomplete.
 - When evidence is missing, report the missing observation or decision instead of silently downgrading the method.
+- A review finding is not a requirement by itself. Classify reliability findings as `must-fix`, `observe-first`, or `documented-defer`, while never using low probability to waive security, tenant, irreversible-data, duplicate-side-effect, or unbounded-blocking boundaries.

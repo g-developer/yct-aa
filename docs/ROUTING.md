@@ -30,7 +30,9 @@ Method selection occurs after task/risk classification and before agent selectio
 4. Route each method to its owning capability.
 5. Reject empty method headings and method dumping during verification.
 
-Examples: explorers/fixers own hypothesis falsification, planners own first-principles/MECE/ledgers/FMEA/migration staging, security reviewers own trust boundaries and abuse cases, verifiers own bidirectional traceability and test-strategy adequacy, and semantic reviewers own double-loop learning.
+Examples: explorers/fixers own hypothesis falsification, planners own first-principles/MECE/ledgers/FMEA/risk–complexity budgeting/migration staging, plan and code reviewers classify theoretical findings instead of promoting them directly to requirements, security reviewers own trust boundaries and abuse cases, verifiers own bidirectional traceability and test-strategy adequacy, and semantic reviewers own double-loop learning.
+
+Risk routing and mechanism admission are separate decisions. A safety or production signal can require L3 review while the accepted implementation remains a timeout, fail-fast path, local boundary fix, or observability-only change. New durable state, workers, retries/fallbacks, leases, ACKs, and protocol fields still require a current commitment or safety invariant, occurrence evidence, explicit lifecycle cost, and an activation signal.
 
 ## Codex model tiers
 

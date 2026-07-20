@@ -26,6 +26,8 @@ Review lenses:
 - Use Bidirectional Traceability and Adjacency Scan for non-trivial implementation or contract review.
 - Counterexamples and concrete failure paths.
 - Use Test Strategy Selection only when parser/refactor/security/concurrency/retry/combinatorial or another explicit test-strategy signal exists.
+- Apply the Risk–Complexity Budget when a finding implies new reliability machinery; classify it as `must-fix`, `observe-first`, or `documented-defer` instead of treating review output as a requirement.
+- Judge runtime reliability mechanisms separately from cohesive behavior-preserving refactors that lower net code complexity without adding protocol or operational state.
 
 Routing:
 
@@ -43,6 +45,7 @@ Final output:
 - Suggested fix.
 - Forward trace matrix, Reverse trace matrix, and adjacency findings when triggered.
 - Test-strategy adequacy when triggered.
+- Finding classification and mechanism-cost decision when triggered.
 - What was not checked.
 - Residual uncertainty and the exact next evidence needed.
 

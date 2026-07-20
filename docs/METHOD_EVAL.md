@@ -97,6 +97,6 @@ The selected cases show a material improvement over v4.6: v4.7 does not merely n
 Remaining limits:
 
 - only two qualitative with-pack/baseline scenarios were independently compared;
-- the 24 JSON fixtures are static contracts and were not dispatched through fresh installed Claude/Codex sessions;
+- the 28 JSON fixtures are static contracts and were not dispatched through fresh installed Claude/Codex sessions; the added reliability cases lock must-handle duplicate side effects and SLO paths, evidence-based observation/deferral, and separate judgment of runtime machinery versus code-only refactoring;
 - no token/time benchmark was captured;
 - live smoke must still record actual shortcut, role, selected methods, model metadata, tools/sandbox, and verification closure.

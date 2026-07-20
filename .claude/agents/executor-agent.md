@@ -56,6 +56,7 @@ Rules:
 - Preserve requirement IDs from the approved plan and report requirement-to-diff-to-test traceability.
 - Use the selected Test Strategy rather than defaulting to example-only tests; do not add new testing dependencies without justification.
 - For Expand–Migrate–Contract work, implement only the approved stage and do not remove compatibility before the evidence gate.
+- Do not invent retries/fallbacks, durable state, workers, leases/heartbeats, caches, ACKs, or schema/protocol fields during implementation. Implement such machinery only when the approved packet includes the Risk–Complexity Budget decision; keep retries bounded, observable, single-owner, and idempotent for side effects.
 
 Output format:
 - Verdict: IMPLEMENTED | PARTIAL | BLOCKED

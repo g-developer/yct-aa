@@ -95,12 +95,12 @@ for name, model in expected_codex_models.items():
 method_contracts = {
     "explorer-agent": ("Hypothesis–Falsification", "OODA"),
     "focused-fixer-agent": ("Hypothesis–Falsification", "PDCA", "characterization test", "Test Strategy Selection", "invariant/oracle", "rejected alternatives"),
-    "planner-agent": ("First Principles", "MECE", "Assumption ledger", "Invariant ledger", "one-way door", "FMEA-lite", "Expand–Migrate–Contract", "Minimal solution", "Rejection criteria", "Selected methods: method, trigger evidence, required output, gate/stop condition"),
-    "plan-checker": ("Steelman", "counterexamples", "Red Team", "FMEA-lite", "one-way doors", "ACCEPT_WITH_CHANGES", "revised plan challenged again"),
-    "executor-agent": ("PDCA", "characterization tests", "requirement-to-diff-to-test", "Expand–Migrate–Contract"),
-    "code-reviewer-agent": ("Steelman", "Bidirectional Traceability", "Adjacency Scan", "counterexamples", "Forward trace matrix", "Reverse trace matrix"),
-    "verify-agent": ("Bidirectional Traceability", "Adjacency Scan", "Test Strategy Selection", "Expand–Migrate–Contract", "one-way door", "Forward trace matrix", "Reverse trace matrix"),
-    "security-reviewer-agent": ("Trust Boundary", "Abuse Cases", "attack path", "negative test", "pre-execution boundary", "post-implementation diff", "Blocker/high findings", "Detection and response"),
+    "planner-agent": ("First Principles", "MECE", "Assumption ledger", "Invariant ledger", "one-way door", "FMEA-lite", "Risk–Complexity Budget", "simplest acceptable failure", "Expand–Migrate–Contract", "Minimal solution", "Rejection criteria", "Selected methods: method, trigger evidence, required output, gate/stop condition"),
+    "plan-checker": ("Steelman", "counterexamples", "Red Team", "FMEA-lite", "one-way doors", "review finding is evidence", "mechanism-admission", "ACCEPT_WITH_CHANGES", "revised plan challenged again"),
+    "executor-agent": ("PDCA", "characterization tests", "requirement-to-diff-to-test", "Risk–Complexity Budget", "bounded, observable, single-owner", "Expand–Migrate–Contract"),
+    "code-reviewer-agent": ("Steelman", "Bidirectional Traceability", "Adjacency Scan", "counterexamples", "Risk–Complexity Budget", "must-fix | observe-first | documented-defer", "Forward trace matrix", "Reverse trace matrix"),
+    "verify-agent": ("Bidirectional Traceability", "Adjacency Scan", "Test Strategy Selection", "Risk–Complexity Budget", "evidence-free theoretical", "Expand–Migrate–Contract", "one-way door", "Forward trace matrix", "Reverse trace matrix"),
+    "security-reviewer-agent": ("Trust Boundary", "Abuse Cases", "attack path", "negative test", "pre-execution boundary", "post-implementation diff", "Blocker/high findings", "Low probability does not permit deferral", "Detection and response"),
     "research-agent": ("Evidence Triangulation", "conflicting"),
     "semantic-review-agent": ("Double-loop Learning", "over-triggering", "under-triggering", "Why existing controls missed it", "Owner and review/expiry condition"),
     "docs-agent": ("ADR", "reversal or expiry condition", "Expand–Migrate–Contract"),
@@ -185,11 +185,12 @@ for aa_path in (root / ".agents/skills/yct-aa/SKILL.md", root / ".claude/skills/
     check("method dumping is a routing defect" in text, f"auto-router does not prevent method ceremony: {aa_path}")
     check("selected method" in text, f"auto-router does not pass method contracts to workers: {aa_path}")
     check("runner results as evidence" in text, f"auto-router does not order dynamic evidence before final static acceptance: {aa_path}")
+    check("Risk–Complexity Budget" in text and "theoretical" in text, f"auto-router misses reliability budget or finding semantics: {aa_path}")
 
 skill_method_markers = {
-    "yct-risk": ("First Principles", "MECE", "FMEA-lite", "Trust Boundary", "Expand–Migrate–Contract", "Test Strategy"),
-    "yct-fix": ("Hypothesis–Falsification", "PDCA", "characterization", "Test Strategy Selection", "invariant/oracle", "Return to"),
-    "yct-review": ("Steelman", "Bidirectional Traceability", "Adjacency Scan", "Evidence Triangulation"),
+    "yct-risk": ("First Principles", "MECE", "FMEA-lite", "Risk–Complexity Budget", "Trust Boundary", "Expand–Migrate–Contract", "Test Strategy"),
+    "yct-fix": ("Hypothesis–Falsification", "PDCA", "characterization", "Test Strategy Selection", "Risk–Complexity Budget", "invariant/oracle", "Return to"),
+    "yct-review": ("Steelman", "Bidirectional Traceability", "Adjacency Scan", "Risk–Complexity Budget", "Evidence Triangulation"),
 }
 for skill_name, markers in skill_method_markers.items():
     for platform in (".agents/skills", ".claude/skills"):
@@ -281,7 +282,7 @@ for platform, planner_text in (
         check(field in verifier_packet, f"{platform} planner verifier packet misses canonical field: {field}")
 
 evals = json.loads((root / "evals/evals.json").read_text(encoding="utf-8"))
-check(len(evals.get("evals", [])) >= 24, "routing/method eval set is too small")
+check(len(evals.get("evals", [])) >= 28, "routing/method eval set is too small")
 check(len({case["id"] for case in evals.get("evals", [])}) == len(evals.get("evals", [])), "duplicate eval ids")
 eval_expectations = "\n".join(case.get("expected_output", "") for case in evals.get("evals", []))
 for route in ("docs-agent", "alignment-recorder-agent", "general-agent"):
@@ -292,6 +293,7 @@ method_names = {
     "Hypothesis–Falsification",
     "PDCA",
     "Pre-mortem + FMEA-lite",
+    "Risk–Complexity Budget",
     "Steelman + Red Team",
     "Trust Boundary + Abuse Cases",
     "Bidirectional Traceability + Adjacency Scan",
@@ -341,14 +343,53 @@ for case in evals.get("evals", []):
     if "Double-loop Learning" in selected:
         check(any(token in prompt for token in ("third", "recurring", "repeated", "again")), f"eval {case.get('id')} over-triggers double-loop learning")
     if "Test Strategy Selection" in selected:
-        check(re.search(r"parser|refactor|\bauth\b|\bauthorization\b|payment|migration|schema|concurr|retr", prompt) is not None, f"eval {case.get('id')} over-triggers test strategy selection")
+        check(re.search(r"parser|refactor|\bauth\b|\bauthorization\b|payment|migration|schema|concurr|retr|timeout|reconnect", prompt) is not None, f"eval {case.get('id')} over-triggers test strategy selection")
     if "Pre-mortem + FMEA-lite" in selected:
         check(criticality.startswith(("L3", "L4")), f"eval {case.get('id')} over-triggers FMEA outside L3/L4")
+    if "Risk–Complexity Budget" in selected:
+        check(re.search(r"slo|retry|fallback|worker|lease|heartbeat|ack|durable|reconnect|reliability|refactor|payment", prompt) is not None, f"eval {case.get('id')} over-triggers risk/complexity budgeting")
     if "One-way/Two-way Door + ADR" in selected:
         check(re.search(r"architecture|irreversible|schema|migration|public api|global.*cache|cache.*global", prompt) is not None, f"eval {case.get('id')} over-triggers decision/ADR method")
 check(covered_methods == method_names, f"method fixture coverage drift: missing={sorted(method_names - covered_methods)} extra={sorted(covered_methods - method_names)}")
 
 cases_by_id = {case["id"]: case for case in evals.get("evals", [])}
+freeze_gates = {
+    "mece-review-inventory",
+    "parallel-audits-reconciled",
+    "finding-set-frozen-before-writer",
+}
+for case_id in (1, 9):
+    case = cases_by_id[case_id]
+    check(
+        set(case.get("forbidden_gates", [])) == freeze_gates,
+        f"eval {case_id} does not lock the L0/L1 finding-freeze exemption",
+    )
+    check(
+        not (freeze_gates & set(case.get("expected_gates", []))),
+        f"eval {case_id} incorrectly requires the L2+ finding-freeze ceremony",
+    )
+check(
+    cases_by_id[10]["expected_gates"] == [
+        "explore-before-plan",
+        "mece-review-inventory",
+        "parallel-audits-reconciled",
+        "finding-set-frozen-before-writer",
+        "bounded-execution",
+        "runner-before-verifier",
+    ],
+    "eval 10 does not lock review inventory, reconciliation, and pre-write freeze order",
+)
+check(
+    cases_by_id[25]["expected_gates"] == [
+        "mece-review-inventory",
+        "disjoint-read-only-audits",
+        "parallel-audits-reconciled",
+        "finding-set-frozen-before-writer",
+        "bounded-execution",
+        "runner-before-verifier",
+    ],
+    "eval 25 does not lock the one-shot contract review and execution gate",
+)
 for case_id in (2, 4):
     case = cases_by_id[case_id]
     check(case["expected_criticality"] == "L3" and case["expected_route"] == "risk-overlay", f"eval {case_id} does not lock auth risk overlay")
@@ -361,6 +402,22 @@ for method in ("First Principles", "MECE"):
     check(method in cases_by_id[19]["expected_methods"], f"migration risk fixture misses {method}")
 for method in ("MECE", "PDCA", "Bidirectional Traceability + Adjacency Scan"):
     check(method in cases_by_id[20]["expected_methods"], f"payment concurrency fixture misses {method}")
+check("Risk–Complexity Budget" in cases_by_id[20]["expected_methods"], "payment duplicate-side-effect fixture misses the risk/complexity budget")
+check("must-handle-duplicate-side-effect" in cases_by_id[20]["expected_gates"], "payment fixture permits low-probability duplicate side effects to be deferred")
+check(cases_by_id[26]["expected_gates"] == [
+    "no-implementation",
+    "review-finding-is-input",
+    "observe-first-or-defer",
+    "residual-risk-and-reopen-signal",
+], "theoretical multi-failure fixture does not lock evidence-based deferral")
+check("explicit-product-commitment" in cases_by_id[27]["expected_gates"] and "smallest-mechanism" in cases_by_id[27]["expected_gates"], "SLO reconnect fixture does not lock must-handle/minimal-mechanism behavior")
+check(cases_by_id[28]["expected_gates"] == [
+    "no-implementation",
+    "separate-reliability-from-refactor",
+    "net-complexity-check",
+    "bidirectional-scope-trace",
+    "no-diff-size-dogma",
+], "refactor fixture does not separate runtime reliability cost from code-quality complexity")
 
 parser_eval = next((case for case in evals.get("evals", []) if case.get("id") == 17), None)
 check(parser_eval is not None, "missing parser/combinatorial method fixture")

@@ -6,6 +6,7 @@
     "Hypothesis–Falsification",
     "PDCA",
     "Pre-mortem + FMEA-lite",
+    "Risk–Complexity Budget",
     "Steelman + Red Team",
     "Trust Boundary + Abuse Cases",
     "Bidirectional Traceability + Adjacency Scan",
@@ -34,6 +35,11 @@
       "expected_gates": [
         "no-subagent",
         "no-method-ceremony"
+      ],
+      "forbidden_gates": [
+        "mece-review-inventory",
+        "parallel-audits-reconciled",
+        "finding-set-frozen-before-writer"
       ],
       "files": []
     },
@@ -234,6 +240,11 @@
         "no-scope-expansion",
         "static-acceptance"
       ],
+      "forbidden_gates": [
+        "mece-review-inventory",
+        "parallel-audits-reconciled",
+        "finding-set-frozen-before-writer"
+      ],
       "files": []
     },
     {
@@ -241,7 +252,7 @@
       "prompt": "$yct-aa add a multi-module feature but first map the unknown request path and decide the smallest safe design",
       "expected_criticality": "L2",
       "expected_route": "explore-plan-execute",
-      "expected_output": "Use exploration, first-principles planning with a named MECE lens, bounded execution, bidirectional traceability, and independent verification.",
+      "expected_output": "Use exploration and first-principles planning with a named MECE review inventory; reconcile parallel read-only audits and freeze the deduplicated finding set before bounded execution, then use bidirectional traceability and independent verification.",
       "expected_methods": [
         "First Principles",
         "MECE",
@@ -257,6 +268,9 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
         "explore-before-plan",
+        "mece-review-inventory",
+        "parallel-audits-reconciled",
+        "finding-set-frozen-before-writer",
         "bounded-execution",
         "runner-before-verifier"
       ],
@@ -486,11 +500,12 @@
       "prompt": "$yct-risk duplicate payment capture appears under concurrent retries; design and fix the boundary safely",
       "expected_criticality": "L3",
       "expected_route": "risk-security-concurrency",
-      "expected_output": "Use First Principles and MECE, FMEA and red-team challenge, trust-boundary analysis, scoped PDCA implementation, bidirectional traceability, deterministic concurrency/fault-injection tests, and the composite risk gate.",
+      "expected_output": "Treat duplicate non-idempotent side effects as must-handle even if rare; use First Principles and MECE, FMEA and red-team challenge, the Risk–Complexity Budget to select the smallest sufficient idempotency mechanism, trust-boundary analysis, scoped PDCA implementation, bidirectional traceability, deterministic concurrency/fault-injection tests, and the composite risk gate.",
       "expected_methods": [
         "First Principles",
         "MECE",
         "Pre-mortem + FMEA-lite",
+        "Risk–Complexity Budget",
         "Steelman + Red Team",
         "Trust Boundary + Abuse Cases",
         "PDCA",
@@ -501,6 +516,7 @@
         "First Principles": "duplicate payment is a high-impact invariant failure",
         "MECE": "request, idempotency store, payment provider, retry, and recovery are separate surfaces",
         "Pre-mortem + FMEA-lite": "concurrent retries create credible duplicate side effects",
+        "Risk–Complexity Budget": "a duplicate non-idempotent payment side effect is must-handle, while the mechanism still needs to be the smallest one supported by evidence",
         "Steelman + Red Team": "explicit yct-risk requires adversarial challenge",
         "Trust Boundary + Abuse Cases": "payments and entitlement side effects cross a protected boundary",
         "PDCA": "the prompt asks to design and fix",
@@ -512,6 +528,7 @@
         "plan-reaccepted",
         "pre-post-security-review",
         "idempotency-invariant",
+        "must-handle-duplicate-side-effect",
         "fault-injection",
         "runner-before-verifier",
         "composite-l3-gate"
@@ -612,6 +629,119 @@
         "forward-matrix",
         "reverse-matrix",
         "adjacency-scan"
+      ],
+      "files": []
+    },
+    {
+      "id": 25,
+      "prompt": "$yct-aa implement this L2 contract across API, service, and UI; review the complete current implementation before changing code and report all discoverable issues at once",
+      "expected_criticality": "L2",
+      "expected_route": "review-freeze-execute",
+      "expected_output": "Declare disjoint API, service, UI, producer, and test/config audit scopes; reconcile and deduplicate their evidence into the maximum finding set discoverable from the declared inventory; freeze it before any writer; then execute bounded non-overlapping fixes and independently verify them.",
+      "expected_methods": [
+        "MECE",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "MECE": "the contract explicitly crosses API, service, UI, producer, and verification surfaces",
+        "PDCA": "the prompt requests implementation after review",
+        "Bidirectional Traceability + Adjacency Scan": "the complete contract implementation and adjacent consumers must be checked before execution"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "mece-review-inventory",
+        "disjoint-read-only-audits",
+        "parallel-audits-reconciled",
+        "finding-set-frozen-before-writer",
+        "bounded-execution",
+        "runner-before-verifier"
+      ],
+      "files": []
+    },
+    {
+      "id": 26,
+      "prompt": "$yct-review an automated review proposes a durable lease, heartbeat worker, ACK table, and three fallback layers for a triple-failure scenario outside our SLO and deployment assumptions with no production or fault-test evidence; decide whether it must be fixed",
+      "expected_criticality": "L3-review",
+      "expected_route": "review-complexity-budget",
+      "expected_output": "Steelman the finding, then treat it as evidence rather than a requirement; apply the Risk–Complexity Budget and default to observe-first or documented deferral when the safe existing timeout/terminal recovery converges, while recording the best-effort boundary and the evidence that would reopen the decision.",
+      "expected_methods": [
+        "Risk–Complexity Budget",
+        "Steelman + Red Team"
+      ],
+      "trigger_evidence": {
+        "Risk–Complexity Budget": "the finding proposes durable state, a recovery worker, ACKs, and layered fallbacks without a current SLO or occurrence evidence",
+        "Steelman + Red Team": "review mode must reconstruct the strongest version of the theoretical finding before rejecting or deferring it"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-implementation",
+        "review-finding-is-input",
+        "observe-first-or-defer",
+        "residual-risk-and-reopen-signal"
+      ],
+      "files": []
+    },
+    {
+      "id": 27,
+      "prompt": "$yct-aa fix normal reconnect timeout behavior explicitly promised by our production SLO; use the smallest mechanism and do not add durable state or background workers unless evidence proves they are needed",
+      "expected_criticality": "L3",
+      "expected_route": "risk-reliability-bounded",
+      "expected_output": "Handle the explicit reconnect/timeout SLO path, plan and challenge the smallest evidence-backed mechanism, use the Risk–Complexity Budget to reject unnecessary durable state or workers, implement with targeted timeout/reconnect tests, and close with runner evidence and independent verification.",
+      "expected_methods": [
+        "First Principles",
+        "MECE",
+        "Pre-mortem + FMEA-lite",
+        "Risk–Complexity Budget",
+        "Steelman + Red Team",
+        "PDCA",
+        "Bidirectional Traceability + Adjacency Scan",
+        "Test Strategy Selection"
+      ],
+      "trigger_evidence": {
+        "First Principles": "production SLO behavior requires separating the promise, current reality, constraints, and minimal solution",
+        "MECE": "client reconnect, server session, timeout ownership, rollout compatibility, and tests are distinct surfaces",
+        "Pre-mortem + FMEA-lite": "a production reconnect change has credible timeout, rollout, and stuck-session failure modes",
+        "Risk–Complexity Budget": "the prompt explicitly asks to avoid durable state and workers unless their benefit is evidenced",
+        "Steelman + Red Team": "the L3 production plan needs adversarial challenge before execution",
+        "PDCA": "the prompt requests a fix",
+        "Bidirectional Traceability + Adjacency Scan": "the SLO promise must map to the reconnect diff and tests without unrelated protocol expansion",
+        "Test Strategy Selection": "timeout and reconnect paths need deterministic failure/timing tests"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "plan-reaccepted",
+        "explicit-product-commitment",
+        "smallest-mechanism",
+        "expected-reconnect-timeout-path",
+        "runner-before-verifier",
+        "composite-l3-gate"
+      ],
+      "files": []
+    },
+    {
+      "id": 28,
+      "prompt": "$yct-review review this MR: the SLO reliability fix adds no new runtime state, while a cohesive behavior-preserving refactor removes duplicated retry parsing and unclear ownership; decide whether the refactor must be split solely to shrink the diff",
+      "expected_criticality": "L2-review",
+      "expected_route": "review-refactor-separation",
+      "expected_output": "Review the reliability mechanism and the refactor as separate decisions; keep the cohesive refactor when traceability shows it is behavior-preserving, in scope, and lowers net code complexity without adding protocol or operational state, and request a split only for unrelated churn or unjustified abstraction.",
+      "expected_methods": [
+        "Risk–Complexity Budget",
+        "Steelman + Red Team",
+        "Bidirectional Traceability + Adjacency Scan"
+      ],
+      "trigger_evidence": {
+        "Risk–Complexity Budget": "the prompt explicitly contrasts runtime reliability cost with a code-only complexity reduction",
+        "Steelman + Red Team": "review must reconstruct why the refactor may belong with the feature before challenging its scope",
+        "Bidirectional Traceability + Adjacency Scan": "the refactor must map to approved scope and preserve adjacent retry behavior"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [
+        "no-implementation",
+        "separate-reliability-from-refactor",
+        "net-complexity-check",
+        "bidirectional-scope-trace",
+        "no-diff-size-dogma"
       ],
       "files": []
     }

@@ -57,6 +57,7 @@ Planning discipline:
 - Use an Invariant ledger: invariant, where enforced, how verified, and risk if broken.
 - Classify consequential decisions as one-way door or two-way door. One-way doors require alternatives, explicit approval, and reversal/recovery analysis; durable decisions need an ADR recommendation.
 - For L3/L4 work, run a Pre-mortem and FMEA-lite covering failure mode, cause, effect, severity, likelihood, detectability, control, mitigation/test, and recovery.
+- Before proposing retries/fallbacks, durable state, recovery workers, leases/heartbeats, caches, ACKs, or schema/protocol fields, apply the Risk–Complexity Budget: product/SLO commitment, scenario evidence, impact, current convergence, simplest acceptable failure, added states/operations/tests, observability-first option, decision, residual risk, and review/removal condition. L3/L4 scrutiny is not automatic authorization for more machinery.
 - For schema, public API, event, persisted-format, or config migrations, use Expand–Migrate–Contract with compatibility window, observability gate, rollback point, and proof before removal.
 - For production behavior, include rollout/canary signals, observability, stop thresholds, and recovery ownership.
 - Plans are incomplete unless they include an executor packet and verify-agent packet.
@@ -80,6 +81,7 @@ Output format:
 - Proposed phases
 - Files/areas likely affected
 - Pre-mortem / FMEA-lite risk register, when triggered
+- Risk–Complexity Budget decision, when triggered
 - Expand–Migrate–Contract stages, when triggered
 - Verification plan
 - Rollback/recovery notes, if relevant

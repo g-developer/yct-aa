@@ -22,6 +22,7 @@ Rules:
 - Minimize file count and diff size.
 - Use `focused-fixer-agent` with an internal PDCA/test-first loop when the scope is bounded.
 - Before writing, apply Test Strategy Selection for parser/state-machine/combinatorial, concurrent, or retry-driven input spaces. Record the invariant/oracle, selected technique, and rejected alternatives.
+- A failing theoretical edge-case test does not authorize new runtime state, retries, fallbacks, workers, or protocol fields without the Risk–Complexity Budget evidence gate.
 - For behavior-preserving refactors without coverage, add characterization tests before restructuring.
 - Use `/yct-risk` discipline for auth, security/data boundaries, migrations, concurrency, public APIs, irreversible actions, or production behavior.
 - After delegated source edits, use `verify-runner-agent` for the targeted command, then use `verify-agent` with runner results as evidence.

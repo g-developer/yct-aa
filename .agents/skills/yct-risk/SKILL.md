@@ -32,6 +32,8 @@ Required content:
 - Invariant ledger with enforcement point, verification, and breakage risk.
 - One-way/Two-way Door classification; one-way doors require alternatives, approval, and reversal/recovery analysis.
 - Pre-mortem and FMEA-lite for credible failure modes, prevention, detection, tests, and recovery.
+- Risk–Complexity Budget for any proposed reliability machinery: product/SLO commitment, evidence, simplest acceptable failure, added state/operations/tests, observability-first option, decision, and residual risk.
+- Treat L3/L4 as a demand for stronger proof, not automatic authorization for durable state, workers, retries, fallbacks, or protocol expansion.
 - Trust Boundary and Abuse Cases for sensitive surfaces.
 - Expand–Migrate–Contract for schema, API, event, persisted-format, or config migrations.
 - Test Strategy Selection appropriate to the uncertainty.

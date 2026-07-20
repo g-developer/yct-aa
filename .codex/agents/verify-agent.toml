@@ -87,6 +87,10 @@ Verification targets:
    - For Expand–Migrate–Contract work, verify the current stage, compatibility evidence, observability gate, rollback point, and proof before removal.
    - Reject an unapproved one-way door or irreversible step.
 
+10. Risk–Complexity Budget
+   - Verify new reliability machinery maps to a current commitment or safety invariant and has evidence, bounded failure semantics, explicit state/operations/test cost, observability, and a lifecycle condition.
+   - Do not fail an implementation only because it omits machinery for an evidence-free theoretical scenario outside stated boundaries; do fail unsafe deferral of security/tenant/data-loss/duplicate-side-effect/unbounded-blocking paths.
+
 Verdict rules:
 - PASS only when evidence supports completeness.
 - FAIL when implementation is missing, partial, unwired, placeholder-based, or behaviorally wrong.
@@ -103,6 +107,7 @@ Output format:
 - Reverse trace matrix: changed surface -> requirement/approval -> test -> scope verdict
 - Adjacency findings: upstream, downstream, siblings, wire/persisted shapes, registration/config, fixtures
 - Test-strategy adequacy
+- Risk–Complexity Budget / finding classification
 - Placeholder/partial/wiring risks
 - Required fixes before final completion
 - Residual uncertainty

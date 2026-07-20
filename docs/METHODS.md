@@ -264,15 +264,44 @@ Owner and review/expiry condition:
 
 Do not turn every bug into governance work. Trigger double-loop learning only with recurrence or clear systemic evidence.
 
+## 15. Risk–Complexity Budget and Observability-First Reliability
+
+Use when a plan, fix, or review proposes new retries/fallbacks, durable state, recovery workers, leases/heartbeats, cache-consistency behavior, ACKs, tables/fields, or other runtime protocol machinery. The objective is the smallest mechanism that satisfies current product promises, not theoretical completeness.
+
+Required decision record:
+
+| Field | Required evidence |
+|---|---|
+| Commitment | Exact product promise, SLO, safety invariant, or upstream obligation |
+| Scenario | Failure path and deployment assumptions |
+| Probability/impact | Production, load/fault-test, or protocol evidence; blast radius |
+| Current convergence | Timeout, terminal state, fail-fast, user retry, or operational recovery |
+| Simplest failure | Acceptable behavior without the new mechanism and why it is insufficient |
+| Mechanism cost | New states/transitions, storage/schema, migration, worker, config, monitoring, tests, ownership |
+| Observation | Activation signal and whether instrumentation should come first |
+| Decision | `must-fix` / `observe-first` / `documented-defer` plus residual risk and best-effort boundary |
+| Lifecycle | Rollback, review trigger, expiry/removal condition |
+
+Rules:
+
+- Probability never excuses authorization failure, cross-tenant impact, irreversible data damage, duplicate non-idempotent side effects, or permanent/unbounded blocking.
+- Handle explicit SLO/product behavior, expected rolling/reconnect/timeout paths, evidence-backed failures, and cheap local boundary fixes.
+- Normally defer an evidence-free scenario requiring multiple independent unlikely failures outside stated assumptions when existing convergence is observable and safe.
+- A review finding is a hypothesis to classify, not a requirement. Tests lock promised behavior; extreme tests do not create new product promises.
+- When evidence is absent and harm is bounded, add a cheap signal before a recovery protocol. Instrumentation must have an owner, decision threshold, and review date.
+- Retries require one owning layer, bounded attempts/deadline, observable exhaustion, and idempotency for side effects. Avoid stacked retries whose combined budget is unknown.
+- Count state-machine and operational surface, not only lines of code. A small diff can create a large permanent support burden.
+- Evaluate reliability machinery separately from code-quality refactoring. Keep a cohesive behavior-preserving refactor when it adds no runtime/protocol/operational state and demonstrably lowers net complexity; split unrelated churn or abstraction without a net reduction.
+
 ## Role mapping
 
 | Role capability | Primary methods |
 |---|---|
 | Explorer / focused fixer | Hypothesis–Falsification; OODA for active incidents |
-| Planner | First Principles; MECE; ledgers; One-way/Two-way; Pre-mortem/FMEA; Expand–Migrate–Contract |
-| Plan checker | Steelman; Counterexamples; Red Team; FMEA challenge |
-| Executor | PDCA/test-first; requirement traceability; characterization; staged migration |
-| Code reviewer / verifier | Bidirectional Traceability; Adjacency Scan; Test Strategy Selection |
+| Planner | First Principles; MECE; ledgers; One-way/Two-way; Pre-mortem/FMEA; Risk–Complexity Budget; Expand–Migrate–Contract |
+| Plan checker | Steelman; Counterexamples; Red Team; FMEA and mechanism-admission challenge |
+| Executor | PDCA/test-first; requirement traceability; characterization; approved reliability/migration stage |
+| Code reviewer / verifier | Bidirectional Traceability; Adjacency Scan; Test Strategy Selection; finding classification |
 | Security reviewer | Trust Boundaries; Abuse Cases; Attack Paths; negative tests |
 | Researcher | Evidence Triangulation |
 | Docs / alignment recorder | ADRs; evidence-qualified decision/status records |
@@ -285,6 +314,8 @@ Do not turn every bug into governance work. Trigger double-loop learning only wi
 - Fake MECE: overlapping scopes with hidden residue.
 - Confirmation-only debugging: tests that can only support the preferred hypothesis.
 - Risk register without action: failure modes have no prevention, detection, test, or recovery.
+- Reliability maximalism: turning every theoretical review counterexample into durable state, retries, workers, or protocol surface without a product promise or evidence.
+- Diff minimalism: removing a cohesive complexity-reducing refactor solely to shrink the patch while retaining duplicated or unclear code.
 - ADR spam: recording reversible local choices as architecture decisions.
 - Premature contract: removing compatibility before migration evidence exists.
 - Review tunnel vision: tracing requirements forward but never mapping diff back to authorization.

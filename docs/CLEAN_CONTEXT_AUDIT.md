@@ -18,7 +18,7 @@ The audit checked:
 - all five explicit shortcut modes on both platforms;
 - Codex role registration and existing-config merge behavior;
 - installer fresh, repeat, warning, backup, malformed-marker, and dry-run paths;
-- manifest completeness and the structure/coverage of an unexecuted 24-case routing/method fixture set.
+- manifest completeness and the structure/coverage of an unexecuted 28-case routing/method fixture set.
 
 ## v4.7 closure
 
@@ -31,6 +31,7 @@ The audit checked:
 - First Principles, MECE, Assumption/Invariant ledgers, PDCA, Pre-mortem/FMEA-lite, Steelman/Red Team, trust-boundary abuse cases, bidirectional traceability, ADR/reversibility, staged migration, test-strategy selection, OODA, triangulation, and double-loop learning have explicit triggers and outputs.
 - Paired Codex/Claude role files statically contain the same required method-family markers for every method-bearing capability.
 - Shortcut skills on both platforms select method contracts consistently for auto, risk, fix, and review modes.
+- The shared Risk–Complexity Budget is enforced by paired planners, plan/code reviewers, executors, security reviewers, and verifiers: it keeps safety/product commitments mandatory, but prevents theoretical findings from silently creating durable state or protocol requirements.
 - `evals/evals.json` contains criticality, route, selected methods, trigger evidence, closed-world non-method policy, and ordered gates; it remains an unexecuted fixture contract, not live-selection evidence.
 - `docs/METHOD_EVAL.md` records two clean-context v4.6/v4.7 qualitative comparisons, the gaps found, revisions, and final re-evaluation boundaries.
 

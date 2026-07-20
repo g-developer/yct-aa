@@ -125,6 +125,7 @@ Methods are selected by the decision or failure signal, not by prestige. Use the
 | Unknown root cause or repeated failed fix | Hypothesis–Falsification | Observations, ranked hypotheses, prediction, falsifier, cheapest discriminating check, result |
 | Normal implementation | PDCA, with test-first when practical | Plan, cohesive change, targeted check, diff review, next action; keep labels internal unless requested |
 | L3/L4 execution | Pre-mortem + FMEA-lite | Plausible failure modes converted into mitigations, tests, detection, and recovery |
+| New retry/fallback, durable state, worker, lease/heartbeat, cache protocol, ACK, table/field, or theoretical reliability finding | Risk–Complexity Budget | Product/SLO commitment, evidence, impact, simplest acceptable failure, added state/operations/tests, observability-first option, decision, residual risk |
 | Plan/review challenge | Steelman + Red Team | Strongest plan reconstruction, concrete counterexamples, smaller reversible alternative |
 | Auth, secrets, payments, tenant/data boundary, injection, or uploads | Trust Boundary + Abuse Cases | Actor, asset, entrypoint, boundary, authorization decision, side effect, abuse/attack path |
 | Feature/contract implementation or review | Bidirectional Traceability + Adjacency Scan | Requirement→diff→test and diff→requirement mappings; upstream/downstream/sibling scan |
@@ -273,6 +274,23 @@ Important claims need a claim, evidence, evidence strength, and remaining uncert
 
 For architecture or L3/L4 work, separate facts, assumptions, constraints, invariants, non-goals, minimal solution, and rejection criteria. Low-confidence assumptions must not drive irreversible decisions.
 
+### Risk and complexity budget
+
+The engineering target is the smallest mechanism that satisfies current explicit product commitments. L3/L4 classification increases scrutiny; it does not automatically justify a more distributed protocol.
+
+Must handle:
+
+- product/SLO promises and expected paths such as rolling upgrades, normal reconnects, and timeouts;
+- security or authorization failure, cross-tenant impact, irreversible data loss, duplicate non-idempotent side effects, or permanent/unbounded blocking, even when unlikely;
+- failures supported by production evidence, repeatable load/fault tests, or exact-version upstream requirements;
+- boundary fixes that are local, clear, and cheaper to maintain than the risk they remove.
+
+Default to observation or documented deferral when the scenario needs several independent unlikely failures outside deployment assumptions/SLO/best-effort boundaries, has no evidence, and already converges through timeout, explicit terminal state, user retry, or operational recovery without data damage, privilege failure, or duplicate side effects. An automated review finding is evidence to judge, not a new requirement by itself.
+
+Before adding persistent state, recovery workers, retries/fallbacks, cache-consistency machinery, tables/fields, leases/heartbeats, or protocol ACKs, record: the product/SLO commitment; probability, impact, and evidence; the simplest acceptable failure and why timeout/fail-fast/manual retry is insufficient; new states, migrations, config, monitoring, tests, and ownership; and how activation will be observed. If these answers are missing, prefer observability first and record the residual risk and best-effort boundary. Bound retries, name the owning layer, and require idempotency before retrying side effects. New mechanisms need a review/removal condition.
+
+Judge reliability mechanisms separately from code-quality refactors. A cohesive refactor may remain with the feature when it adds no runtime state, protocol surface, or operational burden and clearly reduces duplication, coupling, oversized functions, or unclear ownership. Split only unrelated churn, abstractions without net complexity reduction, or changes that materially enlarge the review surface.
+
 ---
 
 ## 12. Verification
@@ -344,9 +362,11 @@ Shortcut selection does not broaden authorization, bypass higher-level instructi
 
 Use the pyramid principle and keep it concise.
 
-- Implementation: `结论 / 修改内容 / 验证结果 / 未验证项或风险`.
+- Implementation: explain in plain language `做了什么 / 结果怎么样 / 验证了什么 / 风险或限制`.
 - Review: `结论 / 主要问题 / 证据 / 建议修复`.
 - Debugging: `结论 / 根因 / 证据 / 修复 / 验证 / 剩余不确定性`.
 - Blocked: `阻塞点 / 已尝试内容 / 关键错误 / 当前状态 / 最安全的下一步`.
+
+Write for an intelligent reader who did not participate in the implementation. Do not force the user to read code or decode internal process, agent, model, or method jargon to understand the result.
 
 The task is done only when the requested behavior is implemented or the blocker is clear, relevant checks pass or failures are documented, no unrelated changes remain, and verification limits are disclosed.
