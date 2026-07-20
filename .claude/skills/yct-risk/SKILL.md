@@ -37,6 +37,14 @@ Routing:
 6. Use `security-reviewer-agent` again after implementation for sensitive diffs and negative-test evidence.
 7. Use `verify-runner-agent` for required dynamic checks, then use `verify-agent` with runner and security results as evidence.
 
+Delivery gate:
+
+- Put the shared `Delivery` fields and the role's soft work budget in every packet.
+- Accept only a complete final result or the `AGENTS.md` batch receipt. Partial plan/review/verification cannot emit `ACCEPT`, `PASS`, `NO_CRITICAL_FINDINGS`, or another completion verdict.
+- Close the previous remainder before new scope; after two consecutive receipts for the same remainder, return `BLOCKED` or run a separate evidence task.
+- Continue the same child only with a confirmed continuation handle; do not assume Agent Teams or `SendMessage`. Otherwise pass the receipt and ledger to a new bounded packet.
+- After invalid writer delivery, freeze overlapping writers and reconcile the actual diff before execution resumes.
+
 For L4 strategic planning or plan challenge, the parent may override the planner/checker invocation to Fable when available and justified; otherwise use their Opus defaults. Keep approved implementation on the scoped Sonnet executor and retain Opus/Fable verification around it.
 
 Do not implement immediately if the decision is irreversible, destructive, or public-contract changing. Ask for explicit approval when required.

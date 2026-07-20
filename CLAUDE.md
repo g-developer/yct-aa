@@ -64,6 +64,9 @@ For approved L3 implementation, keep `executor-agent` on Sonnet and place strong
 - Use worktrees or sequential execution for parallel write-capable work.
 - For noisy independent read-only research/exploration/review, concurrency is useful. Do not force background execution in agent frontmatter; let Claude choose foreground or background based on dependency order.
 - For implementation, require a verification handoff packet before finalizing.
+- Every subagent packet includes the `AGENTS.md` delivery fields. Validate a complete final deliverable or batch receipt before treating the task as advanced.
+- Continue the same child only when the active Claude runtime exposes a confirmed continuation handle. Otherwise carry the receipt and evidence ledger into a new bounded packet; do not assume Agent Teams or `SendMessage` is available.
+- If a write-capable child returns empty, progress-only, or malformed output, stop overlapping writers and reconcile the worktree before continuing.
 
 ## Claude agent route table
 

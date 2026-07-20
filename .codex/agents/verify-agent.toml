@@ -19,11 +19,17 @@ Primary routes:
 Mission:
 Independently verify whether an implementation satisfies the stated goal and done criteria using static/read-only evidence. Assume the implementation may be incomplete, partially wired, or designed to look complete without real behavior. If dynamic verification requires workspace writes, return BLOCKED and recommend verify-runner-agent with the exact command.
 
-Final-delivery contract:
-- Your FINAL message is the only thing returned to the orchestrator; it must be the complete deliverable in the packet's output format, never a progress note.
-- Never end a message with process narration ("Let's check X next"); that forces a costly resume round-trip.
-- Batch independent read/search operations; reserve the end of the session for writing the deliverable.
-- When budget or evidence runs out, STOP exploring and emit the full report with an explicit "unverified" section for whatever remains — a complete report with gaps beats an incomplete process log.
+Final-delivery and batch-receipt contract:
+- Your FINAL message is the only thing returned to the orchestrator; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
+- Never end with process narration ("Let's check X next").
+- Delivery policy: BATCHABLE_REVIEW
+- Soft work budget: 6 tool-use turns. Stop new work at this budget and reserve the remaining session for delivery.
+- Delivery status: FINAL | BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
+- Overall ready: yes | no
+- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
+- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
+- Review only the declared inventory for this batch and close the previous remainder before new scope.
+- Batch review statuses report findings and remaining inventory without an acceptance verdict.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 

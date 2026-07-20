@@ -2,8 +2,11 @@
 
 ## v4.7
 
+- Replaced prompt-only final-delivery advice with a shared bounded-batch receipt contract across all 17 Claude and 17 Codex roles: role policy, soft work budget, previous-remainder-first sequencing, final-verdict gating, repeated-carry stop, changed-state reconciliation, and capability-checked continuation.
+- Removed the unconditional Claude `SendMessage` recovery assumption; Agent Teams and same-agent continuation are now optional runtime capabilities, with receipt-ledger handoff as the portable fallback.
+- Added cross-platform static regression checks for delivery-policy parity, budget presence, one-shot rerouting, write handoffs, command receipts, and partial-review final-verdict exclusion.
 - Added a compact task-signal method matrix to `AGENTS.md` and a single detailed owner in `docs/METHODS.md`.
-- Restored executable First Principles, MECE, Assumption/Invariant Ledger, PDCA, Pre-mortem, FMEA-lite, adversarial review, decision-record, and negative-testing contracts while keeping the shared `AGENTS.md` below its 22KB static budget.
+- Restored executable First Principles, MECE, Assumption/Invariant Ledger, PDCA, Pre-mortem, FMEA-lite, adversarial review, decision-record, and negative-testing contracts while keeping the shared `AGENTS.md` within its compact static budget.
 - Added Hypothesis–Falsification debugging, Steelman + Red Team, Trust Boundary + Abuse Cases, Bidirectional Traceability + Adjacency Scan, One-way/Two-way Door classification, Expand–Migrate–Contract, Test Strategy Selection, OODA, Evidence Triangulation, and Double-loop Learning.
 - Added Risk–Complexity Budget and observability-first reliability: must-handle safety/product paths, evidence-based deferral of theoretical multi-failure findings, admission gates for new runtime/protocol machinery, bounded retry ownership, lifecycle conditions, and separate treatment of code-quality refactors.
 - Wired task-appropriate methods into matching Codex and Claude explorer, fixer, planner, plan-checker, executor, reviewer, verifier, security, research, docs, alignment, and semantic-review roles.

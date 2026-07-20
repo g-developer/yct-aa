@@ -17,12 +17,12 @@ Method selection and Claude role mapping are owned by `.claude/rules/method-orch
 
 If the local Claude Code version or organization policy does not support a configured model, effort, or permission field, use the documented inherited fallback and report the downgrade instead of silently claiming the intended route ran.
 
-## Token economy (2026-07-13, from etf-skill session double-loop review)
+## Delivery recovery and token economy
 
-- A completion notification whose final message is a progress note (or empty) means the
-  child hit its turn budget mid-work. Resume it once via `SendMessage`（复用同一实例，缓存
-  命中其已读上下文）with a one-line demand for the final deliverable — never respawn a
-  fresh agent for the same packet, and never accept a process log as a deliverable.
+- Treat an empty, progress-only, tool-log-only, or malformed child result as delivery failure, not completion. Preserve the child ID, packet, receipt ledger, and any known changed-state evidence.
+- Continue the same child once only when the active runtime exposes and has confirmed a continuation handle. Agent Teams and `SendMessage` are optional capabilities, not assumptions. If continuation is unavailable, create a new bounded packet containing the previous receipt and evidence ledger, or return `BLOCKED` when changed state cannot be reconciled safely.
+- Do not ask a child that reached its soft work budget to continue exploration. Ask only for the required receipt/finalization, then apply the two-consecutive-remainder stop rule from `AGENTS.md`.
+- For a write-capable child with invalid delivery, pause overlapping writers, inspect the actual worktree/artifacts, and reconstruct the handoff before any further writes.
 - Do not paste large file bodies into packets; pass paths/line anchors — read-only agents
   can Read them, and packet bloat is paid on every resume.
 - Expect deliverables to be lean (tables + file:line anchors). If a child returns pasted
@@ -32,9 +32,9 @@ If the local Claude Code version or organization policy does not support a confi
 
 Long goals (many-item contracts, e.g. GDR-01..24):
 
-- Slice into bounded packets of 3-5 items; never hand one agent the whole span.
-- Reuse the SAME agent instance for adjacent slices (continuation reuses its
-  cached context); do not respawn per slice.
+- Slice into bounded packets of 3-5 items, or 2-3 for L3/L4/high-uncertainty work; never hand one agent the whole span.
+- Reuse the same agent instance for adjacent slices only when a confirmed continuation handle exists. Otherwise start a fresh bounded packet with the prior receipt and ledger.
+- Require every slice to close the previous remainder before accepting new item IDs. A second consecutive carry-over becomes `BLOCKED` or a separate evidence task.
 - Maintain evidence/trace matrices incrementally - append delta rows per slice,
   never rebuild the full matrix from scratch.
 - Do not re-read unchanged files across slices; cite prior slice anchors

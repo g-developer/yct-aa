@@ -23,6 +23,14 @@ Required routing:
 7. Spawn `verify-runner-agent` for required tests/build/lint/typecheck or smoke checks, then spawn `verify-agent` with runner and security results as evidence.
 8. Spawn `research-agent` or `browser-agent` if external/current/runtime evidence is required.
 
+Delivery gate:
+
+- Put the shared `Delivery` fields and the role's soft work budget in every packet.
+- Accept only a complete final result or the `AGENTS.md` batch receipt. Partial plan/review/verification cannot emit `ACCEPT`, `PASS`, `NO_CRITICAL_FINDINGS`, or another completion verdict.
+- Close the previous remainder before new scope; after two consecutive receipts for the same remainder, return `BLOCKED` or run a separate evidence task.
+- Continue the same child only with a confirmed continuation handle; otherwise pass the receipt and ledger to a new bounded packet.
+- After invalid writer delivery, freeze overlapping writers and reconcile the actual diff before execution resumes.
+
 Do not implement L4, destructive, irreversible, or public-contract-changing work until the user explicitly approves the reviewed plan.
 
 Required content:

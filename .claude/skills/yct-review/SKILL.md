@@ -37,6 +37,13 @@ Routing:
 - Use `plan-checker` for Steelman, counterexamples, Red Team, Pre-mortem/FMEA, and one-way-door challenges.
 - Use `research-agent` for Evidence Triangulation when current or version-specific external behavior is disputed.
 
+Delivery gate:
+
+- Put the shared `Delivery` fields and the role's soft work budget in every packet.
+- Accept only a complete final result or the `AGENTS.md` batch receipt. Partial coverage reports findings and remaining inventory but cannot emit `ACCEPT`, `PASS`, `NO_BLOCKERS`, or another completion verdict.
+- Close the previous remainder before new review scope; after two consecutive receipts for the same remainder, return `BLOCKED` or run a separate evidence task.
+- Continue the same child only with a confirmed continuation handle; do not assume Agent Teams or `SendMessage`. Otherwise pass the receipt and evidence ledger to a new bounded packet.
+
 Final output:
 
 - Verdict.

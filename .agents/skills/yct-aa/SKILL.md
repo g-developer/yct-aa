@@ -47,6 +47,10 @@ Process:
 9. Require a verification handoff from every write-capable agent.
 10. After delegated source edits, run `verify-runner-agent` first when dynamic commands are required, then use `verify-agent` with runner results as evidence. Runner output supplements and never replaces static acceptance.
 11. Treat a successful spawn response containing a child thread/agent ID as the precondition for any wait. Never call wait with an empty receiver set. If spawn fails or returns no child ID, return `BLOCKED` once with the tool error; do not simulate delegation or silently execute the child scope in the parent.
+12. Put the shared `Delivery` fields in every worker packet and enforce the role's declared policy and soft work budget.
+13. Accept only a complete final deliverable or the `AGENTS.md` batch receipt. Empty output, progress narration, tool logs, or malformed receipts do not advance the task.
+14. Close the previous remainder before adding scope. After the same remainder survives two receipts, return `BLOCKED` or run a separate evidence/localization packet; never carry it a third time.
+15. Reuse a child only when a confirmed continuation handle exists. Otherwise pass the receipt and evidence ledger to a new bounded packet. For invalid write-agent delivery, freeze overlapping writers and reconcile the actual diff first.
 
 Routing:
 
@@ -115,9 +119,9 @@ Model availability, fallback and budget:
 
 Long goals (many-item contracts, e.g. GDR-01..24):
 
-- Slice into bounded packets of 3-5 items; never hand one agent the whole span.
-- Reuse the SAME agent instance for adjacent slices (continuation reuses its
-  cached context); do not respawn per slice.
+- Slice into bounded packets of 3-5 items, or 2-3 for L3/L4/high-uncertainty work; never hand one agent the whole span.
+- Reuse the same agent instance only when the platform returns a confirmed continuation handle. Otherwise start a new packet with the prior receipt and ledger.
+- The next slice closes the previous remainder first; a second consecutive carry-over becomes `BLOCKED` or a separate evidence task.
 - Maintain evidence/trace matrices incrementally - append delta rows per slice,
   never rebuild the full matrix from scratch.
 - Do not re-read unchanged files across slices; cite prior slice anchors

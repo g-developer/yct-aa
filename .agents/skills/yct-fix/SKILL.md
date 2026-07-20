@@ -24,6 +24,13 @@ Process:
 9. Use `executor-agent` if the fix is bounded but exceeds focused-fixer constraints.
 10. After delegated source edits, run `verify-runner-agent` for the targeted test/check, then use `verify-agent` with runner results as evidence.
 
+Delivery gate:
+
+- Put the shared `Delivery` fields and the role's soft work budget in every packet.
+- `focused-fixer-agent` and `spark-agent` are one-shot: if the change does not fit, return `BLOCKED` and reroute to `executor-agent`; do not open a continuation batch.
+- Accept only a complete final result or the `AGENTS.md` batch receipt. The runner records one command family before the verifier consumes it.
+- After invalid writer delivery, freeze overlapping writers and reconcile the actual diff before retrying or rerouting.
+
 Use `$yct-risk` discipline for auth, security/data boundaries, migrations, concurrency, public APIs, irreversible actions, or production behavior.
 
 Model availability, fallback and budget:

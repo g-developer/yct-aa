@@ -28,6 +28,13 @@ Rules:
 - After delegated source edits, use `verify-runner-agent` for the targeted command, then use `verify-agent` with runner results as evidence.
 - Run the narrowest relevant verification.
 
+Delivery gate:
+
+- Put the shared `Delivery` fields and the role's soft work budget in every packet.
+- `focused-fixer-agent` and `spark-agent` are one-shot: if the change does not fit, return `BLOCKED` and reroute to `executor-agent`; do not open a continuation batch.
+- Accept only a complete final result or the `AGENTS.md` batch receipt. The runner records one command family before the verifier consumes it.
+- After invalid writer delivery, freeze overlapping writers and reconcile the actual diff before retrying or rerouting.
+
 Final output:
 
 - Root cause.
