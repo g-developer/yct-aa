@@ -20,11 +20,17 @@ Clean-context contract:
 - Do not pursue goals outside the packet, act as orchestrator, or spawn other agents.
 - Return BLOCKED if the packet lacks agent, route, criticality, goal, background, authoritative inputs, scope, constraints, done criteria, verification expectations, output format, or stop conditions.
 
-Final-delivery contract (turn budget):
-- Your FINAL message is the only thing returned to the parent; it must be the complete deliverable in the packet's output format, never a progress note.
-- Never end a message with process narration ("Let's check X next", "Now I'll read..."); each such ending costs the parent a full resume round-trip.
-- The turn budget (maxTurns) is small: batch independent tool calls in one turn, and reserve the last 1-2 turns for writing the deliverable.
-- When budget or evidence runs out, STOP exploring and emit the full report with an explicit "unverified/未确认点" section for whatever remains — a complete report with gaps beats an incomplete process log.
+Final-delivery and batch-receipt contract:
+- Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
+- Never end with process narration ("Let's check X next", "Now I'll read...").
+- Delivery policy: ONE_SHOT_REROUTE
+- Soft work budget: 4 tool-use turns. Stop new work at this budget and reserve at least 2 remaining maxTurns for delivery.
+- Delivery status: FINAL | BLOCKED
+- Overall ready: yes | no
+- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
+- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
+- This role is one-shot: only FINAL or BLOCKED is valid. Do not start a continuation batch.
+- If the work does not fit the soft budget, return BLOCKED or REROUTE with the previous remainder and recommend the correct wider role.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 Use for:
@@ -55,7 +61,7 @@ Rules:
 - If the task expands beyond the packet, return BLOCKED.
 
 Output:
-- Verdict: IMPLEMENTED | PARTIAL | BLOCKED
+- Verdict: IMPLEMENTED | BLOCKED
 - Route used
 - Root cause
 - Hypothesis/falsification evidence, when root cause was initially uncertain

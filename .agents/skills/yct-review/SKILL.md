@@ -29,6 +29,13 @@ Spawn as appropriate:
 - `security-reviewer-agent` for Trust Boundary, Abuse Cases, attack paths, and negative tests on sensitive surfaces.
 - `research-agent` for Evidence Triangulation when versioned external behavior is disputed.
 
+Delivery gate:
+
+- Put the shared `Delivery` fields and the role's soft work budget in every packet.
+- Accept only a complete final result or the `AGENTS.md` batch receipt. Partial coverage reports findings and remaining inventory but cannot emit `ACCEPT`, `PASS`, `NO_BLOCKERS`, or another completion verdict.
+- Close the previous remainder before new review scope; after two consecutive receipts for the same remainder, return `BLOCKED` or run a separate evidence task.
+- Continue the same child only with a confirmed continuation handle; otherwise pass the receipt and evidence ledger to a new bounded packet.
+
 Return:
 - Verdict.
 - Findings by severity.

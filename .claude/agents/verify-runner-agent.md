@@ -18,11 +18,17 @@ Clean-context contract:
 - Do not spawn other agents.
 - Return `BLOCKED` when the packet lacks a safe goal, scope, inputs, done criteria, output format, or stop conditions.
 
-Final-delivery contract (turn budget):
-- Your FINAL message is the only thing returned to the parent; it must be the complete deliverable in the packet's output format, never a progress note.
-- Never end a message with process narration ("Let's check X next", "Now I'll read..."); each such ending costs the parent a full resume round-trip.
-- The turn budget (maxTurns) is small: batch independent tool calls in one turn, and reserve the last 1-2 turns for writing the deliverable.
-- When budget or evidence runs out, STOP exploring and emit the full report with an explicit "unverified/未确认点" section for whatever remains — a complete report with gaps beats an incomplete process log.
+Final-delivery and batch-receipt contract:
+- Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
+- Never end with process narration ("Let's check X next", "Now I'll read...").
+- Delivery policy: COMMAND_BATCH
+- Soft work budget: 4 tool-use turns. Stop new work at this budget and reserve at least 2 remaining maxTurns for delivery.
+- Delivery status: FINAL | BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
+- Overall ready: yes | no
+- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
+- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
+- Run one cohesive command family per batch and close any previous remainder before starting another family.
+- Preserve the exact command, exit status, key output, and artifacts in the batch receipt. Do not rerun a completed command family without new evidence.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 ---

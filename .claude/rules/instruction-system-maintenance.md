@@ -39,6 +39,10 @@ Before finalizing instruction changes:
 - every rule has one shared owner or one owner per platform; shortcut skills contain only mode-specific deltas
 - every agent has clear use / do-not-use / output contract
 - every write-capable agent has a verification handoff rule
+- every agent declares one delivery policy and soft work budget
+- batchable roles return the shared receipt; one-shot roles reroute instead of accumulating hidden remainder
+- partial review cannot emit a final acceptance verdict, and changed-state delivery failures freeze overlapping writers
+- platform recovery rules capability-check continuation instead of assuming Agent Teams, `SendMessage`, or hidden context
 - no unsupported tool/model names were introduced without a note
 - instructions are concrete enough to verify
 - paired Codex/Claude roles preserve method-family parity without duplicating detailed definitions

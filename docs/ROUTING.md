@@ -68,6 +68,16 @@ Approved L3 implementation remains on the scoped Sonnet executor. Opus/Fable pla
 - Claude must receive a successful `Task` result identifying the configured child before claiming delegation.
 - On either platform, a failed or identity-less spawn returns `BLOCKED` with the tool evidence. The parent must not simulate the child or silently execute the delegated scope itself.
 
+## Durable delivery and batching
+
+- Every role declares one delivery policy and a soft work budget. The soft budget stops new work early enough to preserve a final-delivery margin; it is not permission to exceed the platform's hard limit.
+- Evidence/planning and review roles may return bounded receipts. Review acceptance (`ACCEPT`, `PASS`, `NO_BLOCKERS`, or equivalent) is final-only and requires the declared inventory plus all prior remainder to be closed.
+- The executor, docs, and alignment roles may batch only non-overlapping requirement/file ownership. Focused fixer, Spark, mechanical batch, and general fallback remain one-shot and reroute when their bounded scope does not fit.
+- The runner handles one command or cohesive command family per batch and records command, exit status, key output, artifacts, and remaining commands before starting another family.
+- Empty, progress-only, tool-log-only, or malformed output never advances the parent state. A changed-state delivery failure freezes overlapping writers until the actual diff/artifacts are reconciled.
+- Same-agent continuation is an optimization only when the runtime returns a confirmed handle. Otherwise the receipt and evidence ledger are the portable continuation state; no platform messaging feature is assumed.
+- Static package tests validate prompt/config parity and receipt contracts. They cannot force a provider process to emit output after an external hard termination.
+
 ## Portability boundaries
 
 - Shortcut skills are explicit-only: Claude uses `disable-model-invocation: true`; Codex uses `policy.allow_implicit_invocation: false` metadata.

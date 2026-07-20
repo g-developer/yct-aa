@@ -208,6 +208,14 @@ Selected methods:
     Trigger evidence:
     Required output:
     Gate/stop condition:
+Delivery:
+  Policy: BATCHABLE_READ | BATCHABLE_REVIEW | BOUNDED_WRITE | COMMAND_BATCH | ONE_SHOT_REROUTE
+  Work ID:
+  Batch ID: none for one-shot work
+  Batch scope:
+  Previous remainder: none or explicit item IDs
+  Overall done condition:
+  Soft work budget:
 Done criteria:
 Verification expected:
 Output format:
@@ -217,6 +225,46 @@ Stop conditions:
 Workers must return `BLOCKED` when the packet is insufficient for safe execution. They must not infer hidden parent context, expand scope, act as orchestrators, or spawn more agents unless their role explicitly permits it.
 
 When the task signal requires a method, omitting its structured packet entry is an incomplete packet. Workers must not guess a missing method contract or manufacture trigger evidence.
+
+### Durable delivery and bounded batches
+
+Every delegated invocation must end with either a complete final deliverable or a structured batch receipt. Empty output, progress narration, a tool log, or a malformed receipt is a delivery failure, never completion.
+
+Use the role's declared delivery policy:
+
+| Policy | Behavior |
+|---|---|
+| `BATCHABLE_READ` | Split evidence or planning into bounded item sets. |
+| `BATCHABLE_REVIEW` | Split declared review inventory; final acceptance is forbidden until all inventory and prior remainder are closed. |
+| `BOUNDED_WRITE` | Split only by non-overlapping requirement/file ownership; every batch that changes state returns the write handoff. |
+| `COMMAND_BATCH` | Run one command or one cohesive command family; preserve its result before starting another. |
+| `ONE_SHOT_REROUTE` | Finish once or return `BLOCKED`/`REROUTE`; do not silently become a long-running multi-batch worker. |
+
+At the soft work budget, stop starting new work and spend the reserved delivery margin on the receipt. A batch normally contains 3–5 items, reduced to 2–3 for L3/L4 or high-uncertainty work. The packet or role may set a smaller limit. Do not increase a role's budget merely to avoid reporting a real remainder.
+
+A non-final batch receipt must include:
+
+```text
+Delivery status: BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
+Overall ready: no
+Work ID:
+Batch ID:
+Batch scope:
+Previous remainder disposition:
+Completed items:
+Evidence or change delta:
+Verification performed:
+Remaining items:
+New discoveries:
+Next batch packet:
+Write handoff: required when any persistent state or file changed
+```
+
+`BATCH_COMPLETE` means this batch closed but the overall task remains open. `BATCH_PARTIAL` means even the declared batch scope was not closed. Neither status may emit a final role verdict such as `PLAN_READY`, `ACCEPT`, `PASS`, `NO_BLOCKERS`, or `IMPLEMENTED`. Only a complete overall result may use `Delivery status: FINAL`, `Overall ready: yes`, and the role's final verdict.
+
+The next batch must close the previous remainder before taking new scope. If the same item remains open after two consecutive receipts, stop the chain with `BLOCKED` or route a separate evidence/localization task; do not carry it silently into a third batch.
+
+The parent validates receipt shape, scope, evidence anchors, and changed-state handoff before continuing. Reuse the same worker only when the platform exposes a confirmed continuation handle. Otherwise start a new bounded packet containing the prior receipt and ledger; never assume hidden context or an unavailable messaging feature. If a write-capable worker returns empty or malformed output, freeze overlapping writes, inspect actual changed state, and reconcile it before any further writer runs.
 
 ### Write-capable handoff
 

@@ -92,6 +92,58 @@ check(set(codex_agents) == set(expected_codex_models), "Codex agent set differs 
 for name, model in expected_codex_models.items():
     check(codex_agents.get(name, {}).get("model") == model, f"wrong Codex model for {name}")
 
+delivery_profiles = {
+    "alignment-recorder-agent": ("BOUNDED_WRITE", 4),
+    "batch-agent": ("ONE_SHOT_REROUTE", 4),
+    "browser-agent": ("BATCHABLE_READ", 6),
+    "code-reviewer-agent": ("BATCHABLE_REVIEW", 6),
+    "docs-agent": ("BOUNDED_WRITE", 5),
+    "executor-agent": ("BOUNDED_WRITE", 8),
+    "explorer-agent": ("BATCHABLE_READ", 6),
+    "focused-fixer-agent": ("ONE_SHOT_REROUTE", 4),
+    "general-agent": ("ONE_SHOT_REROUTE", 3),
+    "plan-checker": ("BATCHABLE_REVIEW", 6),
+    "planner-agent": ("BATCHABLE_READ", 6),
+    "research-agent": ("BATCHABLE_READ", 6),
+    "security-reviewer-agent": ("BATCHABLE_REVIEW", 6),
+    "semantic-review-agent": ("BATCHABLE_REVIEW", 6),
+    "spark-agent": ("ONE_SHOT_REROUTE", 4),
+    "verify-agent": ("BATCHABLE_REVIEW", 6),
+    "verify-runner-agent": ("COMMAND_BATCH", 4),
+}
+check(set(delivery_profiles) == set(expected_codex_models), "delivery profile set differs from agent set")
+
+
+def check_delivery_contract(text: str, platform: str, name: str) -> None:
+    policy_name, budget = delivery_profiles[name]
+    for marker in (
+        f"Delivery policy: {policy_name}",
+        f"Soft work budget: {budget} tool-use turns",
+        "Delivery status:",
+        "Overall ready:",
+        "previous remainder",
+        "batch receipt",
+    ):
+        check(marker in text, f"{platform} {name} misses delivery marker: {marker}")
+    check(re.search(r"Verdict:.*\bPARTIAL\b", text) is None, f"{platform} {name} retains ambiguous PARTIAL role verdict")
+    if policy_name == "BATCHABLE_READ":
+        check("Batch 3-5 evidence or requirement items" in text and "2-3 for L3/L4" in text, f"{platform} {name} misses bounded read batch size")
+    if policy_name == "BATCHABLE_REVIEW":
+        check("Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes" in text, f"{platform} {name} permits partial final acceptance")
+        check("remaining inventory without an acceptance verdict" in text, f"{platform} {name} loses partial-review semantics")
+    if policy_name == "ONE_SHOT_REROUTE":
+        check("Do not start a continuation batch" in text, f"{platform} {name} silently expands one-shot work")
+        check("Delivery status: FINAL | BLOCKED" in text, f"{platform} {name} exposes invalid batch statuses for one-shot work")
+    if policy_name == "BOUNDED_WRITE":
+        check("write handoff" in text.lower(), f"{platform} {name} can lose changed-state handoff")
+    if policy_name == "COMMAND_BATCH":
+        for marker in ("one cohesive command family", "exit status", "Do not rerun a completed command family"):
+            check(marker in text, f"{platform} {name} misses command receipt marker: {marker}")
+
+
+for name, data in codex_agents.items():
+    check_delivery_contract(data.get("developer_instructions", ""), "Codex", name)
+
 method_contracts = {
     "explorer-agent": ("Hypothesis–Falsification", "OODA"),
     "focused-fixer-agent": ("Hypothesis–Falsification", "PDCA", "characterization test", "Test Strategy Selection", "invariant/oracle", "rejected alternatives"),
@@ -139,6 +191,12 @@ for path in sorted((root / ".claude/agents").glob("*.md")):
     if name:
         check(name not in claude_agents, f"duplicate Claude agent name: {name}")
         claude_agents[name] = meta
+        if name in delivery_profiles:
+            try:
+                max_turns = int(meta.get("maxTurns", "0"))
+            except ValueError:
+                max_turns = 0
+            check(max_turns >= delivery_profiles[name][1] + 2, f"Claude {name} has no delivery margin after soft budget")
         if name in read_only_claude:
             check(meta.get("permissionMode") == "plan", f"read-only Claude agent lacks plan permission mode: {name}")
     check("background" not in meta, f"Claude agent forces background execution: {path}")
@@ -147,6 +205,12 @@ for path in sorted((root / ".claude/agents").glob("*.md")):
     check("Agent" not in tools, f"worker can recursively orchestrate: {path}")
     if tools.intersection({"Edit", "Write"}):
         check("verification handoff" in path.read_text(encoding="utf-8").lower(), f"write-capable Claude agent lacks handoff: {path}")
+
+for name in delivery_profiles:
+    path = root / ".claude/agents" / f"{name}.md"
+    check(path.exists(), f"missing Claude delivery role: {name}")
+    if path.exists():
+        check_delivery_contract(path.read_text(encoding="utf-8"), "Claude", name)
 
 for name, markers in method_contracts.items():
     path = root / ".claude/agents" / f"{name}.md"
@@ -244,6 +308,34 @@ for direct_path in (root / ".agents/skills/yct-direct/SKILL.md", root / ".claude
 agents_text = (root / "AGENTS.md").read_text(encoding="utf-8")
 for marker in ("Selected methods:", "Trigger evidence:", "Required output:", "Gate/stop condition:"):
     check(marker in agents_text, f"clean-context packet schema misses method field: {marker}")
+for marker in (
+    "Policy: BATCHABLE_READ | BATCHABLE_REVIEW | BOUNDED_WRITE | COMMAND_BATCH | ONE_SHOT_REROUTE",
+    "Previous remainder disposition:",
+    "Write handoff: required when any persistent state or file changed",
+    "after two consecutive receipts",
+    "confirmed continuation handle",
+    "freeze overlapping writes",
+):
+    check(marker in agents_text, f"shared delivery contract misses marker: {marker}")
+
+claude_orchestration = (root / ".claude/rules/subagent-orchestration.md").read_text(encoding="utf-8")
+check("optional capabilities, not assumptions" in claude_orchestration, "Claude recovery still assumes optional messaging")
+check("Resume it once via `SendMessage`" not in claude_orchestration, "Claude recovery retains unconditional SendMessage advice")
+for aa_path in (root / ".agents/skills/yct-aa/SKILL.md", root / ".claude/skills/yct-aa/SKILL.md"):
+    aa_text = aa_path.read_text(encoding="utf-8")
+    for marker in ("shared `Delivery` fields", "same remainder survives two receipts", "confirmed continuation handle", "freeze overlapping writers"):
+        check(marker in aa_text, f"auto-router misses durable-delivery marker {marker}: {aa_path}")
+for skill_name in ("yct-risk", "yct-review"):
+    for platform in (".agents/skills", ".claude/skills"):
+        path = root / platform / skill_name / "SKILL.md"
+        text = path.read_text(encoding="utf-8")
+        for marker in ("shared `Delivery` fields", "AGENTS.md` batch receipt", "previous remainder", "confirmed continuation handle"):
+            check(marker in text, f"{platform} {skill_name} misses delivery gate marker: {marker}")
+for platform in (".agents/skills", ".claude/skills"):
+    path = root / platform / "yct-fix/SKILL.md"
+    text = path.read_text(encoding="utf-8")
+    for marker in ("shared `Delivery` fields", "are one-shot", "do not open a continuation batch", "freeze overlapping writers"):
+        check(marker in text, f"{platform} yct-fix misses one-shot delivery marker: {marker}")
 for role in ("planner-agent", "executor-agent"):
     codex_text = codex_agents[role].get("developer_instructions", "")
     claude_text = (root / ".claude/agents" / f"{role}.md").read_text(encoding="utf-8")
@@ -264,6 +356,14 @@ canonical_packet_fields = (
     "Constraints",
     "Assumptions",
     "Selected methods",
+    "Delivery",
+    "Policy",
+    "Work ID",
+    "Batch ID",
+    "Batch scope",
+    "Previous remainder",
+    "Overall done condition",
+    "Soft work budget",
     "Done criteria",
     "Verification expected",
     "Output format",
@@ -447,7 +547,7 @@ if method_rule.exists():
     rule_text = method_rule.read_text(encoding="utf-8")
     check("method chain by ritual" in rule_text, "Claude method rule does not prevent ceremony")
     check("docs/METHODS.md" in rule_text, "Claude method rule loses detailed contract owner")
-check((root / "AGENTS.md").stat().st_size < 22000, "AGENTS.md exceeds the compact shared-contract budget")
+check((root / "AGENTS.md").stat().st_size < 26000, "AGENTS.md exceeds the compact shared-contract budget")
 check((root / "docs/METHODS.md").stat().st_size < 16000, "METHODS.md is too large for a focused reference")
 
 if errors:

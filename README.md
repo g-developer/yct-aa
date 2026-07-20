@@ -108,6 +108,14 @@ Selected methods are written into the subagent packet with required outputs. Mer
 
 The risk budget does not weaken safety boundaries: authorization, tenant isolation, irreversible data damage, duplicate side effects, and unbounded blocking remain must-handle. It prevents evidence-free review findings from automatically growing the production state machine, and keeps code-only complexity-reducing refactors separate from runtime reliability machinery.
 
+## Bounded agent delivery
+
+Long work is divided into explicit batches instead of relying on a child agent to finish before a hard turn limit. Every role has a soft work budget and returns either a complete final result or a structured receipt containing completed work, evidence or file changes, verification, remaining items, and the next packet.
+
+The next batch closes the previous remainder before taking new scope. A remainder that survives two receipts stops as `BLOCKED` or becomes a separate evidence task. Review agents cannot return `PASS`, `ACCEPT`, or `NO_BLOCKERS` from partial coverage. Small focused agents stay one-shot and reroute instead of silently growing into long jobs. If a writer returns invalid output after changing files, overlapping writers stop until the actual diff is reconciled.
+
+Same-agent continuation is used only when the runtime confirms that capability. The portable continuation state is the receipt plus evidence ledger; neither Claude Agent Teams/`SendMessage` nor a Codex continuation handle is assumed.
+
 ## Claude routing note
 
 Claude uses `focused-fixer-agent` for small focused fixes. `spark-agent` is retained only as a legacy compatibility worker for packets that explicitly request it.

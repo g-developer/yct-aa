@@ -45,6 +45,7 @@ Why `$yct-aa` instead of typing the long prompt:
 - `$yct-aa` explicitly authorizes Codex to spawn suitable subagents.
 - The skill loads the clean-context packet, routing, and verification rules.
 - It selects only task-relevant methods and passes their output contracts to the responsible agent.
+- It gives every child a bounded delivery policy: complete final result or a reusable batch receipt, never progress-only output.
 - It keeps your task prompt short while preserving the multi-agent discipline.
 - Focused fixes use the portable `focused-fixer-agent` by default; Spark is an optional known-available acceleration route.
 
@@ -65,6 +66,8 @@ Use no prefix for simple natural requests in Claude. Use `/yct-aa` when you want
 Use `$yct-aa` in Codex for any task where subagents may be useful, because Codex requires explicit subagent authorization.
 
 Methods are not separate shortcuts. `yct-aa`, `yct-risk`, `yct-fix`, and `yct-review` select them from the shared task-signal matrix. For example, a known one-file typo should not trigger FMEA; an ambiguous production migration should not omit it.
+
+For long work, `yct-aa` closes the previous batch remainder before opening new scope. Review acceptance is final-only, focused/Spark/mechanical workers remain one-shot, and continuation is attempted only when the platform confirms a reusable child handle.
 
 ## Installer merge behavior
 
