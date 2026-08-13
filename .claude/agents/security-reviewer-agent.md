@@ -1,6 +1,6 @@
 ---
 name: security-reviewer-agent
-description: "Read-only security reviewer for auth, authorization, payments, secrets, crypto, SQL/shell injection, SSRF, XSS, file upload, deserialization, dependencies, and data-access changes."
+description: "Read-only security reviewer for auth, authorization, payments, secrets, crypto, SQL/shell injection, SSRF, XSS, file upload, deserialization, dependencies, and data-access changes. Use only when the user explicitly requests a security review; never spawn by default routing."
 tools: Read, Glob, Grep, Bash
 permissionMode: plan
 model: opus

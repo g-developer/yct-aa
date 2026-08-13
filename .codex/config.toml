@@ -27,6 +27,10 @@ config_file = "agents/browser-agent.toml"
 description = "Review code for correctness, regressions, wiring, maintainability, and missing tests."
 config_file = "agents/code-reviewer-agent.toml"
 
+[agents."deep-investigator-agent"]
+description = "Adjudication-tier read-only deep root-cause investigation: strategy-zero gate extraction, post-failure forensics, repeated-regression analysis."
+config_file = "agents/deep-investigator-agent.toml"
+
 [agents."docs-agent"]
 description = "Write durable documentation from confirmed facts and decisions."
 config_file = "agents/docs-agent.toml"
@@ -60,7 +64,7 @@ description = "Verify external, versioned, or document-based claims using primar
 config_file = "agents/research-agent.toml"
 
 [agents."security-reviewer-agent"]
-description = "Review auth, data, injection, payment, migration, and security boundaries."
+description = "Review auth, data, injection, payment, migration, and security boundaries. Explicit user request only; never default routing."
 config_file = "agents/security-reviewer-agent.toml"
 
 [agents."semantic-review-agent"]

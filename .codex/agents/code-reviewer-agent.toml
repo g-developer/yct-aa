@@ -2,10 +2,10 @@ name = "code-reviewer-agent"
 description = "Read-only code reviewer for diffs or specified files. Use for correctness, regression risk, runtime wiring, missing tests, and maintainability issues with concrete failure risk."
 nickname_candidates = ["CodeReview", "Reviewer"]
 
-model = "gpt-5.6"
-model_fallback = "gpt-5.6-terra"
-model_fallback_chain = ["gpt-5.6-terra", "gpt-5.6-luna"]
-model_floor = "gpt-5.6-luna"  # 裁决类质量地板：触底报 BLOCKED，禁止静默降到 5.5 以下
+model = "gpt-5.6-terra"
+# model_fallback = "gpt-5.6-luna"
+# model_fallback_chain = ["gpt-5.6-luna"]
+# model_floor = "gpt-5.6-luna"  # 裁决类质量地板：触底报 BLOCKED，禁止静默降到 5.5 以下
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 

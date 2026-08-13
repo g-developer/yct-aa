@@ -39,7 +39,7 @@ Do not set `CLAUDE_CODE_SUBAGENT_MODEL` globally unless intentionally overriding
 Permitted stage order; include only stages selected by task criticality and evidence:
 
 ```text
-explorer-agent -> planner-agent -> plan-checker -> executor-agent/focused-fixer-agent/batch-agent -> verify-agent/verify-runner-agent -> code-reviewer/security-reviewer when relevant
+explorer-agent -> planner-agent -> plan-checker -> executor-agent/focused-fixer-agent/batch-agent -> verify-agent/verify-runner-agent -> code-reviewer when relevant; security-reviewer only on explicit user request
 ```
 
 Task routing:
@@ -50,7 +50,7 @@ Task routing:
 - L3 risky: use `planner-agent`, `plan-checker`, scoped implementation, and independent verification.
 - L4 strategic/irreversible: plan and review only until the user explicitly approves execution.
 
-For approved L3 implementation, keep `executor-agent` on Sonnet and place stronger-model checks around it: Opus planning, plan challenge, security review, and independent verification. This is a deliberate pipeline, not an implicit promise to upgrade the write-capable agent.
+For approved L3 implementation, keep `executor-agent` on Sonnet and place stronger-model checks around it: Opus planning, plan challenge, independent verification, and security review when the user explicitly requests it. This is a deliberate pipeline, not an implicit promise to upgrade the write-capable agent.
 
 ## Subagent orchestration
 
@@ -73,6 +73,7 @@ For approved L3 implementation, keep `executor-agent` on Sonnet and place strong
 | Need | Agent |
 |---|---|
 | Map unfamiliar code paths | `explorer-agent` |
+| Deep root-cause investigation: strategy-zero gate extraction, post-failure forensics, repeated regression | `deep-investigator-agent` |
 | Plan risky or ambiguous work | `planner-agent` |
 | Attack a plan before implementation | `plan-checker` |
 | Implement approved scoped work | `executor-agent` |
@@ -81,7 +82,7 @@ For approved L3 implementation, keep `executor-agent` on Sonnet and place strong
 | Static independent verification | `verify-agent` |
 | Run tests/build/lint/typecheck | `verify-runner-agent` |
 | Review diff for engineering defects | `code-reviewer-agent` |
-| Review security/data-boundary risk | `security-reviewer-agent` |
+| Security/data-boundary review (explicit user request only) | `security-reviewer-agent` |
 | External/version/source research | `research-agent` |
 | Browser/UI/social evidence after tool preflight | `browser-agent` |
 | Write durable docs | `docs-agent` |
@@ -111,7 +112,7 @@ Use these shortcuts to reduce repeated long prompts:
 
 - `/yct-aa <task>` or `yct-aa: <task>`: auto-agent routing. Classify the task, choose subagents only when useful, require clean-context packets and independent verification.
 - `/yct-direct <task>` or `yct-direct: <task>`: no-agent mode for tiny low-risk tasks.
-- `/yct-risk <task>` or `yct-risk: <task>`: L3/L4 flow with planning, adversarial review, verification, and security review when relevant.
+- `/yct-risk <task>` or `yct-risk: <task>`: L3/L4 flow with planning, adversarial review, verification, and security review only when explicitly requested.
 - `/yct-review <target>` or `yct-review: <target>`: review-only mode. Do not implement unless asked.
 - `/yct-fix <failure-or-task>` or `yct-fix: <failure-or-task>`: focused fix mode for one failing test, stack trace, small bug, or localized cleanup.
 

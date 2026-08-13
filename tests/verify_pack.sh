@@ -14,6 +14,7 @@ import tomllib
 
 root = pathlib.Path(sys.argv[1])
 errors: list[str] = []
+warnings: list[str] = []
 
 
 def check(condition: bool, message: str) -> None:
@@ -53,6 +54,20 @@ actual = {
 }
 check(manifest == actual, f"manifest drift: missing={sorted(actual - manifest)} extra={sorted(manifest - actual)}")
 
+# codex-cli >=0.147 rejects role files containing any unknown field and then
+# ignores the whole file, silently disabling the role. Custom metadata must be
+# comment-form, never a parsed key.
+codex_role_fields = {
+    "name",
+    "description",
+    "nickname_candidates",
+    "model",
+    "model_reasoning_effort",
+    "sandbox_mode",
+    "web_search",
+    "developer_instructions",
+    "sandbox_workspace_write",
+}
 codex_agents: dict[str, dict] = {}
 for path in sorted((root / ".codex/agents").glob("*.toml")):
     try:
@@ -60,6 +75,17 @@ for path in sorted((root / ".codex/agents").glob("*.toml")):
     except Exception as exc:
         errors.append(f"invalid TOML {path}: {exc}")
         continue
+    unknown_fields = set(data) - codex_role_fields
+    check(
+        not unknown_fields,
+        f"codex-cli would ignore the whole role file over unknown fields {sorted(unknown_fields)}: {path.name}",
+    )
+    sandbox_table = data.get("sandbox_workspace_write")
+    if isinstance(sandbox_table, dict):
+        check(
+            set(sandbox_table) <= {"network_access"},
+            f"codex-cli would ignore the whole role file over unknown sandbox fields {sorted(set(sandbox_table) - {'network_access'})}: {path.name}",
+        )
     name = data.get("name")
     check(isinstance(name, str) and bool(name), f"missing Codex agent name: {path}")
     if isinstance(name, str):
@@ -70,33 +96,53 @@ for path in sorted((root / ".codex/agents").glob("*.toml")):
         check("verification handoff" in data.get("developer_instructions", "").lower(), f"write-capable Codex agent lacks handoff: {path}")
 
 expected_codex_models = {
-    "alignment-recorder-agent": "gpt-5.6-terra",
-    "batch-agent": "gpt-5.6-terra",
-    "browser-agent": "gpt-5.6",
-    "code-reviewer-agent": "gpt-5.6",
+    "alignment-recorder-agent": "gpt-5.3-codex-spark",
+    "batch-agent": "gpt-5.3-codex-spark",
+    "browser-agent": "gpt-5.6-terra",
+    "code-reviewer-agent": "gpt-5.6-terra",
+    "deep-investigator-agent": "gpt-5.6-sol",
     "docs-agent": "gpt-5.6-terra",
-    "executor-agent": "gpt-5.6",
+    "executor-agent": "gpt-5.6-terra",
     "explorer-agent": "gpt-5.6-terra",
     "focused-fixer-agent": "gpt-5.6-terra",
-    "general-agent": "gpt-5.6-terra",
-    "plan-checker": "gpt-5.6",
-    "planner-agent": "gpt-5.6",
+    "general-agent": "gpt-5.3-codex-spark",
+    "plan-checker": "gpt-5.6-sol",
+    "planner-agent": "gpt-5.6-sol",
     "research-agent": "gpt-5.6-terra",
-    "security-reviewer-agent": "gpt-5.6",
-    "semantic-review-agent": "gpt-5.6",
+    "security-reviewer-agent": "gpt-5.6-sol",
+    "semantic-review-agent": "gpt-5.6-sol",
     "spark-agent": "gpt-5.3-codex-spark",
-    "verify-agent": "gpt-5.6",
-    "verify-runner-agent": "gpt-5.6-terra",
+    "verify-agent": "gpt-5.6-sol",
+    "verify-runner-agent": "gpt-5.3-codex-spark",
 }
 check(set(codex_agents) == set(expected_codex_models), "Codex agent set differs from model contract")
 for name, model in expected_codex_models.items():
     check(codex_agents.get(name, {}).get("model") == model, f"wrong Codex model for {name}")
+
+# 目录漂移探测：模型目录随账号/时间变化，只 WARN 不 FAIL，避免离线或异地环境误红。
+models_cache_path = pathlib.Path.home() / ".codex/models_cache.json"
+if models_cache_path.exists():
+    try:
+        catalog_slugs = {
+            entry.get("slug")
+            for entry in json.loads(models_cache_path.read_text(encoding="utf-8")).get("models", [])
+            if isinstance(entry, dict)
+        }
+    except Exception:
+        catalog_slugs = set()
+    if catalog_slugs:
+        for agent_name, pinned in sorted(expected_codex_models.items()):
+            if pinned not in catalog_slugs:
+                warnings.append(
+                    f"pinned Codex model '{pinned}' ({agent_name}) is absent from ~/.codex/models_cache.json — possibly retired"
+                )
 
 delivery_profiles = {
     "alignment-recorder-agent": ("BOUNDED_WRITE", 4),
     "batch-agent": ("ONE_SHOT_REROUTE", 4),
     "browser-agent": ("BATCHABLE_READ", 6),
     "code-reviewer-agent": ("BATCHABLE_REVIEW", 6),
+    "deep-investigator-agent": ("BATCHABLE_READ", 6),
     "docs-agent": ("BOUNDED_WRITE", 5),
     "executor-agent": ("BOUNDED_WRITE", 8),
     "explorer-agent": ("BATCHABLE_READ", 6),
@@ -145,6 +191,7 @@ for name, data in codex_agents.items():
     check_delivery_contract(data.get("developer_instructions", ""), "Codex", name)
 
 method_contracts = {
+    "deep-investigator-agent": ("Hypothesis–Falsification", "OODA"),
     "explorer-agent": ("Hypothesis–Falsification", "OODA"),
     "focused-fixer-agent": ("Hypothesis–Falsification", "PDCA", "characterization test", "Test Strategy Selection", "invariant/oracle", "rejected alternatives"),
     "planner-agent": ("First Principles", "MECE", "Assumption ledger", "Invariant ledger", "one-way door", "FMEA-lite", "Risk–Complexity Budget", "simplest acceptable failure", "Expand–Migrate–Contract", "Minimal solution", "Rejection criteria", "Selected methods: method, trigger evidence, required output, gate/stop condition"),
@@ -175,6 +222,7 @@ claude_agents: dict[str, dict[str, str]] = {}
 read_only_claude = {
     "browser-agent",
     "code-reviewer-agent",
+    "deep-investigator-agent",
     "explorer-agent",
     "general-agent",
     "plan-checker",
@@ -547,8 +595,13 @@ if method_rule.exists():
     rule_text = method_rule.read_text(encoding="utf-8")
     check("method chain by ritual" in rule_text, "Claude method rule does not prevent ceremony")
     check("docs/METHODS.md" in rule_text, "Claude method rule loses detailed contract owner")
-check((root / "AGENTS.md").stat().st_size < 26000, "AGENTS.md exceeds the compact shared-contract budget")
+# 预算在 v4.8 一次性上调（26000 -> 26400）以恢复工作余量；
+# 之后的契约新增必须等字节置换，不得再抬预算。
+check((root / "AGENTS.md").stat().st_size < 26400, "AGENTS.md exceeds the compact shared-contract budget")
 check((root / "docs/METHODS.md").stat().st_size < 16000, "METHODS.md is too large for a focused reference")
+
+for warning in warnings:
+    print(f"WARN: {warning}", file=sys.stderr)
 
 if errors:
     for error in errors:

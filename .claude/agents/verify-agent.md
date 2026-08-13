@@ -4,7 +4,7 @@ description: "Independent fresh-context verifier for correctness, completeness, 
 tools: Read, Glob, Grep, Bash
 permissionMode: plan
 model: opus
-effort: high
+effort: xhigh
 maxTurns: 20
 color: green
 ---

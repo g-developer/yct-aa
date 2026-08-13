@@ -1,6 +1,6 @@
 # MANIFEST
 
-Package: agent-system-pack-v4.7-yct-methods
+Package: agent-system-pack-v4.8-yct-methods
 Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, agents, rules, and shortcut skills with merge-safe macOS/Linux installer.
 
 ## Install policy
@@ -26,6 +26,7 @@ Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, a
 - .claude/agents/batch-agent.md
 - .claude/agents/browser-agent.md
 - .claude/agents/code-reviewer-agent.md
+- .claude/agents/deep-investigator-agent.md
 - .claude/agents/docs-agent.md
 - .claude/agents/executor-agent.md
 - .claude/agents/explorer-agent.md
@@ -53,6 +54,7 @@ Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, a
 - .codex/agents/batch-agent.toml
 - .codex/agents/browser-agent.toml
 - .codex/agents/code-reviewer-agent.toml
+- .codex/agents/deep-investigator-agent.toml
 - .codex/agents/docs-agent.toml
 - .codex/agents/executor-agent.toml
 - .codex/agents/explorer-agent.toml

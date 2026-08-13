@@ -2,9 +2,9 @@ name = "general-agent"
 description = "Fallback subagent only for clearly scoped read-only child tasks that do not match any specialized role."
 nickname_candidates = ["Generalist", "Fallback", "Utility", "Triage"]
 
-model = "gpt-5.6-terra"
-model_fallback_chain = ["gpt-5.6-luna", "gpt-5.5"]
-model_floor = "none"  # 机械类：可降至账户最低可用档
+model = "gpt-5.3-codex-spark"
+# model_fallback_chain = ["gpt-5.6-luna", "gpt-5.6-terra"]  # spark 额度独立计量，优先耗用；128k 上下文、仅 CLI，额尽/爆窗走链
+# model_floor = "none"  # 机械类：可降至账户最低可用档
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 

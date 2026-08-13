@@ -43,7 +43,7 @@ If instructions conflict, follow the higher-priority instruction and report the 
 - Do not expand scope, reformat unrelated files, update dependencies, or modify generated artifacts unless required.
 - Test behavior rather than implementation details.
 - Fail with useful context; never silently swallow errors.
-- Add comments only for non-obvious intent or invariants. Use Chinese comments unless project convention clearly requires another language.
+- Add comments only for non-obvious intent or invariants, in Chinese unless project convention requires another language.
 
 ---
 
@@ -56,10 +56,10 @@ Classify the task before choosing process depth.
 | L0 | Typo, copy, obvious import, narrow formatting | Handle directly; no plan or subagent. |
 | L1 | One failing test, localized bug, small refactor | Inspect nearby patterns; make the smallest change; run a targeted check. |
 | L2 | Multi-file feature, unfamiliar flow, API plus tests | Define scope and non-goals; explore if needed; verify before finalizing. |
-| L3 | Auth, payments, security, migration, persistence, concurrency, cache, public API, production behavior | First principles; planner; adversarial plan review; scoped execution; security review when relevant; independent verification; rollback. |
+| L3 | Auth, payments, security, migration, persistence, concurrency, cache, public API, production behavior | First principles; planner; adversarial plan review; scoped execution; security review only when the user explicitly requests it; independent verification; rollback. |
 | L4 | Architecture direction, broad migration, framework replacement, irreversible data or public-contract decision | Plan and compare alternatives only until the user explicitly approves execution. |
 
-Use the lightest process that controls the real risk. Small reversible tasks should stay small; high-risk tasks must not be routed as focused fixes merely because the diff looks short.
+Use the lightest process that controls the real risk. Small reversible tasks should stay small; high-risk tasks must not be routed as focused fixes because the diff looks short.
 
 ---
 
@@ -92,7 +92,7 @@ Test-first is preferred when practical. Do not create artificial tests when the 
 
 ### Planning
 
-Create `IMPLEMENTATION_PLAN.md` only for genuinely multi-stage, cross-module, risky, or validation-ambiguous work. Keep it operational:
+Create `IMPLEMENTATION_PLAN.md` only for multi-stage, cross-module, risky, or validation-ambiguous work. Keep it operational:
 
 ```markdown
 # Implementation Plan
@@ -112,11 +112,13 @@ Update it during work and remove it after all stages complete unless the user as
 
 The parent owns creation, status updates, and removal of `IMPLEMENTATION_PLAN.md`; read-only planners supply plan content and packets but do not mutate the artifact. Executors must not silently rewrite the approved plan.
 
+`IMPLEMENTATION_PLAN.md` is not a progress channel: edit it only when a stage's goal, scope, or status changes; report progress through delivery receipts. Plan churn without code or evidence movement is a routing defect.
+
 ---
 
 ## 7. Method selection
 
-Methods are selected by the decision or failure signal, not by prestige. Use the smallest set that changes the quality of the outcome; do not run every method as ceremony. Detailed contracts and examples live in `docs/METHODS.md` in the package/repository and `METHODS.yct.md` after user-level installation.
+Methods are selected by the decision or failure signal. Use the smallest set that changes the outcome; do not run methods as ceremony. Detailed contracts live in `docs/METHODS.md` (package) and `METHODS.yct.md` (installed).
 
 | Task signal | Required method | Minimum evidence/output |
 |---|---|---|
@@ -144,7 +146,7 @@ Method outputs are evidence contracts, not decorative headings. If a required me
 
 The parent agent owns scope, routing, final judgment, and user communication. Subagents are bounded workers, not decision owners.
 
-Use subagents when they isolate noisy output, parallelize independent read-only work, enforce a capability boundary, or provide genuinely independent review. Do not use them for L0 tasks, tightly sequential small work, vague packets, or overlapping edits.
+Use subagents when they isolate noisy output, parallelize independent read-only work, enforce a capability boundary, or provide independent review. Do not use them for L0 tasks, tightly sequential small work, vague packets, or overlapping edits.
 
 ### Abstract capability map
 
@@ -178,6 +180,12 @@ Platform files own concrete agent names and model assignments. Do not copy Claud
 6. Independently verify delegated source edits before final completion.
 
 Read-only work may run in parallel when independent. Write-capable work must use non-overlapping files, isolated worktrees, or sequential execution.
+
+### Parallelism and agent lifecycle
+
+- Parallelism equals the number of independent critical-path tasks; idle capacity is legitimate. Never split one problem into extra dimensions to fill slots.
+- Parallel audits require disjoint scopes; at most one audit/challenge agent per question.
+- Harvest finished agents immediately. Kill an agent after two idle waits and re-scope its remainder.
 
 ---
 
@@ -222,9 +230,11 @@ Output format:
 Stop conditions:
 ```
 
-Workers must return `BLOCKED` when the packet is insufficient for safe execution. They must not infer hidden parent context, expand scope, act as orchestrators, or spawn more agents unless their role explicitly permits it.
+Workers must return `BLOCKED` when the packet is insufficient for safe execution. They must not infer hidden parent context, expand scope, redefine metrics or acceptance criteria, act as orchestrators, or spawn more agents unless the role permits it.
 
 When the task signal requires a method, omitting its structured packet entry is an incomplete packet. Workers must not guess a missing method contract or manufacture trigger evidence.
+
+Translate user directives into packet fields instead of pasting them verbatim; forwarded ritual text re-runs the same gates in every worker.
 
 ### Durable delivery and bounded batches
 
@@ -264,7 +274,7 @@ Write handoff: required when any persistent state or file changed
 
 The next batch must close the previous remainder before taking new scope. If the same item remains open after two consecutive receipts, stop the chain with `BLOCKED` or route a separate evidence/localization task; do not carry it silently into a third batch.
 
-The parent validates receipt shape, scope, evidence anchors, and changed-state handoff before continuing. Reuse the same worker only when the platform exposes a confirmed continuation handle. Otherwise start a new bounded packet containing the prior receipt and ledger; never assume hidden context or an unavailable messaging feature. If a write-capable worker returns empty or malformed output, freeze overlapping writes, inspect actual changed state, and reconcile it before any further writer runs.
+The parent validates receipt shape, scope, evidence anchors, and changed-state handoff before continuing. Reuse the same worker only when the platform exposes a confirmed continuation handle. Otherwise start a new bounded packet containing the prior receipt and ledger; never assume hidden context or unavailable messaging. If a write-capable worker returns empty or malformed output, freeze overlapping writes, inspect actual changed state, and reconcile it before any further writer runs.
 
 ### Write-capable handoff
 
@@ -318,7 +328,7 @@ Prefer evidence in this order:
 8. Social or forum signals.
 9. Model inference.
 
-Important claims need a claim, evidence, evidence strength, and remaining uncertainty. Do not say `implemented`, `tested`, `fixed`, or `safe` without matching evidence.
+Important claims need a claim, evidence, evidence strength, and remaining uncertainty. Do not say `implemented`, `tested`, `fixed`, or `safe` without matching evidence. An audit conclusion is evidence only at its recorded anchor; if the underlying state changed, revalidate before reuse — a stale audit must not drive a current verdict.
 
 For architecture or L3/L4 work, separate facts, assumptions, constraints, invariants, non-goals, minimal solution, and rejection criteria. Low-confidence assumptions must not drive irreversible decisions.
 
@@ -334,6 +344,8 @@ Must handle:
 - boundary fixes that are local, clear, and cheaper to maintain than the risk they remove.
 
 Default to observation or documented deferral when the scenario needs several independent unlikely failures outside deployment assumptions/SLO/best-effort boundaries, has no evidence, and already converges through timeout, explicit terminal state, user retry, or operational recovery without data damage, privilege failure, or duplicate side effects. An automated review finding is evidence to judge, not a new requirement by itself.
+
+Generalization budget: repair a bug with the smallest change that prevents recurrence of the observed failure class. Generalize into a shared mechanism, framework, operator, or recovery layer only after the same root cause is observed twice, citing both occurrences; never add machinery or defensive branches for unobserved failure modes. It does not waive the must-handle list above. A twice-recurring mistake becomes one line in a local do-not ledger (user override or project rules), not more contract text.
 
 Before adding persistent state, recovery workers, retries/fallbacks, cache-consistency machinery, tables/fields, leases/heartbeats, or protocol ACKs, record: the product/SLO commitment; probability, impact, and evidence; the simplest acceptable failure and why timeout/fail-fast/manual retry is insufficient; new states, migrations, config, monitoring, tests, and ownership; and how activation will be observed. If these answers are missing, prefer observability first and record the residual risk and best-effort boundary. Bound retries, name the owning layer, and require idempotency before retrying side effects. New mechanisms need a review/removal condition.
 
@@ -354,7 +366,7 @@ Check the dimensions relevant to the change:
 | Security/data | Did auth, validation, secrets, tenant boundaries, persistence, or migrations change? |
 | Operations | Will it work in CI and expected runtime environments? |
 | Observability | Are failures diagnosable without exposing secrets? |
-| Cleanup | Are placeholders, skipped tests, debug code, unrelated changes, and dead paths absent? |
+| Cleanup | Are placeholders, skipped tests, debug code, diagnostic bypasses or privilege grants, unrelated changes, and dead paths absent? |
 
 A file existing, a type compiling, or a mock-based test passing does not prove runtime completion.
 
@@ -364,6 +376,8 @@ After delegated source edits:
 2. A dynamic runner is added when tests, lint, typecheck, build, or smoke commands are needed.
 3. Runner output becomes verifier evidence; it is not a substitute for static acceptance.
 
+Review budget: at most one acceptance pass plus one re-check per change. After a fix, verify the fixed issue, not the whole chain; a passed gate is settled unless new evidence appears. Turn review conclusions into hard gates once; stacking review layers without a gate is a routing defect. Execute adjudicated wiring before further input auditing; a new audit round requires new evidence.
+
 For direct L0/L1 edits, the parent may perform targeted verification without spawning a verifier. Disclose checks that could not run.
 
 ---
@@ -372,7 +386,7 @@ For direct L0/L1 edits, the parent may perform targeted verification without spa
 
 For L3/L4 work, perform a short pre-mortem and turn plausible failures into tests, plan changes, or recovery steps. Explicitly preserve relevant invariants such as compatibility, authorization boundaries, idempotency, data readability, and deterministic behavior.
 
-For sensitive L3/L4 plans, security review occurs before execution when the plan changes a trust boundary and again after implementation against the real diff. `ACCEPT_WITH_CHANGES` is not execution approval: incorporate the required changes and rerun the plan challenge for L3/L4 work. Security blocker/high findings always block completion; lower findings also block when they violate the goal, done criteria, or invariants. Rollback/recovery must not knowingly restore an exploitable or data-corrupting state; use containment, forward repair, or a safe prior version instead.
+Security review is off by default and runs only when the user explicitly requests it; when requested for sensitive L3/L4 plans, it occurs before execution when the plan changes a trust boundary and again after implementation against the real diff. `ACCEPT_WITH_CHANGES` is not execution approval: incorporate the required changes and rerun the plan challenge for L3/L4 work. Security blocker/high findings always block completion; lower findings also block when they violate the goal, done criteria, or invariants. Rollback/recovery must not knowingly restore an exploitable or data-corrupting state; use containment, forward repair, or a safe prior version instead.
 
 L3/L4 completion requires the revised plan to be accepted, required security findings to be resolved, required dynamic checks to pass, and the final static verifier to pass using those results as evidence. A parent summary cannot waive a failed gate.
 
@@ -415,6 +429,6 @@ Use the pyramid principle and keep it concise.
 - Debugging: `结论 / 根因 / 证据 / 修复 / 验证 / 剩余不确定性`.
 - Blocked: `阻塞点 / 已尝试内容 / 关键错误 / 当前状态 / 最安全的下一步`.
 
-Write for an intelligent reader who did not participate in the implementation. Do not force the user to read code or decode internal process, agent, model, or method jargon to understand the result.
+Write for an intelligent reader who did not participate in the implementation; do not force the user to read code or decode internal process/agent/method jargon.
 
 The task is done only when the requested behavior is implemented or the blocker is clear, relevant checks pass or failures are documented, no unrelated changes remain, and verification limits are disclosed.

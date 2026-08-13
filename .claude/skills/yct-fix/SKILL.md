@@ -50,9 +50,11 @@ Model availability, fallback and budget:
   an alias that failed once is never attempted again this session.
 - Fallback chain: on a model/alias-unavailable spawn error, retry with an
   explicit per-call `model` override on the Agent tool, walking
-  fable -> opus -> sonnet -> haiku -> inherit, ONE attempt per hop; report the
-  tier actually used. Never claim the pinned alias ran after a downgrade;
-  BLOCKED only after the chain is exhausted.
+  fable -> opus -> sonnet -> haiku -> inherit, ONE attempt per hop; the FINAL
+  answer must name each failed spawn and the substitute model/tier that
+  actually ran — silent substitution is a false report. Never claim the
+  pinned alias ran after a downgrade; BLOCKED only after the chain is
+  exhausted.
 - Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
   polling, status reads, test execution, evidence formatting, file location,
   diff self-checks, trace updates — MUST take `haiku` or plain scripts, never

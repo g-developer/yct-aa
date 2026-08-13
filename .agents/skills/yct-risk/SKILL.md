@@ -17,9 +17,9 @@ Required routing:
 1. Spawn `planner-agent` for first-principles planning.
 2. Spawn `plan-checker` for adversarial plan review.
 3. If plan-checker returns `ACCEPT_WITH_CHANGES`, incorporate every required change and rerun plan-checker; only `ACCEPT` authorizes L3/L4 execution.
-4. Spawn `security-reviewer-agent` before execution when the plan changes a sensitive trust boundary.
+4. Only if the user explicitly requested security review: spawn `security-reviewer-agent` before execution when the plan changes a sensitive trust boundary.
 5. Spawn `executor-agent` only after scope is bounded and required pre-execution gates pass.
-6. Spawn `security-reviewer-agent` again after implementation for sensitive diffs and negative-test evidence.
+6. When security review was explicitly requested, spawn `security-reviewer-agent` again after implementation for sensitive diffs and negative-test evidence.
 7. Spawn `verify-runner-agent` for required tests/build/lint/typecheck or smoke checks, then spawn `verify-agent` with runner and security results as evidence.
 8. Spawn `research-agent` or `browser-agent` if external/current/runtime evidence is required.
 
@@ -59,19 +59,29 @@ Model availability, fallback and budget:
   spawn of each pinned tier is the probe). Record results in a session
   model-availability table and consult it before every later spawn — a model
   that failed once is never attempted again this session.
-- Fallback chain: on a model-unavailable/entitlement error, walk the agent's
-  `model_fallback_chain` from `.codex/agents/*.toml`
-  (default gpt-5.6 -> gpt-5.6-terra -> gpt-5.6-luna), ONE attempt per hop;
-  report the tier actually used. Never claim the pinned tier ran after a
-  downgrade; BLOCKED only after the chain is exhausted.
+- Fallback chain: on any spawn failure — model unavailable, entitlement, or
+  quota/limit exhausted — walk the agent's
+  `model_fallback_chain` comment in `.codex/agents/*.toml` (comment-form:
+  Codex parses no custom role fields; the skill reads the comment)
+  (defaults: adjudication gpt-5.6-sol -> gpt-5.6-terra -> gpt-5.6-luna;
+  implementation gpt-5.6-terra -> gpt-5.6-luna; mechanical
+  gpt-5.3-codex-spark -> gpt-5.6-luna -> gpt-5.6-terra), ONE attempt per hop;
+  the FINAL answer must name each failed spawn and the substitute role/tier
+  that actually ran — silent substitution is a false report. Never claim the
+  pinned tier ran after a downgrade; BLOCKED only after the chain is
+  exhausted.
 - Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
   polling, status reads, test execution, evidence formatting, file location,
   migration-number checks, diff self-checks, trace updates — MUST take the
-  lowest available tier or plain scripts, never a top-tier model. L2
+  lowest available tier or plain scripts, never a top-tier model.
+  gpt-5.3-codex-spark's quota is metered separately: mechanical roles pin
+  spark and spend that quota first; on quota exhaustion or context overflow
+  (128k, CLI-only) they fall through the chain to gpt-5.6-luna. L2
   exploration/implementation/targeted review runs mid tier. ONLY architecture
   adjudication, adversarial plan review, conflict arbitration and final
   security audit may use the top tier.
-- Quality floor: each agent may declare `model_floor`. Adjudication roles
+- Quality floor: each agent may declare `model_floor` (also comment-form).
+  Adjudication roles
   (planner/plan-checker/verify/security/code-review/semantic) floor at
   gpt-5.6-luna — a weak model rubber-stamping a review is worse than BLOCKED,
   so below the floor report BLOCKED instead of degrading silently; the

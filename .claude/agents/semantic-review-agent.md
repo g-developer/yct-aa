@@ -4,7 +4,7 @@ description: "Semantic reviewer for AGENTS.md, CLAUDE.md, .claude/rules, subagen
 tools: Read, Glob, Grep
 permissionMode: plan
 model: opus
-effort: high
+effort: xhigh
 maxTurns: 12
 color: purple
 ---

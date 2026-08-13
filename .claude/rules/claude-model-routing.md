@@ -26,6 +26,7 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
 - Do not use `fable` by default. The parent may override planner-agent or plan-checker per invocation for justified L4 work; fall back to their Opus defaults when unavailable.
 - Use aliases unless reproducibility requires pinned full model IDs.
 - If an alias is unavailable in the account or provider, change that agent to `inherit` or a permitted full model ID.
+- Never set `CLAUDE_CODE_SUBAGENT_MODEL` in settings.json env: it outranks per-call and frontmatter pins (documented precedence env > per-call > frontmatter > session) and silently flattens every subagent to one model, destroying this tier design (incident 2026-08-13). Preflight it is unset before diagnosing routing.
 
 ## Parent-tier economy (2026-07-13)
 

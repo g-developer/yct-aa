@@ -2,9 +2,9 @@ name = "batch-agent"
 description = "Mechanical batch worker for small, rule-clear, same-operation edits across six or fewer files."
 nickname_candidates = ["Batcher", "Mechanic", "Operator", "Formatter"]
 
-model = "gpt-5.6-terra"
-model_fallback_chain = ["gpt-5.6-luna", "gpt-5.5"]
-model_floor = "none"  # 机械类：可降至账户最低可用档
+model = "gpt-5.3-codex-spark"
+# model_fallback_chain = ["gpt-5.6-luna", "gpt-5.6-terra"]  # spark 额度独立计量，优先耗用；128k 上下文、仅 CLI，额尽/爆窗走链
+# model_floor = "none"  # 机械类：可降至账户最低可用档
 model_reasoning_effort = "low"
 sandbox_mode = "workspace-write"
 

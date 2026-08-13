@@ -32,9 +32,9 @@ Routing:
 1. Use `planner-agent` for the implementation plan.
 2. Use `plan-checker` for adversarial review.
 3. If plan-checker returns `ACCEPT_WITH_CHANGES`, incorporate every required change and rerun it; only `ACCEPT` authorizes L3/L4 execution.
-4. Use `security-reviewer-agent` before execution when the plan changes a sensitive trust boundary.
+4. Only if the user explicitly requested security review: use `security-reviewer-agent` before execution when the plan changes a sensitive trust boundary.
 5. Use `executor-agent` only after the plan is accepted, scope is bounded, and required pre-execution gates pass.
-6. Use `security-reviewer-agent` again after implementation for sensitive diffs and negative-test evidence.
+6. When security review was explicitly requested, use `security-reviewer-agent` again after implementation for sensitive diffs and negative-test evidence.
 7. Use `verify-runner-agent` for required dynamic checks, then use `verify-agent` with runner and security results as evidence.
 
 Delivery gate:
@@ -60,9 +60,11 @@ Model availability, fallback and budget:
   an alias that failed once is never attempted again this session.
 - Fallback chain: on a model/alias-unavailable spawn error, retry with an
   explicit per-call `model` override on the Agent tool, walking
-  fable -> opus -> sonnet -> haiku -> inherit, ONE attempt per hop; report the
-  tier actually used. Never claim the pinned alias ran after a downgrade;
-  BLOCKED only after the chain is exhausted.
+  fable -> opus -> sonnet -> haiku -> inherit, ONE attempt per hop; the FINAL
+  answer must name each failed spawn and the substitute model/tier that
+  actually ran — silent substitution is a false report. Never claim the
+  pinned alias ran after a downgrade; BLOCKED only after the chain is
+  exhausted.
 - Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
   polling, status reads, test execution, evidence formatting, file location,
   diff self-checks, trace updates — MUST take `haiku` or plain scripts, never

@@ -1,12 +1,12 @@
 name = "security-reviewer-agent"
-description = "Read-only security reviewer for auth, authorization, payments, secrets, crypto, SQL/shell injection, SSRF, XSS, file upload, deserialization, dependencies, and data-access changes."
+description = "Read-only security reviewer for auth, authorization, payments, secrets, crypto, SQL/shell injection, SSRF, XSS, file upload, deserialization, dependencies, and data-access changes. Use only when the user explicitly requests a security review; never spawn by default routing."
 nickname_candidates = ["SecurityReview", "SecReview"]
 
-model = "gpt-5.6"
-model_fallback = "gpt-5.6-terra"
-model_fallback_chain = ["gpt-5.6-terra", "gpt-5.6-luna"]
-model_floor = "gpt-5.6-luna"  # 裁决类质量地板：触底报 BLOCKED，禁止静默降到 5.5 以下
-model_reasoning_effort = "high"
+model = "gpt-5.6-sol"
+# model_fallback = "gpt-5.6-terra"
+# model_fallback_chain = ["gpt-5.6-terra", "gpt-5.6-luna"]
+# model_floor = "gpt-5.6-luna"  # 裁决类质量地板：触底报 BLOCKED，禁止静默降到 5.5 以下
+model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 
 developer_instructions = """

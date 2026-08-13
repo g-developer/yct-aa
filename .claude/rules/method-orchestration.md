@@ -15,7 +15,7 @@ paths:
 
 ## Role mapping
 
-- `explorer-agent`, `focused-fixer-agent`: Hypothesis–Falsification; OODA only for active incidents.
+- `explorer-agent`, `deep-investigator-agent`, `focused-fixer-agent`: Hypothesis–Falsification; OODA only for active incidents.
 - `planner-agent`: First Principles, MECE, ledgers, One-way/Two-way Doors, Pre-mortem/FMEA-lite, Risk–Complexity Budget, Expand–Migrate–Contract.
 - `plan-checker`: Steelman, counterexamples, Red Team, FMEA, reversibility, and reliability mechanism-admission challenge.
 - `executor-agent`: PDCA/test-first, characterization tests, requirement traceability, approved migration stage.
