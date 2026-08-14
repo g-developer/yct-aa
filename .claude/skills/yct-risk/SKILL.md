@@ -22,6 +22,7 @@ Required discipline:
 - Apply the Risk–Complexity Budget before proposing reliability machinery: name the product/SLO commitment, evidence, simplest acceptable failure, added state/operations/tests, observability-first option, decision, and residual risk.
 - Treat L3/L4 as a demand for stronger proof, not automatic authorization for durable state, workers, retries, fallbacks, or protocol expansion.
 - Run Steelman + Red Team adversarial plan review.
+- Plans cite frozen work products by absolute path + SHA-256 instead of embedding complete programs/configs/transcripts (interface-level hunks up to ~30 lines are fine); embedded-source plan growth is plan-churn.
 - Use Trust Boundary and Abuse Cases for sensitive surfaces.
 - Use Expand–Migrate–Contract for schema, API, event, persisted-format, or config migrations.
 - Use Test Strategy Selection: choose characterization, property, metamorphic, compatibility, fault-injection, or negative tests as the uncertainty requires.
@@ -31,7 +32,7 @@ Routing:
 
 1. Use `planner-agent` for the implementation plan.
 2. Use `plan-checker` for adversarial review.
-3. If plan-checker returns `ACCEPT_WITH_CHANGES`, incorporate every required change and rerun it; only `ACCEPT` authorizes L3/L4 execution.
+3. If plan-checker returns `ACCEPT_WITH_CHANGES` or `BLOCKED`, incorporate every required change and rerun it scoped ONLY to the enumerated gaps (delta review; a full re-review requires material new evidence and must name it); only `ACCEPT` authorizes L3/L4 execution.
 4. Only if the user explicitly requested security review: use `security-reviewer-agent` before execution when the plan changes a sensitive trust boundary.
 5. Use `executor-agent` only after the plan is accepted, scope is bounded, and required pre-execution gates pass.
 6. When security review was explicitly requested, use `security-reviewer-agent` again after implementation for sensitive diffs and negative-test evidence.
@@ -51,6 +52,8 @@ Do not implement immediately if the decision is irreversible, destructive, or pu
 Rollback or recovery must not knowingly restore an exploitable or data-corrupting state.
 
 Completion gate: revised plan `ACCEPT` + required security findings resolved + required runner checks `PASS` + final `verify-agent` `PASS`.
+
+After `ACCEPT` in a session that has already compacted or materially consumed its context, emit the session-handoff file and start execution in a fresh session instead of continuing on the near-full thread.
 
 Model availability, fallback and budget:
 

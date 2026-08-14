@@ -16,7 +16,7 @@ Required routing:
 
 1. Spawn `planner-agent` for first-principles planning.
 2. Spawn `plan-checker` for adversarial plan review.
-3. If plan-checker returns `ACCEPT_WITH_CHANGES`, incorporate every required change and rerun plan-checker; only `ACCEPT` authorizes L3/L4 execution.
+3. If plan-checker returns `ACCEPT_WITH_CHANGES` or `BLOCKED`, incorporate every required change and rerun plan-checker scoped ONLY to the enumerated gaps (delta review; a full re-review requires material new evidence and must name it); only `ACCEPT` authorizes L3/L4 execution.
 4. Only if the user explicitly requested security review: spawn `security-reviewer-agent` before execution when the plan changes a sensitive trust boundary.
 5. Spawn `executor-agent` only after scope is bounded and required pre-execution gates pass.
 6. When security review was explicitly requested, spawn `security-reviewer-agent` again after implementation for sensitive diffs and negative-test evidence.
@@ -46,11 +46,14 @@ Required content:
 - Expand–Migrate–Contract for schema, API, event, persisted-format, or config migrations.
 - Test Strategy Selection appropriate to the uncertainty.
 - Non-goals.
+- Plans cite frozen work products by absolute path + SHA-256 instead of embedding complete programs/configs/transcripts (interface-level hunks up to ~30 lines are fine); embedded-source plan growth is plan-churn.
 - Rollback/recovery notes.
 - Recovery must not knowingly restore an exploitable or data-corrupting state.
 - Verification plan.
 
 Completion gate: revised plan `ACCEPT` + required security findings resolved + required runner checks `PASS` + final `verify-agent` `PASS`.
+
+After `ACCEPT` in a session that has already compacted or materially consumed its context, emit the session-handoff file and start execution in a fresh session instead of continuing on the near-full thread.
 
 Model availability, fallback and budget:
 

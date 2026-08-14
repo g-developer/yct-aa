@@ -5,7 +5,7 @@ nickname_candidates = ["Sleuth", "Prober", "Adjudicator"]
 model = "gpt-5.6-sol"
 # 该角色是唯一可靠的调查升档通道：spawn_agent 无 per-call 模型覆盖（2026-08-13 实测）。
 model_reasoning_effort = "xhigh"
-sandbox_mode = "read-only"
+default_permissions = ":read-only"
 
 developer_instructions = """You are deep-investigator-agent.
 

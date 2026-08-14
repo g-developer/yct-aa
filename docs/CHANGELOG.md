@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.9
+
+Codex permission-profile migration plus session-economy hard gates, derived from an observed 2026-08-14 Codex yct-aa session where the top tier consumed ~97% of daily cost: the mechanical-tier quota went unused while the parent inlined mechanical chains, three plan-checker rounds each re-reviewed the full plan, and the plan file grew past 3,000 lines by embedding complete programs.
+
+- Migrated all 18 `.codex/agents/*.toml` role files from the retired `sandbox_mode`/`[sandbox_workspace_write]` mechanism to Codex permission profiles (officially mutually exclusive with the old sandbox fields): 11 read-only roles now pin `default_permissions = ":read-only"`, and 7 writer roles pin `default_permissions = "yct-writer"` with a self-contained in-file `[permissions.yct-writer]` profile (extends `:workspace`, network disabled), preserving the old offline workspace-write boundary. `tests/verify_pack.sh` swaps its codex-cli field whitelist accordingly and now gates every Codex role on declaring one of the two profiles, with writer roles required to carry the network-disabled yct-writer shape. Verified against codex-cli 0.147: role-layer `default_permissions` accepted (doctor clean) and both profile semantics confirmed via zero-token `codex sandbox` probes (read-only: read OK/write denied; yct-writer: workspace write OK/network blocked).
+- Added a review-loop budget to both `yct-aa` and both `yct-risk` skills: after a plan-checker `BLOCKED`/`ACCEPT_WITH_CHANGES` round, the rerun packet scopes only the enumerated gaps (delta review); defaulting to full re-review is a review-budget defect requiring named new evidence.
+- Added a plan-artifact rule to the same four skills: plans cite frozen work products by absolute path + SHA-256 instead of embedding complete programs/configs/transcripts (interface-level hunks up to ~30 lines exempt); embedded-source plan growth is plan-churn.
+- Closed the routing-ledger blind spot in both `yct-aa` skills: the ledger now covers inline parent turns — a parent turn running a mechanical chain (3+ repeatable commands) is logged as a routing defect and the next such chain must be delegated to a mechanical role or script.
+- Added a proactive phase-boundary handoff trigger to both `yct-aa` skills and both `yct-risk` skills: at a passed major gate (plan ACCEPT, phase switch) in a session that has compacted or materially consumed its context, emit the frozen handoff file and start the next phase in a fresh session instead of rolling onto the near-full thread.
+
 ## v4.8
 
 Anti-runaway budgets, derived from a forensic audit of a 21-day GPT-5.6 Codex session (over-generalized fixes, slot-filling agent fan-out, plan-file churn, repeated review loops, scope-count drift, unbounded autonomous rounds).
