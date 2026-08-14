@@ -6,7 +6,7 @@ model = "gpt-5.6-terra"
 # model_fallback_chain = ["gpt-5.6-luna", "gpt-5.5"]
 # model_floor = "none"  # 机械类：可降至账户最低可用档
 model_reasoning_effort = "medium"
-sandbox_mode = "workspace-write"
+default_permissions = "yct-writer"
 
 developer_instructions = """You are docs-agent.
 
@@ -68,5 +68,11 @@ Output format:
 - Remaining documentation gaps
 - Verification handoff packet for changed documents
 """
-[sandbox_workspace_write]
-network_access = false
+# Workspace-write without network, matching the retired
+# sandbox_workspace_write { network_access = false } boundary.
+[permissions.yct-writer]
+description = "Workspace write with network disabled for YCT writer roles."
+extends = ":workspace"
+
+[permissions.yct-writer.network]
+enabled = false

@@ -255,11 +255,33 @@ Session handoff (operator will continue in a NEW process - Codex, Claude, or oth
 - The new session's first turn validates the anchors before acting; a stale
   anchor reopens only that one fact, never the whole investigation.
 
+Review-loop and plan-artifact budget:
+
+- After a plan-checker `BLOCKED` or `ACCEPT_WITH_CHANGES` round, the next
+  checker packet scopes ONLY the enumerated gaps (carry the gap list in the
+  packet); it re-verifies those fixes, not the whole plan. A full re-review
+  requires material new evidence (e.g. a structural plan rewrite) and must
+  name it. Defaulting to full re-review is a review-budget defect.
+- Plan artifacts cite frozen work products by absolute path + SHA-256 instead
+  of embedding them: complete programs, configs, or long command transcripts
+  do not belong in the plan body (interface-level hunks up to ~30 lines are
+  fine). A plan that grows by embedded source is plan-churn, not progress.
+
 Routing & budget trace:
 
 - For every spawn, record in the session routing ledger: role, criticality,
   model requested vs actually used (downgrade y/n), and on completion its
   token usage plus the evidence delta it added.
+- The ledger covers INLINE parent turns too: a parent turn that runs a
+  mechanical chain (3+ repeatable commands — hashing, inspects, syntax
+  checks, batch re-runs, log scans) is logged as a routing defect, and the
+  NEXT such chain must be delegated to a mechanical role or plain script
+  before running. Single probe commands are exempt.
+- At a passed major gate (plan ACCEPT, phase switch) in a session that has
+  already compacted or materially consumed its context, proactively emit the
+  frozen handoff file and recommend starting the next phase in a fresh
+  session; rolling a new phase onto a near-full thread by inertia is a
+  routing defect.
 - Review the ledger at each phase boundary: top-tier spend with no evidence
   delta, or repeated re-reads of the same files, must change the next round's
   routing (double-loop).

@@ -6,7 +6,7 @@ model = "gpt-5.3-codex-spark"
 # model_fallback_chain = ["gpt-5.6-luna", "gpt-5.6-terra"]  # spark 额度独立计量，优先耗用；128k 上下文、仅 CLI，额尽/爆窗走链
 # model_floor = "gpt-5.5"  # 执行/勘探类：外层有独立验证兜底，可探至 5.5
 model_reasoning_effort = "medium"
-sandbox_mode = "workspace-write"
+default_permissions = "yct-writer"
 
 developer_instructions = """You are spark-agent.
 
@@ -119,5 +119,11 @@ Fake/mock implementation ban (伪造完成谱系，全部禁止):
 - If a REQ can only be satisfied by a double/simulation right now, that is a
   BLOCKED row with the reason — shipping it silently as done is fabrication.
 """
-[sandbox_workspace_write]
-network_access = false
+# Workspace-write without network, matching the retired
+# sandbox_workspace_write { network_access = false } boundary.
+[permissions.yct-writer]
+description = "Workspace write with network disabled for YCT writer roles."
+extends = ":workspace"
+
+[permissions.yct-writer.network]
+enabled = false

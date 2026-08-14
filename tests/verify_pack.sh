@@ -63,10 +63,10 @@ codex_role_fields = {
     "nickname_candidates",
     "model",
     "model_reasoning_effort",
-    "sandbox_mode",
+    "default_permissions",
     "web_search",
     "developer_instructions",
-    "sandbox_workspace_write",
+    "permissions",
 }
 codex_agents: dict[str, dict] = {}
 for path in sorted((root / ".codex/agents").glob("*.toml")):
@@ -80,11 +80,21 @@ for path in sorted((root / ".codex/agents").glob("*.toml")):
         not unknown_fields,
         f"codex-cli would ignore the whole role file over unknown fields {sorted(unknown_fields)}: {path.name}",
     )
-    sandbox_table = data.get("sandbox_workspace_write")
-    if isinstance(sandbox_table, dict):
+    # Old sandbox_mode/[sandbox_workspace_write] must not compose with
+    # permission profiles (official docs: mutually exclusive). Every role
+    # declares default_permissions; writers carry the self-contained
+    # yct-writer profile (workspace write, network disabled).
+    perms = data.get("default_permissions")
+    check(
+        perms in {":read-only", "yct-writer"},
+        f"codex role must pin default_permissions to :read-only or yct-writer, got {perms!r}: {path.name}",
+    )
+    if perms == "yct-writer":
+        profile = data.get("permissions", {}).get("yct-writer", {})
         check(
-            set(sandbox_table) <= {"network_access"},
-            f"codex-cli would ignore the whole role file over unknown sandbox fields {sorted(set(sandbox_table) - {'network_access'})}: {path.name}",
+            profile.get("extends") == ":workspace"
+            and profile.get("network", {}).get("enabled") is False,
+            f"yct-writer profile must extend :workspace with network disabled: {path.name}",
         )
     name = data.get("name")
     check(isinstance(name, str) and bool(name), f"missing Codex agent name: {path}")
@@ -92,7 +102,7 @@ for path in sorted((root / ".codex/agents").glob("*.toml")):
         check(name not in codex_agents, f"duplicate Codex agent name: {name}")
         codex_agents[name] = data
     check("sole source of task-specific facts" in data.get("developer_instructions", ""), f"stale clean-context wording: {path}")
-    if data.get("sandbox_mode") == "workspace-write" and name != "verify-runner-agent":
+    if data.get("default_permissions") == "yct-writer" and name != "verify-runner-agent":
         check("verification handoff" in data.get("developer_instructions", "").lower(), f"write-capable Codex agent lacks handoff: {path}")
 
 expected_codex_models = {

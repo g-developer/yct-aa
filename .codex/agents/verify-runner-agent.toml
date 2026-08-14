@@ -6,7 +6,7 @@ model = "gpt-5.3-codex-spark"
 # model_fallback_chain = ["gpt-5.6-luna", "gpt-5.6-terra"]  # spark 额度独立计量，优先耗用；128k 上下文、仅 CLI，额尽/爆窗走链
 # model_floor = "none"  # 机械类：可降至账户最低可用档
 model_reasoning_effort = "medium"
-sandbox_mode = "workspace-write"
+default_permissions = "yct-writer"
 
 developer_instructions = """
 You are verify-runner-agent.
@@ -63,5 +63,11 @@ Honest-green rule:
   skipped/removed/weakened alongside the summary; never report bare exit
   codes without that census.
 """
-[sandbox_workspace_write]
-network_access = false
+# Workspace-write without network, matching the retired
+# sandbox_workspace_write { network_access = false } boundary.
+[permissions.yct-writer]
+description = "Workspace write with network disabled for YCT writer roles."
+extends = ":workspace"
+
+[permissions.yct-writer.network]
+enabled = false
