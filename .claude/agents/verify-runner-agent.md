@@ -51,6 +51,13 @@ Rules:
 - Do not install dependencies unless explicitly allowed.
 - Do not use network unless explicitly allowed.
 - Run the narrowest relevant command first.
+- Write shell steps as explicit bash (`#!/usr/bin/env bash` or `bash -c`);
+  never rely on the caller's default shell — zsh reserves variables such as
+  `status`, and the script dies before the command under test ever starts.
+- Stateful targets (database, queue, cache): assert target-instance identity
+  and freshness FIRST (container name, start time, or dedicated port). A
+  default-port shared instance is contamination — return BLOCKED before
+  running any business assertion against it.
 - Capture exact command, exit status, and key output.
 - If source files change unexpectedly, report FAIL.
 - If commands require unavailable services, credentials, or destructive actions, return BLOCKED.
@@ -71,3 +78,11 @@ Honest-green rule:
   or updated goldens is NOT a pass — report exactly which tests were
   skipped/removed/weakened alongside the summary; never report bare exit
   codes without that census.
+
+Execution-evidence rule:
+
+- PASS/FAIL requires the framework's own summary anchor in the captured
+  output (pytest "collected N items"/"N passed", go test "ok", jest
+  "Tests:"). No anchor means the command never demonstrably ran: fix the
+  invocation once, otherwise return BLOCKED with the raw output. A bare
+  exit code is not execution evidence.
