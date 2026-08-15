@@ -267,11 +267,72 @@ Review-loop and plan-artifact budget:
   do not belong in the plan body (interface-level hunks up to ~30 lines are
   fine). A plan that grows by embedded source is plan-churn, not progress.
 
+Blocked-gate adjudication and authorization asks:
+
+- When a frozen artifact (contract, plan, gate) conflicts with verified
+  runtime reality, the default recommendation is a narrow delta re-review
+  amending the ARTIFACT — never mutating production/runtime to satisfy the
+  document. Freezing makes an artifact authoritative, not factually
+  correct; runtime evidence outranks it.
+- Every authorization ask presents at least two options including the
+  minimal-risk reversible one, with a ranked recommendation and its
+  evidence; a single-option ask at a one-way door is a handoff defect.
+- Execution prohibitions never prohibit recommendations: the message
+  reporting a blocker must already carry the cheapest correct fix the
+  evidence supports.
+- A reversed recommendation is logged as a direction error with its root
+  cause (double-loop), not minimized as "suboptimal".
+
+Justified-change proof gate (proof precedes approval; depth scales with
+reversibility, not uniformly):
+
+- Reversible L0/L1: failure-evidence anchor + smallest change + targeted
+  check is sufficient proof.
+- Two-way-door L2: one proposal + one independent adversarial delta
+  review.
+- One-way door / production / frozen-contract change:
+  1. Falsification-first: one agent tries to refute the minimal option
+     (amend the artifact / observe / do nothing). If it survives
+     refutation, adopt it — skip the panel.
+  2. Otherwise 2-3 clean-context proposals under FORCED distinct lenses
+     (minimal-change vs artifact-side vs runtime-side; one lens is always
+     the reversible path). Same-prompt clones are not diversity.
+  3. The parent synthesizes by evidence strength, never by vote count:
+     consensus cannot override an invariant, a gate, or a failing test.
+  4. Adversarial pass (plan-checker) on the synthesized winner with
+     requirement->change traceability; any goal/invariant conflict
+     auto-rejects regardless of agreement. ACCEPT required.
+- The proof bundle (proposals, refutation result, trace map) is cited by
+  path + hash in the authorization ask.
+
+Continue-by-default (waiting is the exception):
+
+- A round may end ONLY when the overall task is complete, a hard stop
+  condition holds (user-only decision, missing authority/credentials,
+  destructive action without approval, three failed fix strategies), or a
+  soft-budget boundary forces a batch receipt — and the receipt names the
+  next packet so work resumes immediately.
+- Approved work is never a waiting point: work that is local, reversible,
+  and already covered by an ACCEPT or a standing authorization executes in
+  the SAME round. Status reports accompany continuation; they do not
+  replace it.
+- Single-consumption and production gates freeze only the gated action
+  itself, never the local work that prepares or diagnoses it. After a
+  failed gated attempt, pivot immediately to the diagnosis and local fixes
+  the failure evidence already justifies.
+- Ending a round with executable approved work remaining, to "await
+  instructions" nobody was asked for, is a routing defect — log it in the
+  ledger.
+
 Routing & budget trace:
 
 - For every spawn, record in the session routing ledger: role, criticality,
   model requested vs actually used (downgrade y/n), and on completion its
   token usage plus the evidence delta it added.
+- The ledger is an append-only FILE in the workspace (e.g. ROUTING_LEDGER.md
+  beside IMPLEMENTATION_PLAN.md), one line per spawn — never in-thread-only
+  notes: an in-thread ledger dies at context compaction and the spawn count
+  becomes unreconstructable. Handoff files cite this ledger by path.
 - The ledger covers INLINE parent turns too: a parent turn that runs a
   mechanical chain (3+ repeatable commands — hashing, inspects, syntax
   checks, batch re-runs, log scans) is logged as a routing defect, and the
