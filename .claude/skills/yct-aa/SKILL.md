@@ -284,6 +284,49 @@ Continue-by-default (waiting is the exception):
   instructions" nobody was asked for, is a routing defect — log it in the
   ledger.
 
+Single-consumption attempt economy (a gated one-shot buys only what no
+local check can prove):
+
+- Before consuming a single-consumption / production / one-shot
+  authorization, enumerate the COMPLETE conjunctive layer chain the
+  attempt depends on (runtime identity, connection/transaction, clock and
+  anchors, storage authority vs. overwritable projection, upstream
+  point-in-time reconstructability, error classification — extend per
+  task) and falsify each layer with the cheapest local check first. The
+  gated attempt is the most expensive falsifier in the system; spending
+  it on a hypothesis a local check could have killed is a routing defect.
+- The execution packet states the predicted failure modes. A consumed
+  attempt failing in an UNPREDICTED layer is a diagnosis-scope defect:
+  log it and run a strategy-zero full-surface audit
+  (`deep-investigator-agent`) that re-extracts the whole layer chain from
+  the code path — not just the failing layer — before the next attempt is
+  authorized. A second consecutive unpredicted-layer failure hard-blocks
+  further attempts until that audit completes.
+- A fix that turns one layer green is necessary, not sufficient: never
+  promote it to complete root cause. After every gated failure, re-run
+  the layer enumeration against the new evidence before proposing the
+  next fix.
+
+Idle-wait and kill discipline (an idle WAIT is not an idle WORKER):
+
+- Two idle waits trigger a PROGRESS CHECK, not an automatic kill: inspect
+  changed-state evidence first (target-file mtime/diff growth, artifact
+  freshness, receipt heartbeat). A demonstrably progressing worker gets a
+  longer bounded wait; only a stalled one is killed and re-scoped.
+- Size the FIRST wait to the role's typical duration: adjudicators and
+  planners run minutes, not tens of seconds. Batch status via one
+  agent-list poll instead of stacked short waits; every wait return is
+  a paid parent-tier turn.
+- Write-capable workers are never blind-killed: a mid-flight kill leaves
+  partial writes that cost a freeze-and-reconcile pass before any
+  respawn. If a writer repeatedly outlives its wait budget, the packet
+  was too big — re-slice the scope so writes land within the soft
+  budget; a kill-respawn cycle re-issuing the same oversized packet is
+  churn, not progress.
+- Interrupting an adjudicator (plan-checker/verify) to demand a verdict
+  yields no gate pass: accept only a complete delivery with its evidence
+  body, or re-run the gate as a fresh narrower packet.
+
 Routing & budget trace:
 
 - For every spawn, record in the session routing ledger: role, criticality,
