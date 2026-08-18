@@ -75,3 +75,10 @@ See `docs/ROUTING.md` for precedence, model tiers, verification closure, and off
   session's rollout JSONL (ground truth), never the model's self-report.
   It spends real tokens (~25k/probe); run it when deployment must be
   proven at runtime, not on every edit.
+- Skill resolution is cwd-sensitive: with cwd inside the pack repo, the
+  repo's own same-named skill source directories collide with the
+  installed skills and `$yct-…` silently injects nothing (verified
+  2026-08-18: identical probe failed from the repo cwd and passed from a
+  neutral cwd on the same CLI 0.147.0). verify_deploy.sh therefore runs
+  its probes from a neutral temp directory; apply the same care to any
+  manual probe.

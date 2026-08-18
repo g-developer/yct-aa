@@ -36,8 +36,14 @@ command -v codex >/dev/null 2>&1 \
   || fail "codex CLI not found; dynamic deploy verification requires it (run on the Codex machine after install.sh)"
 [ -f "$AA_SKILL" ] || fail "installed skill missing: $AA_SKILL (run install.sh first)"
 
+# 探针必须在中立目录执行：在包仓库内运行时，仓库自带的同名技能源码目录
+# （.agents/skills/yct-aa 等）会与用户级安装的技能冲突，$yct-aa 静默不注入
+#（2026-08-18 实测：仓库 cwd 注入失败，中立 cwd 注入成功，CLI 同为 0.147.0）。
+PROBE_DIR=$(mktemp -d "${TMPDIR:-/tmp}/yct-deploy-probe.XXXXXX") || fail "cannot create neutral probe dir"
+trap 'rm -rf "$PROBE_DIR"' EXIT
+
 probe() {
-  codex exec -s read-only --skip-git-repo-check -c 'mcp_servers={}' "$1" 2>/dev/null
+  ( cd "$PROBE_DIR" && codex exec -s read-only --skip-git-repo-check -c 'mcp_servers={}' "$1" 2>/dev/null )
 }
 
 echo "probe 1: ambient inventory must hide explicit-only workflow skills"
