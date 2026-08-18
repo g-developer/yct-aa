@@ -47,6 +47,13 @@ See `docs/ROUTING.md` for precedence, model tiers, verification closure, and off
   13 h session that spanned the install. Deploying a pack update therefore
   requires restarting long-running sessions; only new sessions carry the
   new rules.
+- Exception, verified live (session 01a00836, 2026-08-17): explicit
+  `$yct-…` re-invocation mid-session re-reads the CURRENT on-disk
+  SKILL.md — a session opened on the v4.13 body received the v4.14 body
+  (25,577B -> 26,133B in the same rollout JSONL) after `install.sh` plus
+  re-invocation. SKILL-borne rule updates can therefore be hot-loaded
+  into a running session by re-invoking the skill; only the merged
+  AGENTS.md snapshot stays pinned until restart.
 - Codex native skill discovery scans BOTH `~/.codex/skills` and
   `~/.agents/skills` (plus bundled plugin caches), deduping entries that
   resolve to the same canonical directory. Verified 2026-08-16 by live

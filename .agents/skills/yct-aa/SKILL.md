@@ -398,6 +398,13 @@ Idle-wait and kill discipline (an idle WAIT is not an idle WORKER):
 - Interrupting an adjudicator (plan-checker/verify) to demand a verdict
   yields no gate pass: accept only a complete delivery with its evidence
   body, or re-run the gate as a fresh narrower packet.
+- Restorative writes (rollback, reverse patch, file restore) are
+  hash-anchored on BOTH sides: before writing, verify the target's
+  current hash equals the base the reverse patch was computed against;
+  after writing, verify the intended postimage hash. Any mismatch stops
+  the writer and freezes that file — never rebuild a reverse patch from
+  remembered or stale line ranges, never stack corrective patches on an
+  unverified base; recover forward from fresh evidence instead.
 
 Routing & budget trace:
 

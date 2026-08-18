@@ -16,9 +16,11 @@
 #     Acceptance is NOT the model's self-report: the probe carries a nonce, and
 #     the script locates the probe session's rollout JSONL under
 #     ~/.codex/sessions/ by that nonce, then greps it for a marker line taken
-#     from the installed ~/.agents/skills/yct-aa/SKILL.md. Marker present in
-#     the session ground truth == the injected content matches the installed
-#     version.
+#     from the installed ~/.agents/skills/yct-aa/SKILL.md, and additionally
+#     checks EVERY grep-safe installed body line against the session JSONL —
+#     the longest line alone can be identical across versions (observed at
+#     v4.16), so only full line coverage proves the injected content is the
+#     currently installed version, not a stale one.
 #
 # Cost/requirements: needs the `codex` CLI, network access, and spends real
 # tokens (~25k per probe). Probes disable MCP servers (`-c 'mcp_servers={}'`)
@@ -80,5 +82,27 @@ info "session ground truth: $SESSION_FILE"
 grep -qF -- "$MARKER" "$SESSION_FILE" \
   || fail "marker from installed SKILL.md not found in the probe session JSONL — explicit invocation did not inject the installed version"
 echo "ok: installed-version marker found in probe session JSONL (double-source check passed)"
+
+# 版本专属对账：最长行可能跨版本不变（v4.16 实测如此），单标记只证明"注入了
+# 某个版本的 SKILL"，不证明"注入的是当前安装版本"。这里把安装正文中所有可
+# 安全 grep 的行（纯 ASCII、无引号/反斜杠、去空白后 >=16 字符——这类行在
+# rollout JSONL 的 JSON 字符串里以原文出现）逐行对账，任何缺行即注入内容与
+# 安装版本不一致；新版本新增的行自动进入对账集，无需手工维护版本标记。
+MISSING=0
+TOTAL=0
+while IFS= read -r line; do
+  TOTAL=$((TOTAL + 1))
+  if ! grep -qF -- "$line" "$SESSION_FILE"; then
+    MISSING=$((MISSING + 1))
+    if [ "$MISSING" -le 5 ]; then info "missing line: $line"; fi
+  fi
+done < <(awk 'f >= 2 { print } /^---[[:space:]]*$/ { f++ }' "$AA_SKILL" \
+  | grep -v '["\\]' | LC_ALL=C grep -v '[^ -~]' \
+  | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
+  | awk 'length($0) >= 16')
+[ "$TOTAL" -gt 0 ] || fail "no grep-safe body lines derived from $AA_SKILL for the full-coverage check"
+[ "$MISSING" -eq 0 ] \
+  || fail "$MISSING of $TOTAL installed SKILL.md lines missing from the probe session JSONL — injected content is not the currently installed version"
+echo "ok: all $TOTAL grep-safe installed lines present in probe session JSONL (version-exact check passed)"
 
 echo "PASS: dynamic deploy verification (ambient policy + explicit \$yct-aa injection vs installed marker)"
