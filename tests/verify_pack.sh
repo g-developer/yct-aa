@@ -51,6 +51,8 @@ actual = {
     if path.is_file()
     and path.name != ".DS_Store"
     and ".git" not in path.relative_to(root).parts
+    # .serena 是 Serena 工具的本地项目缓存，不属于包内容
+    and ".serena" not in path.relative_to(root).parts
 }
 check(manifest == actual, f"manifest drift: missing={sorted(actual - manifest)} extra={sorted(manifest - actual)}")
 
@@ -308,6 +310,24 @@ for aa_path in (root / ".agents/skills/yct-aa/SKILL.md", root / ".claude/skills/
     check("selected method" in text, f"auto-router does not pass method contracts to workers: {aa_path}")
     check("runner results as evidence" in text, f"auto-router does not order dynamic evidence before final static acceptance: {aa_path}")
     check("Risk–Complexity Budget" in text and "theoretical" in text, f"auto-router misses reliability budget or finding semantics: {aa_path}")
+
+# 四孪生共享段同步闸：Continue-by-default 段在 yct-aa/yct-risk 两平台四份文件中必须
+# 逐字节一致；漂移在此 FAIL，不再依赖发布轮的临时核对脚本（v4.8 与 v4.14 各手工核对过一次）。
+shared_sections: dict[str, str] = {}
+for skill_name in ("yct-aa", "yct-risk"):
+    for platform in (".agents/skills", ".claude/skills"):
+        path = root / platform / skill_name / "SKILL.md"
+        text = path.read_text(encoding="utf-8")
+        start = text.find("Continue-by-default")
+        end = text.find("Single-consumption attempt economy")
+        check(0 <= start < end, f"missing Continue-by-default shared-section anchors: {path}")
+        if 0 <= start < end:
+            shared_sections[f"{platform}/{skill_name}"] = text[start:end]
+if len(shared_sections) == 4 and len(set(shared_sections.values())) != 1:
+    errors.append(
+        "Continue-by-default shared section drifted across twins: "
+        + ", ".join(sorted(shared_sections))
+    )
 
 skill_method_markers = {
     "yct-risk": ("First Principles", "MECE", "FMEA-lite", "Risk–Complexity Budget", "Trust Boundary", "Expand–Migrate–Contract", "Test Strategy"),

@@ -283,6 +283,24 @@ Continue-by-default (waiting is the exception):
 - Ending a round with executable approved work remaining, to "await
   instructions" nobody was asked for, is a routing defect — log it in the
   ledger.
+- Serial is likewise the exception for read-only work: at each stage or
+  batch start, enumerate the independent read-only lanes (MECE — static
+  review, evidence location, contract mapping, dynamic inventory) and
+  launch them as ONE wave alongside the serial writer chain. Lanes must
+  not overlap and writers stay single-owner. Serial-only routing is
+  justified only when the lane inventory is genuinely empty; needing the
+  user to demand more SubAgents is a routing defect — log it. Splitting
+  one problem to fill slots remains forbidden.
+- A round does not end while any SubAgent is in flight or a batch
+  receipt is unclosed: answer an interposed user question, then RESUME
+  the harvest-and-advance loop in the same round — progress answers and
+  estimates are not terminal states. Never end on a promise tail ("will
+  start / about to / currently running"): orchestration halts when the
+  turn ends, and in-flight work sits unharvested until the user prods.
+  Legal endings: all agents harvested, a true hard stop, a named
+  user-only decision, or a delivered handoff. At each stage/wave closure
+  emit a <=3-line milestone receipt (stage — in-flight — next action);
+  it is contractual, not optional commentary.
 
 Single-consumption attempt economy (a gated one-shot buys only what no
 local check can prove):
