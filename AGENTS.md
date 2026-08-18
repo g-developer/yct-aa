@@ -416,7 +416,7 @@ Platform skills provide the concrete agent/model mapping.
 | `yct-review:` | Review only; do not implement unless explicitly requested later. |
 | `yct-fix:` | Focused L1/L2 fix on exact failure evidence; upgrade to risk flow when needed. |
 
-Shortcut selection does not broaden authorization or permit destructive action. Skill text does not survive compaction: after each compaction re-read the active shortcut's installed `SKILL.md` (the `$`-invoked workflow mode above, never an analysis/routing skill such as yct-ca) and name the mode and its SKILL path in each compaction state note. The first compaction also emits or refreshes the session-handoff file; a second closes the current batch, delivers the handoff, and stops for a fresh session unless the user explicitly waives it.
+Shortcuts do not broaden authorization or permit destructive action. Skill text does not survive compaction: after each one re-read the active shortcut's installed `SKILL.md` (the `$`-invoked workflow mode, never an analysis skill like yct-ca) and name mode and SKILL path in the state note. The first compaction requires, before any new spawn, a handoff-file write that note cites by path; a second closes the batch, delivers it, and stops. A waiver must name this gate; task-scoped "authorize exceptions / must finish" wording never waives it.
 
 ---
 

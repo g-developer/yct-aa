@@ -287,10 +287,11 @@ Continue-by-default (waiting is the exception):
   batch start, enumerate the independent read-only lanes (MECE — static
   review, evidence location, contract mapping, dynamic inventory) and
   launch them as ONE wave alongside the serial writer chain. Lanes must
-  not overlap and writers stay single-owner. Serial-only routing is
-  justified only when the lane inventory is genuinely empty; needing the
-  user to demand more SubAgents is a routing defect — log it. Splitting
-  one problem to fill slots remains forbidden.
+  not overlap and writers stay single-owner. Record the lane inventory
+  in the ledger before the stage's first spawn; a one-lane wave must
+  name why the inventory is empty. Needing the user to demand more
+  SubAgents is a routing defect — log it. Splitting one problem to fill
+  slots remains forbidden.
 - A round does not end while any SubAgent is in flight or a batch
   receipt is unclosed: answer an interposed user question, then RESUME
   the harvest-and-advance loop in the same round — progress answers and
@@ -301,6 +302,19 @@ Continue-by-default (waiting is the exception):
   user-only decision, or a delivered handoff. At each stage/wave closure
   emit a <=3-line milestone receipt (stage — in-flight — next action);
   it is contractual, not optional commentary.
+- State closure before the next spawn: when a gate verdict lands, a
+  writer is interrupted or killed, or a batch closes, record a one-line
+  closure — verdict settled, disk state reconciled, plan file touched
+  only if a stage's goal/scope/status changed — before spawning the
+  next gate or writer on that thread. Re-gating a settled decision
+  without new evidence, respawning over an unreconciled worktree, and
+  plan edits that only narrate progress are one defect: unclosed state.
+- Mechanical work rides the cheapest lane: polling, status reads, test
+  runs, evidence collection, and file location belong to scripts or the
+  lowest runner tier, never top-tier parent turns, which are reserved
+  for adjudication, packet construction, and integration. A sustained
+  mechanical exec streak in the parent thread is a routing defect —
+  log it.
 
 Single-consumption attempt economy (a gated one-shot buys only what no
 local check can prove):

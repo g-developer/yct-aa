@@ -329,6 +329,16 @@ if len(shared_sections) == 4 and len(set(shared_sections.values())) != 1:
         + ", ".join(sorted(shared_sections))
     )
 
+# v4.16 取证修复（会话 01a00d01）：车道清单先于首个 spawn 落台账、
+# 闸门/写手/批次的状态收口先于下一个 spawn、机械操作走最低成本车道。
+for key, section in shared_sections.items():
+    for marker in (
+        "Record the lane inventory",
+        "State closure before the next spawn",
+        "Mechanical work rides the cheapest lane",
+    ):
+        check(marker in section, f"{key} misses v4.16 continuation marker: {marker}")
+
 skill_method_markers = {
     "yct-risk": ("First Principles", "MECE", "FMEA-lite", "Risk–Complexity Budget", "Trust Boundary", "Expand–Migrate–Contract", "Test Strategy"),
     "yct-fix": ("Hypothesis–Falsification", "PDCA", "characterization", "Test Strategy Selection", "Risk–Complexity Budget", "invariant/oracle", "Return to"),
@@ -393,6 +403,8 @@ for marker in (
     "after two consecutive receipts",
     "confirmed continuation handle",
     "freeze overlapping writes",
+    "handoff-file write that note cites by path",
+    "A waiver must name this gate",
 ):
     check(marker in agents_text, f"shared delivery contract misses marker: {marker}")
 
