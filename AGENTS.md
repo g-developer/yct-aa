@@ -45,6 +45,16 @@ If instructions conflict, follow the higher-priority one and report the conflict
 - Fail with useful context; never silently swallow errors.
 - Add comments only for non-obvious intent or invariants, in Chinese unless project convention requires another language.
 
+### Outcome and change admission
+
+- Every action must implement the outcome, distinguish a current blocker, or verify a required result; otherwise skip it.
+- Compare ROI before designing machinery. Keep a localized L1 or execution-only request with named entrypoint/input/check in the parent; expand only on contradictory evidence.
+- Admit a source change only when all four are true: the real production path needs it; it addresses the observed failure class through a general existing boundary; the smallest meaningful behavioral coverage proves it; and existing Case quality is not weakened.
+- Do not add process-only hashes, frozen contracts or baselines, scope manifests, gates, retries/fallbacks, durable state, or fake infrastructure harnesses unless the user requested them or direct production evidence proves they are necessary.
+- Prefer a few high-information checks. For production workflows, prioritize isolated real integration/end-to-end execution. Do not add tests whose only oracle matches prompt text, source text, logs, headings, generated prose, or other incidental strings.
+- Plans, packets, manifests, fingerprints, and static counts are aids, not product results. Acceptance returns to the requested production outcome; runtime evidence overrides stale wording.
+- A parent final response is not a progress checkpoint. A completed phase, commit, build, image, artifact, review, elapsed-time boundary, or intermediate receipt does not end an incomplete goal while a safe, authorized, outcome-relevant next action exists; continue until the requested outcome or a genuine stop condition below.
+
 ---
 
 ## 4. Task criticality
@@ -56,7 +66,7 @@ Classify the task before choosing process depth.
 | L0 | Typo, copy, obvious import, narrow formatting | Handle directly; no plan or subagent. |
 | L1 | One failing test, localized bug, small refactor | Inspect nearby patterns; make the smallest change; run a targeted check. |
 | L2 | Multi-file feature, unfamiliar flow, API plus tests | Define scope and non-goals; explore if needed; verify before finalizing. |
-| L3 | Auth, payments, security, migration, persistence, concurrency, cache, public API, production behavior | First principles; planner; adversarial plan review; scoped execution; security review only when the user explicitly requests it; independent verification; rollback. |
+| L3 | Auth, payments, security, migration, persistence, concurrency, cache, public API, or materially risky production behavior | First-principles risk check; use planning/challenge only for unresolved design or irreversible risk; scoped execution; independent verification; rollback. |
 | L4 | Architecture direction, broad migration, framework replacement, irreversible data or public-contract decision | Plan and compare alternatives only until the user explicitly approves execution. |
 
 Use the lightest process that controls the real risk. Small reversible tasks should stay small; high-risk tasks must not be routed as focused fixes because the diff looks short.
@@ -68,10 +78,10 @@ Use the lightest process that controls the real risk. Small reversible tasks sho
 Apply routing in this order:
 
 1. **Explicit mode**: `yct-direct`, `yct-review`, `yct-risk`, `yct-fix`, or `yct-aa` defines the user's workflow intent.
-2. **Safety override**: security, data, migration, concurrency, public API, irreversible, or production-impacting work upgrades `yct-aa`/`yct-fix` to L3/L4 discipline. `yct-direct` remains no-agent mode but does not waive safety gates.
+2. **Safety override**: security, data, migration, concurrency, public API, irreversible, or materially production-impacting work upgrades `yct-aa`/`yct-fix` to L3/L4 discipline. `yct-direct` remains no-agent mode but does not waive safety checks.
 3. **Task shape**: choose exploration, planning, focused/bounded implementation, mechanical editing, research, browser evidence, documentation, or review.
 4. **Phase**: use only the phases needed for this task; do not run a full agent chain by ritual.
-5. **Verification**: delegated source edits require independent static acceptance; dynamic commands supplement, not replace, that acceptance.
+5. **Verification**: the parent may accept a localized obvious diff; use an independent static verifier for non-trivial, risky, or uncertain delegated edits. Dynamic commands supplement source inspection.
 
 Review-only mode never authorizes implementation. Explicit user approval is required before destructive, irreversible, or public-contract-changing execution.
 
@@ -79,34 +89,13 @@ Review-only mode never authorizes implementation. Explicit user approval is requ
 
 ## 6. Default work loop
 
-1. Restate the goal and measurable done criteria.
-2. Inspect relevant code, tests, configs, instructions, and patterns.
-3. Define in-scope and out-of-scope work.
-4. Choose the smallest safe approach.
-5. Implement a cohesive change.
-6. Run the narrowest relevant checks first.
-7. Inspect the diff, runtime wiring, and unintended changes.
-8. Report changes, verification, and residual risk.
+Confirm the goal and scope, inspect the relevant code and evidence, choose the smallest safe change, run the narrowest meaningful check, inspect diff/runtime wiring, and report the result and residual risk.
 
 Test-first is preferred when practical. Do not create artificial tests when the project lacks infrastructure or a safer direct validation exists.
 
 ### Planning
 
-Create `IMPLEMENTATION_PLAN.md` only for multi-stage, cross-module, risky, or validation-ambiguous work. Keep it operational:
-
-```markdown
-# Implementation Plan
-
-## Stage N: [Name]
-**Goal**: [Specific deliverable]
-**Success Criteria**:
-- [Testable outcome]
-**Tests / Verification**:
-- [Command or check]
-**Status**: Not Started | In Progress | Complete
-**Notes**:
-- [Assumptions, risks, rollback]
-```
+Create `IMPLEMENTATION_PLAN.md` only for multi-stage, cross-module, risky, or validation-ambiguous work. For each stage record its goal, testable success criteria, verification, status, and only relevant assumptions, risks, or rollback notes.
 
 Update it during work and remove it after all stages complete unless the user asks to keep it. L3/L4 plans must include recovery or rollback.
 
@@ -122,15 +111,15 @@ Methods are selected by the decision or failure signal. Use the smallest set tha
 
 | Task signal | Required method | Minimum evidence/output |
 |---|---|---|
-| Ambiguous architecture, L3/L4, or disputed fundamentals | First Principles | Goal, current reality, facts, assumptions, constraints, invariants, non-goals, minimal solution, rejection criteria |
+| Unresolved architecture/fundamentals or a one-way L3/L4 decision | First Principles | Goal, current reality, facts, assumptions, constraints, invariants, non-goals, minimal solution, rejection criteria |
 | L2+ decomposition with overlapping surfaces | MECE | Named decomposition lens, non-overlapping scopes, dependencies, uncovered residue |
 | Unknown root cause or repeated failed fix | Hypothesis–Falsification | Observations, ranked hypotheses, prediction, falsifier, cheapest discriminating check, result |
 | Normal implementation | PDCA, with test-first when practical | Plan, cohesive change, targeted check, diff review, next action; keep labels internal unless requested |
-| L3/L4 execution | Pre-mortem + FMEA-lite | Plausible failure modes converted into mitigations, tests, detection, and recovery |
+| L3/L4 execution with credible failure modes | Pre-mortem + FMEA-lite | Plausible failure modes converted into mitigations, tests, detection, and recovery |
 | New retry/fallback, durable state, worker, lease/heartbeat, cache protocol, ACK, table/field, or theoretical reliability finding | Risk–Complexity Budget | Product/SLO commitment, evidence, impact, simplest acceptable failure, added state/operations/tests, observability-first option, decision, residual risk |
 | Plan/review challenge | Steelman + Red Team | Strongest plan reconstruction, concrete counterexamples, smaller reversible alternative |
 | Auth, secrets, payments, tenant/data boundary, injection, or uploads | Trust Boundary + Abuse Cases | Actor, asset, entrypoint, boundary, authorization decision, side effect, abuse/attack path |
-| Feature/contract implementation or review | Bidirectional Traceability + Adjacency Scan | Requirement→diff→test and diff→requirement mappings; upstream/downstream/sibling scan |
+| Non-trivial feature implementation or review across multiple surfaces | Bidirectional Traceability + Adjacency Scan | Target behavior→diff→check and changed surface→goal; relevant upstream/downstream/sibling scan |
 | Architecture, dependency, public API, schema, or irreversible choice | One-way/Two-way Door + ADR | Reversibility class, alternatives, consequences, approval, reversal/expiry condition |
 | Schema, event, public API, persisted format, or config migration | Expand–Migrate–Contract | Compatibility window, migration evidence, observability gate, rollback point, removal proof |
 | Parser, state machine, refactor, security/data boundary, concurrency, retries, or combinatorial inputs | Test Strategy Selection | Named choice among characterization, property, metamorphic, compatibility, fault-injection, abuse-case, and negative tests |
@@ -138,7 +127,7 @@ Methods are selected by the decision or failure signal. Use the smallest set tha
 | Recurring defect, repeated review finding, or instruction-system drift | Double-loop Learning | Immediate correction plus the underlying rule/assumption/feedback-loop correction |
 | External/versioned claim or conflicting sources | Evidence Triangulation | Primary sources, version/date, agreement/disagreement, strongest evidence, residual uncertainty |
 
-Method outputs are evidence contracts, not decorative headings. If a required method cannot complete for missing evidence, name the missing observation or decision and stop before irreversible execution. Do not silently substitute a weaker method.
+Methods organize evidence; they are not output templates or process gates. Missing a method label alone never blocks work. Stop only when the missing observation or decision prevents safe execution, especially before irreversible action.
 
 ---
 
@@ -178,6 +167,7 @@ Platform files own concrete agent names and model assignments; do not copy model
 4. Wait for required evidence before deciding.
 5. Resolve disagreements by evidence strength, not by averaging opinions.
 6. Independently verify delegated source edits before final completion.
+7. Treat a worker stop as packet-level; reroute the unfinished parent goal when new evidence supports a safe path.
 
 Read-only work may run in parallel when independent. Write-capable work must use non-overlapping files, isolated worktrees, or sequential execution.
 
@@ -193,109 +183,27 @@ Read-only work may run in parallel when independent. Write-capable work must use
 
 The packet is the sole source of task-specific facts, scope, and parent-thread context. System/developer instructions, applicable `AGENTS.md`/platform rules, and the role contract remain governing instructions.
 
-Every packet must include:
+Include only facts that change the worker's decision:
 
-```text
-Agent:
-Route:
-Criticality level:
-Goal:
-Background:
-Authoritative inputs:
-  - user request
-  - applicable nested AGENTS/platform rules
-  - relevant files, diffs, commands, errors, docs, or links
-Scope:
-Allowed files/actions:
-Forbidden files/actions:
-Non-goals:
-Constraints:
-Assumptions:
-Selected methods:
-  - Method:
-    Trigger evidence:
-    Required output:
-    Gate/stop condition:
-Delivery:
-  Policy: BATCHABLE_READ | BATCHABLE_REVIEW | BOUNDED_WRITE | COMMAND_BATCH | ONE_SHOT_REROUTE
-  Work ID:
-  Batch ID: none for one-shot work
-  Batch scope:
-  Previous remainder: none or explicit item IDs
-  Overall done condition:
-  Soft work budget:
-Done criteria:
-Verification expected:
-Output format:
-Stop conditions:
-```
+- requested outcome and measurable done criteria;
+- current production path, failure evidence, and authoritative files/commands;
+- allowed scope, explicit non-goals, and relevant constraints;
+- smallest meaningful verification and genuine stop conditions;
+- batch identity/remainder only when the work is actually batched.
 
-Workers must return `BLOCKED` when the packet is insufficient for safe execution. They must not infer hidden parent context, expand scope, redefine metrics or acceptance criteria, act as orchestrators, or spawn more agents unless the role permits it.
+Do not paste method catalogs, full parent history, stale plans, hashes, frozen manifests, or exhaustive packet schemas unless that item is necessary to the product outcome. A missing optional process field is not a blocker. Workers return `BLOCKED` only when missing evidence or authority prevents safe in-scope work; they do not expand scope or redefine success.
 
-A required method missing its structured packet entry makes the packet incomplete; workers never guess the missing contract or manufacture trigger evidence.
-
-Translate user directives into packet fields instead of pasting them verbatim; forwarded ritual text re-runs the same gates in every worker.
+Derive an explicit target set directly from the current authoritative input at execution time. Do not hand-copy, fill in, infer, or append omitted members from memory, prior plans, or a claimed remainder count.
 
 ### Durable delivery and bounded batches
 
-Every delegated invocation must end with either a complete final deliverable or a structured batch receipt. Empty output, progress narration, a tool log, or a malformed receipt is a delivery failure, never completion.
+End with a complete result or a concise receipt stating completed work, evidence/change delta, verification, remaining work, and changed files. Batch only genuinely separable work; close an existing remainder before adding scope, and stop or relocalize an item that survives two receipts. Do not create a continuation merely to satisfy a receipt format.
 
-Use the role's declared delivery policy:
-
-| Policy | Behavior |
-|---|---|
-| `BATCHABLE_READ` | Split evidence or planning into bounded item sets. |
-| `BATCHABLE_REVIEW` | Split declared review inventory; final acceptance is forbidden until all inventory and prior remainder are closed. |
-| `BOUNDED_WRITE` | Split only by non-overlapping requirement/file ownership; every batch that changes state returns the write handoff. |
-| `COMMAND_BATCH` | Run one command or one cohesive command family; preserve its result before starting another. |
-| `ONE_SHOT_REROUTE` | Finish once or return `BLOCKED`/`REROUTE`; never silently become a multi-batch worker. |
-
-At the soft work budget, stop starting new work and spend the reserved delivery margin on the receipt. A batch normally contains 3–5 items, reduced to 2–3 for L3/L4 or high-uncertainty work. The packet or role may set a smaller limit. Do not increase a role's budget merely to avoid reporting a real remainder.
-
-A non-final batch receipt must include:
-
-```text
-Delivery status: BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
-Overall ready: no
-Work ID:
-Batch ID:
-Batch scope:
-Previous remainder disposition:
-Completed items:
-Evidence or change delta:
-Verification performed:
-Remaining items:
-New discoveries:
-Next batch packet:
-Write handoff: required when any persistent state or file changed
-```
-
-`BATCH_COMPLETE` means this batch closed but the overall task remains open. `BATCH_PARTIAL` means even the declared batch scope was not closed. Neither status may emit a final role verdict such as `PLAN_READY`, `ACCEPT`, `PASS`, `NO_BLOCKERS`, or `IMPLEMENTED`. Only a complete overall result may use `Delivery status: FINAL`, `Overall ready: yes`, and the role's final verdict.
-
-The next batch must close the previous remainder before taking new scope. If the same item remains open after two consecutive receipts, stop the chain with `BLOCKED` or route a separate evidence/localization task; do not carry it silently into a third batch.
-
-The parent validates receipt shape, scope, evidence anchors, and changed-state handoff before continuing. Reuse the same worker only when the platform exposes a confirmed continuation handle. Otherwise start a new bounded packet containing the prior receipt and ledger; never assume hidden context or unavailable messaging. If a write-capable worker returns empty or malformed output, freeze overlapping writes, inspect actual changed state, and reconcile it before any further writer runs.
+Before another writer touches overlapping files, reconcile any partial or malformed write delivery against the actual diff. Reuse a child only when the platform confirms a continuation handle.
 
 ### Write-capable handoff
 
-Every write-capable worker must return:
-
-```text
-Original goal:
-Done criteria:
-Changed files:
-Diff summary:
-Behavior intended:
-Invariants that should still hold:
-Commands already run:
-Tests added/updated:
-Known risks:
-Areas not touched:
-Suggested verification commands:
-Specific things the verifier should inspect:
-```
-
-Missing handoff means delegated implementation is incomplete.
+Every write-capable worker returns the original goal, changed files, intended behavior, commands already run, verification still needed, and known risks. Keep it factual and short; do not add fingerprints, ledgers, or frozen manifests.
 
 ---
 
@@ -309,6 +217,8 @@ Before non-trivial edits, state:
 - verification and rollback expectations.
 
 Use the repository's existing build/test/format/lint toolchain. Do not add tools or dependencies without strong justification. Use `uv` (`run`/`add`/`remove`/`sync`) for Python. If the repo root has `build.sh`, use `bash build.sh` for full-build validation.
+
+Before first write/side effect, confirm the absolute target worktree; never use a sibling, source, or historical checkout. For compound shell, `awk`/`jq`, or Docker mutations, dry-run the same target/member/platform logic, then run once. Use explicit scenario/time input directly; do not add a wall-clock wait or rerun a successful side effect to repair wrapper evidence.
 
 Do not commit unless the user explicitly asks. Never use `--no-verify`.
 
@@ -330,6 +240,10 @@ Prefer evidence in this order:
 
 Important claims need evidence, evidence strength, and remaining uncertainty. Do not say `implemented`, `tested`, `fixed`, or `safe` without matching evidence. An audit conclusion is evidence only at its recorded anchor; if the underlying state changed, revalidate before reuse — a stale audit must not drive a current verdict.
 
+Before making a configuration or check a global blocker, trace real consumers and scope. Plan, artifact, or recovery preconditions do not prove product-wide necessity; block only the dependent subpath.
+
+Never backfill missing authoritative input without a verified source and consumer need; otherwise preserve the honest per-item insufficiency path.
+
 For architecture or L3/L4 work, separate facts, assumptions, constraints, invariants, non-goals, minimal solution, and rejection criteria. Low-confidence assumptions must not drive irreversible decisions.
 
 ### Risk and complexity budget
@@ -345,7 +259,7 @@ Must handle:
 
 Default to observation or documented deferral when the scenario needs several independent unlikely failures outside deployment assumptions/SLO/best-effort boundaries, has no evidence, and already converges through timeout, terminal state, user retry, or operational recovery without data damage, privilege failure, or duplicate side effects. An automated review finding is evidence to judge, not a requirement by itself.
 
-Generalization budget: repair a bug with the smallest change that prevents recurrence of the observed failure class. Generalize into a shared mechanism, framework, operator, or recovery layer only after the same root cause is observed twice, citing both occurrences; never add machinery or defensive branches for unobserved failure modes. It does not waive the must-handle list above. A twice-recurring mistake becomes one line in a local do-not ledger, not more contract text.
+Generalization budget: repair a bug with the smallest change that prevents recurrence of the observed failure class. Generalize into a shared mechanism, framework, operator, or recovery layer only after the same root cause is observed twice, citing both occurrences; never add machinery or defensive branches for unobserved failure modes. It does not waive the must-handle list above. Correct a recurring instruction defect at its narrow shared source instead of adding more process artifacts.
 
 Before adding persistent state, recovery workers, retries/fallbacks, cache-consistency machinery, tables/fields, leases/heartbeats, or protocol ACKs, record: the product/SLO commitment; probability, impact, and evidence; the simplest acceptable failure and why timeout/fail-fast/manual retry is insufficient; new states, migrations, config, monitoring, tests, and ownership; and how activation will be observed. If these answers are missing, prefer observability first and record the residual risk and best-effort boundary. Bound retries, name the owning layer, and require idempotency before retrying side effects. New mechanisms need a review/removal condition.
 
@@ -370,13 +284,17 @@ Check the dimensions relevant to the change:
 
 A file existing, a type compiling, or a mock-based test passing does not prove runtime completion.
 
-After delegated source edits:
+A command proves behavior only when the target Case was collected and not excluded by filters, paths, or node IDs; the command reached a terminal state; and the framework terminal summary plus real exit status were captured. Zero collected tests, a deselected target, pending output, or an interrupted command cannot support `PASS`.
 
-1. A static verifier must check goal match, wiring, partial implementation, and regression risk.
-2. A dynamic runner is added when tests, lint, typecheck, build, or smoke commands are needed.
-3. Runner output becomes verifier evidence; it is not a substitute for static acceptance.
+Acceptance must use the installed product/skill through the user's real entrypoint, working directory, and command-level environment/auth injection. Direct internal tools or a temporary runner are diagnostic only; do not bypass a broken real invocation and call the substitute an end-to-end result.
 
-Review budget: at most one acceptance pass plus one re-check per change; plan mutation does not reset it: a third gate spawn on the same decision first requires fixing the plan instability (re-partition or shrink the batch). After a fix, verify the fixed issue, not the whole chain; a passed gate is settled unless new evidence appears. Turn review conclusions into hard gates once; stacking review layers without a gate is a routing defect. Execute adjudicated wiring before further input auditing; a new audit round requires new evidence.
+After delegated source edits, inspect the actual diff. The parent may accept a
+localized obvious edit with its targeted behavioral check. Use an independent
+static verifier only for non-trivial, risky, or uncertain wiring, and a dynamic
+runner only when isolated command execution helps. Runtime output does not
+replace source inspection.
+
+Every static audit or contract review must name the current unresolved risk or decision and the evidence that will close it. Use at most one complete pass plus one focused re-check per decision; wording or fingerprint changes do not reset the budget. Once closed, stop static review and move to the required integration/E2E or production result. Reopen only for new production or runtime evidence.
 
 For direct L0/L1 edits, the parent may perform targeted verification without spawning a verifier. Disclose checks that could not run.
 
@@ -384,11 +302,11 @@ For direct L0/L1 edits, the parent may perform targeted verification without spa
 
 ## 13. Risk, rollback, and stop conditions
 
-For L3/L4 work, perform a short pre-mortem and turn plausible failures into tests, plan changes, or recovery steps. Preserve invariants such as compatibility, authorization boundaries, idempotency, data readability, and deterministic behavior.
+For L3/L4 work with credible failure modes, perform a short pre-mortem and turn plausible failures into tests, plan changes, or recovery steps. Preserve invariants such as compatibility, authorization boundaries, idempotency, data readability, and deterministic behavior.
 
 Security review runs only when the user explicitly requests it; when requested for sensitive L3/L4 plans, it occurs before execution when the plan changes a trust boundary and again after implementation against the real diff. `ACCEPT_WITH_CHANGES` is not execution approval: incorporate the required changes and rerun the plan challenge for L3/L4 work. Security blocker/high findings always block completion; lower findings also block when they violate the goal, done criteria, or invariants. Rollback/recovery must not knowingly restore an exploitable or data-corrupting state; use containment, forward repair, or a safe prior version instead.
 
-L3/L4 completion requires the revised plan to be accepted, required security findings to be resolved, required dynamic checks to pass, and the final static verifier to pass using those results as evidence. A parent summary cannot waive a failed gate.
+L3/L4 completion requires any genuinely needed plan/challenge to be settled, required security findings to be resolved, and the smallest relevant dynamic and static verification to pass. A parent summary cannot override contradictory runtime evidence.
 
 Stop and report when:
 
@@ -397,10 +315,12 @@ Stop and report when:
 - a destructive or irreversible action lacks explicit approval;
 - the change would weaken security or validation;
 - required work exceeds scope;
-- evidence contradicts the plan;
-- three distinct fix strategies fail.
+- evidence contradicts the plan and no safe in-scope correction remains;
+- no safe, outcome-relevant discriminating action remains.
 
-After three serious failures, stop editing and report attempts, exact errors, likely causes, current state, and the safest next option.
+Three failures exhaust only the unchanged hypothesis, command, or worker packet. Preserve evidence and stop repeating it. Continue an unfinished authorized goal when new evidence supports a different safe in-scope hypothesis, partition, or revision; do not request redundant permission. Never replay a consumed one-shot or duplicate a non-idempotent side effect. Attempt count alone cannot make the overall goal `BLOCKED`.
+
+Do not use a progress summary as the parent task's final delivery. When the requested outcome is still incomplete, continue through the next safe, authorized, outcome-relevant action regardless of completed phases or elapsed work time. End only when the outcome is delivered or one of the genuine stop conditions above prevents further safe progress.
 
 ---
 
@@ -412,11 +332,11 @@ Platform skills provide the concrete agent/model mapping.
 |---|---|
 | `yct-aa:` | Auto-route a task using the smallest useful agent set. |
 | `yct-direct:` | Keep work in the main thread unless safety makes that impossible. |
-| `yct-risk:` | Treat as L3/L4: plan, challenge, verify, include rollback. |
+| `yct-risk:` | Treat as L3/L4 and select only risk-justified planning, execution, verification, and rollback work. |
 | `yct-review:` | Review only; do not implement unless explicitly requested later. |
 | `yct-fix:` | Focused L1/L2 fix on exact failure evidence; upgrade to risk flow when needed. |
 
-Shortcuts do not broaden authorization or permit destructive action. Skill text does not survive compaction: after each one re-read the active shortcut's installed `SKILL.md` (the `$`-invoked workflow mode, never an analysis skill like yct-ca) and name mode and SKILL path in the state note. The first compaction requires, before any new spawn, a handoff-file write that note cites by path; a second closes the batch, delivers it, and stops. A waiver must name this gate; task-scoped "authorize exceptions / must finish" wording never waives it.
+Shortcuts do not broaden authorization or permit destructive action. After compaction, re-read the active shortcut's installed `SKILL.md` before routing more work and continue from current repository evidence. Create a handoff file only when the user asks or another session genuinely needs durable state.
 
 ---
 

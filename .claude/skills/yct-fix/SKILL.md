@@ -10,62 +10,34 @@ disable-model-invocation: true
 Failure or task:
 $ARGUMENTS
 
-Assume this is L1/L2 unless evidence shows broader scope.
+1. Anchor on the exact failure output or requested observable behavior.
+2. If the cause is unknown, run the cheapest discriminating check. Use
+   `explorer-agent` only when the relevant code path cannot be localized from
+   the supplied evidence; do not open a planning or review chain for a clear
+   L1 fix.
+3. Write only after the cause, expected behavior, allowed files, and a meaningful
+   check are known. Use `focused-fixer-agent` for a localized one-to-three-file
+   change and `executor-agent` when the bounded change is wider.
+4. Change source only when the production path needs it, it handles the observed
+   failure class through a general existing boundary, the smallest meaningful
+   behavioral check proves it, and existing Case quality stays intact.
+5. Prefer one high-information check and a real integration/end-to-end path
+   when available. Use property, metamorphic, or characterization coverage only
+   when the input space or behavior uncertainty requires it. Do not add tests
+   whose oracle is incidental prompt, source, log, heading, or prose text.
+6. Do not add hashes, frozen contracts/baselines, gates, retries/fallbacks,
+   state, fake infrastructure, broad abstractions, or unrelated cleanup.
+7. After delegated source edits, inspect the actual diff and run the targeted
+   command when needed. Add an independent static verifier only when the edit is
+   non-trivial, risky, or has uncertain wiring.
 
-Rules:
+A focused worker's `BLOCKED`, reroute, or three-attempt stop ends only that
+packet. Preserve its evidence and continue the parent goal through a new safe
+route when one exists; never repeat the unchanged attempt.
 
-- Anchor on exact failure output or requested behavior.
-- If root cause, relevant files, failure input, expected behavior, or targeted command is missing, immediately use `/yct-aa` diagnostic orchestration and start with `explorer-agent` only; do not start any other agent or writer.
-- Use Hypothesis–Falsification: observation, ranked hypotheses, prediction, falsifier, cheapest discriminating check, and result.
-- Return to `focused-fixer-agent` only after evidence localizes the cause, expected scope is normally one to three files, risk remains L1/L2, and a targeted command is known; otherwise stay on bounded `/yct-aa` execution.
-- Inspect nearby code and tests first.
-- Minimize file count and diff size.
-- Use `focused-fixer-agent` with an internal PDCA/test-first loop when the scope is bounded.
-- Before writing, apply Test Strategy Selection for parser/state-machine/combinatorial, concurrent, or retry-driven input spaces. Record the invariant/oracle, selected technique, and rejected alternatives.
-- A failing theoretical edge-case test does not authorize new runtime state, retries, fallbacks, workers, or protocol fields without the Risk–Complexity Budget evidence gate.
-- For behavior-preserving refactors without coverage, add characterization tests before restructuring.
-- Use `/yct-risk` discipline for auth, security/data boundaries, migrations, concurrency, public APIs, irreversible actions, or production behavior.
-- After delegated source edits, use `verify-runner-agent` for the targeted command, then use `verify-agent` with runner results as evidence.
-- Run the narrowest relevant verification.
+Use `/yct-risk` safety discipline for auth, data/security boundaries,
+migrations, concurrency, public APIs, irreversible actions, or production
+behavior, but select only phases justified by a current risk.
 
-Delivery gate:
-
-- Put the shared `Delivery` fields and the role's soft work budget in every packet.
-- `focused-fixer-agent` and `spark-agent` are one-shot: if the change does not fit, return `BLOCKED` and reroute to `executor-agent`; do not open a continuation batch.
-- Accept only a complete final result or the `AGENTS.md` batch receipt. The runner records one command family before the verifier consumes it.
-- After invalid writer delivery, freeze overlapping writers and reconcile the actual diff before retrying or rerouting.
-
-Final output:
-
-- Root cause.
-- Change summary.
-- Verification.
-- Remaining uncertainty.
-
-Model availability, fallback and budget:
-
-- Capability probe: at session start, if account alias availability is unknown,
-  the FIRST spawn of each pinned alias is the probe. Record results in a
-  session model-availability table and consult it before every later spawn —
-  an alias that failed once is never attempted again this session.
-- Fallback chain: on a model/alias-unavailable spawn error, retry with an
-  explicit per-call `model` override on the Agent tool, walking
-  fable -> opus -> sonnet -> haiku -> inherit, ONE attempt per hop; the FINAL
-  answer must name each failed spawn and the substitute model/tier that
-  actually ran — silent substitution is a false report. Never claim the
-  pinned alias ran after a downgrade; BLOCKED only after the chain is
-  exhausted.
-- Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
-  polling, status reads, test execution, evidence formatting, file location,
-  diff self-checks, trace updates — MUST take `haiku` or plain scripts, never
-  opus/fable. L2 exploration/implementation/targeted review runs `sonnet`.
-  ONLY architecture adjudication, adversarial plan review, conflict
-  arbitration and final security audit may use opus/fable.
-- Quality floor: adjudication roles (planner/plan-checker/verify/security/
-  code-review/semantic) floor at `sonnet` — never auto-degrade adjudication to
-  `haiku`; below the floor report BLOCKED instead (operator may explicitly
-  authorize, recorded in the trace). Mechanical/recording roles may go to
-  `haiku`; execution/exploration roles floor at `sonnet` unless the packet
-  explicitly allows `haiku` for trivial mechanical slices.
-- A top-tier round that adds no new evidence to the ledger is a routing
-  defect: log it and downgrade the next similar round.
+Final output: root cause, changed files, behavior, verification, and remaining
+uncertainty.

@@ -13,29 +13,28 @@ Method selection and Claude role mapping are owned by `.claude/rules/method-orch
 - Omit `Agent` from worker tool lists so workers cannot recursively orchestrate.
 - Use `isolation: worktree` only when the packet explicitly needs isolated writes and the repository state supports it.
 - The parent must preflight browser tools before spawning `browser-agent`.
-- After delegated source edits, `verify-agent` performs independent static acceptance. Add `verify-runner-agent` for commands that create caches, build outputs, coverage, or other verification artifacts.
+- After delegated source edits, the parent inspects the actual diff. Use
+  `verify-agent` for non-trivial, risky, or uncertain wiring; a localized
+  obvious edit may use parent inspection plus its real targeted check. Add
+  `verify-runner-agent` only when isolated command execution is useful.
 
 If the local Claude Code version or organization policy does not support a configured model, effort, or permission field, use the documented inherited fallback and report the downgrade instead of silently claiming the intended route ran.
 
 ## Delivery recovery and token economy
 
-- Treat an empty, progress-only, tool-log-only, or malformed child result as delivery failure, not completion. Preserve the child ID, packet, receipt ledger, and any known changed-state evidence.
-- Continue the same child once only when the active runtime exposes and has confirmed a continuation handle. Agent Teams and `SendMessage` are optional capabilities, not assumptions. If continuation is unavailable, create a new bounded packet containing the previous receipt and evidence ledger, or return `BLOCKED` when changed state cannot be reconciled safely.
+- Treat an empty, progress-only, tool-log-only, or malformed child result as delivery failure, not completion. Preserve the child ID, packet, and known changed-state evidence.
+- Continue the same child once only when the active runtime exposes and has confirmed a continuation handle. Agent Teams and `SendMessage` are optional capabilities, not assumptions. If continuation is unavailable, create a new bounded packet containing only the prior result and evidence delta, or return `BLOCKED` when changed state cannot be reconciled safely.
 - Do not ask a child that reached its soft work budget to continue exploration. Ask only for the required receipt/finalization, then apply the two-consecutive-remainder stop rule from `AGENTS.md`.
 - For a write-capable child with invalid delivery, pause overlapping writers, inspect the actual worktree/artifacts, and reconstruct the handoff before any further writes.
 - Do not paste large file bodies into packets; pass paths/line anchors — read-only agents
   can Read them, and packet bloat is paid on every resume.
 - Expect deliverables to be lean (tables + file:line anchors). If a child returns pasted
   file bodies, treat it as a role-contract defect and report it, not as normal output.
-- Long-running review loops (multi-round plan challenge) should stay on ONE agent instance
-  across rounds; each round sends only the delta packet.
+- A second review round requires new evidence or a named unresolved finding and is limited to that delta. When such a round is genuinely needed, reuse one agent instance if a confirmed continuation handle exists. Do not create a long-running review loop by default.
 
-Long goals (many-item contracts, e.g. GDR-01..24):
-
-- Slice into bounded packets of 3-5 items, or 2-3 for L3/L4/high-uncertainty work; never hand one agent the whole span.
-- Reuse the same agent instance for adjacent slices only when a confirmed continuation handle exists. Otherwise start a fresh bounded packet with the prior receipt and ledger.
-- Require every slice to close the previous remainder before accepting new item IDs. A second consecutive carry-over becomes `BLOCKED` or a separate evidence task.
-- Maintain evidence/trace matrices incrementally - append delta rows per slice,
-  never rebuild the full matrix from scratch.
-- Do not re-read unchanged files across slices; cite prior slice anchors
-  (file:line) instead.
+For genuinely itemized long goals, slice only when one worker cannot safely
+close the whole target. Carry the concise completed set, remainder, and evidence
+delta; derive every item from the current authoritative input. Do not maintain
+a trace matrix unless the user's acceptance itself is itemized. Close the prior
+remainder before adding scope, and do not re-read unchanged files without new
+or contradictory evidence.

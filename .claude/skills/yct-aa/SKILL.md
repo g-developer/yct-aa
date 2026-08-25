@@ -1,6 +1,6 @@
 ---
 name: yct-aa
-description: Explicit auto-routing mode for non-trivial engineering tasks. Invoke /yct-aa to apply AGENTS.md/CLAUDE.md routing, select the smallest useful Claude subagent/model set, use clean-context packets, and independently verify delegated source edits.
+description: Explicit auto-routing mode for non-trivial engineering tasks. Invoke /yct-aa to apply AGENTS.md/CLAUDE.md routing, choose the smallest useful Claude subagent set, execute outcome-relevant work, and independently verify delegated source edits.
 argument-hint: [task]
 disable-model-invocation: true
 ---
@@ -10,381 +10,123 @@ disable-model-invocation: true
 Task:
 $ARGUMENTS
 
-Follow `AGENTS.md` and `CLAUDE.md`.
+Follow `AGENTS.md` and `CLAUDE.md`; this skill adds routing, not a second
+governance system.
 
-Process:
+## Outcome-first rules
 
-1. Classify task criticality: L0 trivial, L1 focused, L2 multi-file, L3 risky, L4 strategic.
-2. Use the lightest process that controls actual risk.
-   Mainline-first: implement the smallest change that makes the target
-   behavior work and verify it green BEFORE adding defensive branches,
-   broader tests, or extra review rounds; never pre-build defenses or tests
-   for unobserved failure modes. Risk–Complexity Budget still governs
-   money/persistence/security paths, but its gates demand the minimal
-   acceptable contract, not gold-plating.
-3. Select only the methods whose task signals match the `AGENTS.md` method matrix; method dumping is a routing defect.
-4. Put each selected method and its required output into the responsible agent packet.
-5. Do not use subagents for L0 or clear L1 tasks unless they add concrete value.
-6. Use read-only agents first when scope is unclear.
-7. Pre-write finding freeze applies only to L3/L4 or contract work after risk
-   classification; L0/L1 and ordinary L2 are exempt — L2 takes at most one
-   read-only scan of the touched surface, then implements. No multi-agent
-   audit rounds before mainline code exists.
-   - Before spawning a writer, declare one named MECE review lens, its disjoint
-     audit scopes, explicit exclusions, authoritative inputs, and adjacency
-     cross-checks.
-   - Complete the read-only audit pass across that inventory. Parallel audits
-     may run only on disjoint scopes.
-   - The parent reconciles all audit results into one evidence-backed,
-     deduplicated finding set: findings, no-finding scopes, unresolved evidence,
-     conflicts and their resolution, severity, Risk–Complexity Budget class
-     (`must-fix`, `observe-first`, or `documented-defer`), and file/symbol
-     anchors. This is
-     the maximum finding set discoverable from the declared inventory at the
-     evidence cutoff; do not claim completeness beyond that inventory.
-   - Freeze that finding set before any source write. Every writer packet must
-     cite the frozen set and its declared exclusions; writing may address only
-     approved `must-fix` findings and the implementation plan. Preserve
-     `observe-first` and `documented-defer` entries as residual-risk records,
-     not hidden implementation requirements.
-   - Material new evidence that changes a requirement, boundary, or declared
-     scope reopens the read-only audit, requires reconciliation, and freezes a
-     replacement finding set before further writes. Post-write verification is
-     a separate acceptance pass, not a substitute for this gate.
-8. Use write-capable agents only with clean-context task packets.
-9. Require verification handoff from any write-capable agent.
-10. After delegated source edits, use `verify-runner-agent` first when dynamic commands are needed, then use `verify-agent` with runner results as evidence.
-11. Do not allow overlapping write-capable agents on the same files.
-12. Treat a successful `Task` result identifying the configured child agent as the precondition for claiming delegation. If `Task` fails or no child identity is returned, report `BLOCKED`; do not simulate the child or silently execute its scope in the parent.
-13. Put the shared `Delivery` fields in every worker packet and enforce the role's declared policy and soft work budget.
-14. Accept only a complete final deliverable or the `AGENTS.md` batch receipt. Empty output, progress narration, tool logs, or malformed receipts do not advance the task.
-15. Close the previous remainder before adding scope. After the same remainder survives two receipts, return `BLOCKED` or run a separate evidence/localization packet; never carry it a third time.
-16. Continue a child only when the active Claude runtime returns a confirmed continuation handle. Do not assume Agent Teams or `SendMessage`; if continuation is unavailable, pass the receipt and ledger to a new bounded packet. After invalid write-agent delivery, freeze overlapping writers and reconcile the actual diff.
+- Every action must either implement the requested production behavior,
+  distinguish a current blocker, or verify a required outcome. Skip it when
+  that contribution cannot be stated concretely.
+- A proposed source change must satisfy all four conditions: the real
+  production path needs it; it addresses the observed failure class through a
+  general existing boundary rather than a one-off special case; the smallest
+  meaningful behavioral coverage proves it; and existing Case quality is not
+  weakened. Otherwise do not implement it.
+- Choose the highest-ROI path: compare expected outcome gain with code,
+  maintenance, review, and runtime-verification cost. Higher criticality
+  requires better evidence, not more machinery.
+- Do not introduce new hashes, frozen contracts or baselines, scope manifests,
+  routing ledgers, process gates, retries/fallbacks, persistent state machines,
+  or fake Docker/Compose-style harnesses unless the user requested them or
+  direct production evidence proves the target cannot be met safely without
+  them. A plan, handoff, or reviewer preference alone is not that evidence.
+- When a plan or acceptance artifact conflicts with current runtime evidence,
+  correct the artifact or approach. Do not build production code to satisfy a
+  stale document. Plans, manifests, handoffs, hashes, and static counts do not
+  replace the production outcome requested by the user.
 
-Routing:
+## Test selection
 
-- `CLAUDE.md` is the single owner of Claude agent/model mapping. Use its route table rather than duplicating the table here.
-- Do not substitute built-in Explore for the configured `explorer-agent` inside this workflow.
-- Preflight browser tooling before the configured browser route; without a browser tool, use public research or report the missing capability.
+- Before changing code or tests, classify the failure as product code, Case,
+  data, or environment and capture the cheapest discriminating evidence.
+- Prefer a small number of high-information checks. For production workflows,
+  prefer isolated real integration/end-to-end execution over a large unit or
+  fake-infrastructure matrix.
+- Do not add a test whose only oracle is matching prompt text, source text,
+  logs, headings, generated prose, or another incidental string. Domain string
+  values are valid only when the value itself is observable behavior.
+- Do not add tests for unobserved failure modes, target a test count, weaken an
+  existing assertion, or replace a mature Case with an easier synthetic one.
 
-Risk override: auth, security/data boundaries, migrations, concurrency, public APIs, irreversible actions, or production behavior use `/yct-risk` discipline even when the requested diff is small.
+## Process
 
-When a plan or finding proposes retries/fallbacks, durable state, workers, leases/heartbeats, caches, ACKs, or schema/protocol fields, select the Risk–Complexity Budget. High criticality requires stronger evidence; it does not automatically justify more machinery. Classify findings as `must-fix`, `observe-first`, or `documented-defer`; theoretical findings are not requirements, while security/tenant/data-loss/duplicate-side-effect/unbounded-blocking paths cannot be deferred only because they are unlikely.
+1. Apply precedence: explicit mode, safety override, task shape, necessary
+   phases, then verification.
+2. Classify criticality and use the smallest sufficient agent set. Keep L0 and
+   clear L1 work in the parent, including a bounded explicit local batch. If
+   the failure, files, and real check are supplied, do not recast it as a
+   discovery task or invoke analysis skills. An execution-only request with an
+   exact entrypoint, inputs, and acceptance also stays in the parent; do not
+   spawn an explorer merely to reread those inputs.
+3. Select only methods triggered by current evidence. Method dumping is a
+   routing defect; put each selected method and its required output in the
+   responsible packet.
+4. Explore only unresolved facts. An already-localized L1 gets one reproduction,
+   one minimal edit, one real integration/E2E check, and one diff/status
+   inspection; expand only on contradictory or new evidence. Before declaring
+   a global blocker, trace the real production consumers and block only the
+   affected subpath; an artifact or recovery precondition does not expand a
+   configuration's product scope. Read authoritative input once; do not re-read,
+   recount, stat, or diff it without contradictory or new evidence. Use an
+   entrypoint's explicit scenario/time input directly; never add a wall-clock
+   wait or rerun a successful side effect to repair wrapper/timing evidence.
+5. For L3/L4 work, use only the planning, challenge, execution, and verification
+   phases justified by one named current unresolved risk. Keep each decision to
+   one complete challenge and at most one focused re-check. Once that risk is
+   closed, stop static review and move to real integration/E2E or the production
+   result; reopen only for new runtime evidence.
+6. Give writers complete clean-context packets and non-overlapping ownership.
+   Include the target behavior, production-path evidence, non-goals, allowed
+   files, and the four change conditions above. Writers derive target members
+   from the current authoritative input and confirm the absolute worktree before
+   the first write; they do not hand-expand remainders or use a sibling checkout.
+7. For genuinely batched work, carry a concise remainder and change/evidence
+   delta. If the same remainder survives two receipts, stop or localize it;
+   do not expand scope. Reuse a child only with a confirmed continuation
+   handle. Reconcile an invalid writer delivery against the actual diff before
+   another writer touches overlapping files.
+8. Require a concise verification handoff from every writer and inspect the
+   actual diff. A localized obvious edit may use parent inspection plus its real
+   targeted check; use `verify-agent` for non-trivial, risky, or uncertain
+   wiring. Run acceptance through the installed skill/product with the user's
+   real entrypoint, working directory, and command-level environment/auth
+   injection; a temporary runner or direct internal tool is diagnostic only.
+   Dynamic evidence is valid only when the target Case was collected and not
+   filtered out, the command reached a terminal state, and its framework
+   summary plus real exit status were captured.
+9. Continue approved, reversible work without asking for redundant permission.
+   Three failed attempts exhaust only the unchanged strategy or bounded worker
+   packet: preserve evidence and stop repeating it. If the goal remains
+   incomplete and new evidence supports a different safe in-scope hypothesis,
+   partition, or revision, continue. Overall `BLOCKED` requires a genuine
+   authority decision, destructive/irreversible action, missing required
+   access, contradictory requirements, or proof that no safe outcome-relevant
+   discriminating action remains. Never replay a consumed one-shot. A commit,
+   build, image, artifact, review PASS, elapsed-time boundary, or progress
+   receipt is only a milestone: do not return a progress-only final while the
+   requested outcome is incomplete and a safe, authorized, outcome-relevant
+   next action exists.
+10. Do not create process files beyond a required plan; create a handoff only
+    when asked. Runtime caches from a required check are not process artifacts:
+    report Git-visible residue once instead of starting a cleanup/debug loop.
+    Never add new hashes or frozen manifests.
 
-Recurring routing/instruction failures use Double-loop Learning through `semantic-review-agent`: correct both the immediate defect and the underlying rule or feedback gap.
+## Routing
 
-Final response must start with the conclusion and include changed files, verification, and residual risk.
+`CLAUDE.md` is the single owner of Claude agent and model mapping. Use its
+route table, do not substitute built-in Explore for the configured
+`explorer-agent`, and use `security-reviewer-agent` only when the user
+explicitly requests a security review.
 
-Conjunctive-gate debugging (multi-blocker failures):
+Use the Risk–Complexity Budget only when a proposal adds runtime reliability
+machinery. A theoretical failure is not a product requirement. Prefer the
+existing safe failure mode or observation when it already meets the product
+commitment.
 
-- When a failure sits behind a gate that aggregates multiple independent
-  blockers (hard_blockers, anomaly sets, validation chains), FIRST run one
-  read-only extraction that enumerates the COMPLETE current blocker/reason
-  set from the real decision object or log - then fix the enumerated set in
-  one scoped pass. Never enter a fix-one-rerun-discover-next loop.
-- Evidence extraction is strategy zero: it does not count against the
-  three-strategy limit, and hypothesis fixes launched without the full
-  enumeration in hand are a routing defect.
-- Deep root-cause investigation - the strategy-zero extraction, forensics
-  after a failed fix round, repeated-regression analysis - is
-  adjudication-tier work: route it to `deep-investigator-agent` (pinned
-  `opus`/`xhigh`). Escalate via role choice so Claude/Codex twins stay
-  symmetric, and preflight that `CLAUDE_CODE_SUBAGENT_MODEL` is unset:
-  resolution is env > per-call `model` > frontmatter pin, so a stray global
-  env value silently flattens every subagent to one model (bitten
-  2026-08-13). Routine location/scoping scans stay mid tier.
-- After the pass, re-extract once to confirm the set is empty, or report the
-  residual set verbatim; progress is the shrinking enumerated set, never
-  "one more blocker fixed".
+Treat a successful `Task` result identifying the configured child as the
+precondition for claiming delegation. If it fails or returns no child identity,
+report the tool failure; do not simulate the child or silently execute its
+scope in the parent.
 
-Model availability, fallback and budget:
-
-- Capability probe: at session start, if account alias availability is unknown,
-  the FIRST spawn of each pinned alias is the probe. Record results in a
-  session model-availability table and consult it before every later spawn —
-  an alias that failed once is never attempted again this session.
-- Fallback chain: on a model/alias-unavailable spawn error, retry at the next
-  tier down, walking fable -> opus -> sonnet -> haiku -> inherit, ONE attempt
-  per hop, preferring a role pinned at that tier so twins stay symmetric.
-  Preflight: `CLAUDE_CODE_SUBAGENT_MODEL` must be unset - it outranks
-  per-call and frontmatter pins and silently flattens all subagents to one
-  model (bitten 2026-08-13). The FINAL answer must name each failed spawn
-  and the substitute role/tier that actually ran — silent substitution is a
-  false report. Never claim the pinned alias ran after a downgrade; BLOCKED
-  only after the chain is exhausted.
-- Tier claims need runtime evidence: report a child's tier as "ran" only when
-  runtime evidence (subagent transcript model fields, result modelUsage)
-  confirms it; when the runtime does not surface the child's actual model,
-  report "requested X, actual unverified". "No downgrade" without evidence is
-  a false report.
-- Tier-by-criticality (hard rule): L0/L1 and ALL mechanical operations —
-  polling, status reads, test execution, evidence formatting, file location,
-  diff self-checks, trace updates — MUST take `haiku` or plain scripts, never
-  opus/fable. L2 exploration/implementation/targeted review runs `sonnet`.
-  ONLY architecture adjudication, adversarial plan review, conflict
-  arbitration, final security audit and deep root-cause investigation
-  (strategy-zero extraction, post-failure forensics) may use opus/fable.
-- Quality floor: adjudication roles (planner/plan-checker/verify/security/
-  code-review/semantic) floor at `sonnet` — never auto-degrade adjudication to
-  `haiku`; below the floor report BLOCKED instead (operator may explicitly
-  authorize, recorded in the trace). Mechanical/recording roles may go to
-  `haiku`; execution/exploration roles floor at `sonnet` unless the packet
-  explicitly allows `haiku` for trivial mechanical slices.
-- A top-tier round that adds no new evidence to the ledger is a routing
-  defect: log it and downgrade the next similar round.
-
-Long goals (many-item contracts, e.g. GDR-01..24):
-
-- Slice into bounded packets of 3-5 items, or 2-3 for L3/L4/high-uncertainty work; never hand one agent the whole span.
-- Reuse the same agent instance only when the runtime returns a confirmed continuation handle. Otherwise start a new packet with the prior receipt and ledger.
-- The next slice closes the previous remainder first; a second consecutive carry-over becomes `BLOCKED` or a separate evidence task.
-- Maintain evidence/trace matrices incrementally - append delta rows per slice,
-  never rebuild the full matrix from scratch.
-- Do not re-read unchanged files across slices; cite prior slice anchors
-  (file:line) instead.
-
-Parallel exploration hygiene & evidence cache:
-
-- Assign parallel explorers DISJOINT file scopes (MECE, each packet lists
-  explicit "not-yours" exclusions); overlapping scopes pay twice for the same
-  files.
-- Cap each returned evidence summary (~120 lines, tables + file:line anchors);
-  request gaps later instead of accepting full dumps.
-- Maintain a session evidence ledger; later packets carry
-  "already-established facts (do not re-derive)" with anchors, and agents only
-  fill gaps.
-- Before spawning a new explorer, check the ledger and reuse standing
-  conclusions instead of re-deriving them.
-- Every ledger entry carries its as-of anchor (commit/file state/time). Reuse
-  it only after confirming the anchor still holds; a stale audit must not
-  gate current work. Once a fact is adjudicated, execute its wiring before
-  any further input auditing — a new audit round requires new evidence.
-
-Scope freeze, autonomy budget, and status reporting:
-
-- At task start, extend the finding freeze with one canonical scope manifest
-  (item list + count + content hash). Every later packet and report cites that
-  manifest instead of re-deriving membership; a scope change must be declared
-  explicitly with a manifest diff. Mixing counts from different manifests in
-  one report is a defect.
-- An autonomous continuation round ("continue", overnight or unattended
-  execution) must carry an explicit budget (time, tokens, or item count) and a
-  checkpoint. At the budget, emit the status table and stop starting new work;
-  standing authorization is not an unlimited budget.
-- Report progress only as a fixed status table over the frozen manifest:
-  total scope / fixed / evidence-pending / truly-insufficient / re-run /
-  not-re-run, each row backed by verifiable evidence. Activity ("searching",
-  "auditing", "in progress") is not progress and must not be reported as
-  movement.
-
-Session handoff (operator will continue in a NEW process - Codex, Claude, or other):
-
-- On request ("给个交接内容" or equivalent), write ONE frozen handoff file at
-  the repo root: `HANDOFF-<task>-<yyyymmdd>.md`. Anchors only - no pasted
-  file bodies, no history narration.
-- Source of truth: mine the outgoing session's rollout JSONL (Codex:
-  `~/.codex/sessions/<yyyy>/<mm>/<dd>/rollout-*-<thread-id>.jsonl`; Claude:
-  `~/.claude/projects/<project>/<session-id>.jsonl`) with scripts or a
-  low-tier agent, then cross-check against current repo/git state. Never
-  build the handoff from the outgoing session's self-summary alone - a
-  bloated or degraded session mis-summarizes itself; the JSONL is the
-  lossless record. Extract from it: user directives still in force,
-  adjudicated conclusions and their anchors, last delivered state, open
-  receipts, unfinished work. The handoff may be produced by a DIFFERENT
-  process than the one being replaced; only the generator reads the JSONL -
-  the new session reads only the handoff file.
-- Required content, in this order:
-  1. Opening prompt: a paste-ready first message for the new session - route
-     invocation, absolute path of this handoff file, criticality level, and
-     the hard prohibitions.
-  2. Adjudicated facts, each with an as-of anchor (commit / file:line /
-     table+key / hash). The new session reuses them without re-derivation
-     and re-verifies an anchor before relying on it.
-  3. Frozen scope manifest (list + count + content hash) and the current
-     status table over it (total / closed / evidence-pending /
-     truly-insufficient).
-  4. Remaining work in execution order, each item with its next concrete
-     action and owner route.
-  5. Prohibitions: every mistake the old session actually made, stated as a
-     ban.
-  6. Volatile evidence (paths under /tmp, running processes, un-archived
-     artifacts) with the instruction to archive or re-hash FIRST.
-- Conciseness contract: complete enough that the new session never re-derives
-  an adjudicated fact or repeats closed work; short enough to read in one
-  pass - tables over prose, target <=120 lines.
-- The new session's first turn validates the anchors before acting; a stale
-  anchor reopens only that one fact, never the whole investigation.
-
-Review-loop and plan-artifact budget:
-
-- After a plan-checker `BLOCKED` or `ACCEPT_WITH_CHANGES` round, the next
-  checker packet scopes ONLY the enumerated gaps (carry the gap list in the
-  packet); it re-verifies those fixes, not the whole plan. A full re-review
-  requires material new evidence (e.g. a structural plan rewrite) and must
-  name it. Defaulting to full re-review is a review-budget defect.
-- Plan artifacts cite frozen work products by absolute path + SHA-256 instead
-  of embedding them: complete programs, configs, or long command transcripts
-  do not belong in the plan body (interface-level hunks up to ~30 lines are
-  fine). A plan that grows by embedded source is plan-churn, not progress.
-
-Blocked-gate adjudication and authorization asks:
-
-- When a frozen artifact (contract, plan, gate) conflicts with verified
-  runtime reality, the default recommendation is a narrow delta re-review
-  amending the ARTIFACT — never mutating production/runtime to satisfy the
-  document. Freezing makes an artifact authoritative, not factually
-  correct; runtime evidence outranks it.
-- Every authorization ask presents at least two options including the
-  minimal-risk reversible one, with a ranked recommendation and its
-  evidence; a single-option ask at a one-way door is a handoff defect.
-- Execution prohibitions never prohibit recommendations: the message
-  reporting a blocker must already carry the cheapest correct fix the
-  evidence supports.
-- A reversed recommendation is logged as a direction error with its root
-  cause (double-loop), not minimized as "suboptimal".
-
-Justified-change proof gate (proof precedes approval; depth scales with
-reversibility, not uniformly):
-
-- Reversible L0/L1: failure-evidence anchor + smallest change + targeted
-  check is sufficient proof.
-- Two-way-door L2: one proposal + one independent adversarial delta
-  review.
-- One-way door / production / frozen-contract change:
-  1. Falsification-first: one agent tries to refute the minimal option
-     (amend the artifact / observe / do nothing). If it survives
-     refutation, adopt it — skip the panel.
-  2. Otherwise 2-3 clean-context proposals under FORCED distinct lenses
-     (minimal-change vs artifact-side vs runtime-side; one lens is always
-     the reversible path). Same-prompt clones are not diversity.
-  3. The parent synthesizes by evidence strength, never by vote count:
-     consensus cannot override an invariant, a gate, or a failing test.
-  4. Adversarial pass (plan-checker) on the synthesized winner with
-     requirement->change traceability; any goal/invariant conflict
-     auto-rejects regardless of agreement. ACCEPT required.
-- The proof bundle (proposals, refutation result, trace map) is cited by
-  path + hash in the authorization ask.
-
-Continue-by-default (waiting is the exception):
-
-- A round may end ONLY when the overall task is complete, a hard stop
-  condition holds (user-only decision, missing authority/credentials,
-  destructive action without approval, three failed fix strategies), or a
-  soft-budget boundary forces a batch receipt — and the receipt names the
-  next packet so work resumes immediately.
-- Approved work is never a waiting point: work that is local, reversible,
-  and already covered by an ACCEPT or a standing authorization executes in
-  the SAME round. Status reports accompany continuation; they do not
-  replace it.
-- Single-consumption and production gates freeze only the gated action
-  itself, never the local work that prepares or diagnoses it. After a
-  failed gated attempt, pivot immediately to the diagnosis and local fixes
-  the failure evidence already justifies.
-- Ending a round with executable approved work remaining, to "await
-  instructions" nobody was asked for, is a routing defect — log it in the
-  ledger.
-- Serial is likewise the exception for read-only work: at each stage or
-  batch start, enumerate the independent read-only lanes (MECE — static
-  review, evidence location, contract mapping, dynamic inventory) and
-  launch them as ONE wave alongside the serial writer chain. Lanes must
-  not overlap and writers stay single-owner. Record the lane inventory
-  in the ledger before the stage's first spawn; a one-lane wave must
-  name why the inventory is empty. Needing the user to demand more
-  SubAgents is a routing defect — log it. Splitting one problem to fill
-  slots remains forbidden.
-- A round does not end while any SubAgent is in flight or a batch
-  receipt is unclosed: answer an interposed user question, then RESUME
-  the harvest-and-advance loop in the same round — progress answers and
-  estimates are not terminal states. Never end on a promise tail ("will
-  start / about to / currently running"): orchestration halts when the
-  turn ends, and in-flight work sits unharvested until the user prods.
-  Legal endings: all agents harvested, a true hard stop, a named
-  user-only decision, or a delivered handoff. At each stage/wave closure
-  emit a <=3-line milestone receipt (stage — in-flight — next action);
-  it is contractual, not optional commentary.
-- State closure before the next spawn: when a gate verdict lands, a
-  writer is interrupted or killed, or a batch closes, record a one-line
-  closure — verdict settled, disk state reconciled, plan file touched
-  only if a stage's goal/scope/status changed — before spawning the
-  next gate or writer on that thread. Re-gating a settled decision
-  without new evidence, respawning over an unreconciled worktree, and
-  plan edits that only narrate progress are one defect: unclosed state.
-- Mechanical work rides the cheapest lane: polling, status reads, test
-  runs, evidence collection, and file location belong to scripts or the
-  lowest runner tier, never top-tier parent turns, which are reserved
-  for adjudication, packet construction, and integration. A sustained
-  mechanical exec streak in the parent thread is a routing defect —
-  log it.
-
-Single-consumption attempt economy (a gated one-shot buys only what no
-local check can prove):
-
-- Before consuming a single-consumption / production / one-shot
-  authorization, enumerate the COMPLETE conjunctive layer chain the
-  attempt depends on (runtime identity, connection/transaction, clock and
-  anchors, storage authority vs. overwritable projection, upstream
-  point-in-time reconstructability, error classification — extend per
-  task) and falsify each layer with the cheapest local check first. The
-  gated attempt is the most expensive falsifier in the system; spending
-  it on a hypothesis a local check could have killed is a routing defect.
-- The execution packet states the predicted failure modes. A consumed
-  attempt failing in an UNPREDICTED layer is a diagnosis-scope defect:
-  log it and run a strategy-zero full-surface audit
-  (`deep-investigator-agent`) that re-extracts the whole layer chain from
-  the code path — not just the failing layer — before the next attempt is
-  authorized. A second consecutive unpredicted-layer failure hard-blocks
-  further attempts until that audit completes.
-- A fix that turns one layer green is necessary, not sufficient: never
-  promote it to complete root cause. After every gated failure, re-run
-  the layer enumeration against the new evidence before proposing the
-  next fix.
-
-Idle-wait and kill discipline (an idle WAIT is not an idle WORKER):
-
-- Two idle waits trigger a PROGRESS CHECK, not an automatic kill: inspect
-  changed-state evidence first (target-file mtime/diff growth, artifact
-  freshness, receipt heartbeat). A demonstrably progressing worker gets a
-  longer bounded wait; only a stalled one is killed and re-scoped.
-- Size the FIRST wait to the role's typical duration: adjudicators and
-  planners run minutes, not tens of seconds. Batch status via one
-  agent-list poll instead of stacked short waits; every wait return is
-  a paid parent-tier turn.
-- Write-capable workers are never blind-killed: a mid-flight kill leaves
-  partial writes that cost a freeze-and-reconcile pass before any
-  respawn. If a writer repeatedly outlives its wait budget, the packet
-  was too big — re-slice the scope so writes land within the soft
-  budget; a kill-respawn cycle re-issuing the same oversized packet is
-  churn, not progress.
-- Interrupting an adjudicator (plan-checker/verify) to demand a verdict
-  yields no gate pass: accept only a complete delivery with its evidence
-  body, or re-run the gate as a fresh narrower packet.
-- Restorative writes (rollback, reverse patch, file restore) are
-  hash-anchored on BOTH sides: before writing, verify the target's
-  current hash equals the base the reverse patch was computed against;
-  after writing, verify the intended postimage hash. Any mismatch stops
-  the writer and freezes that file — never rebuild a reverse patch from
-  remembered or stale line ranges, never stack corrective patches on an
-  unverified base; recover forward from fresh evidence instead.
-
-Routing & budget trace:
-
-- For every spawn, record in the session routing ledger: role, criticality,
-  model requested vs actually used (downgrade y/n), and on completion its
-  token usage plus the evidence delta it added.
-- The ledger is an append-only FILE in the workspace (e.g. ROUTING_LEDGER.md
-  beside IMPLEMENTATION_PLAN.md), one line per spawn — never in-thread-only
-  notes: an in-thread ledger dies at context compaction and the spawn count
-  becomes unreconstructable. Handoff files cite this ledger by path.
-- The ledger covers INLINE parent turns too: a parent turn that runs a
-  mechanical chain (3+ repeatable commands — hashing, inspects, syntax
-  checks, batch re-runs, log scans) is logged as a routing defect, and the
-  NEXT such chain must be delegated to a mechanical role or plain script
-  before running. Single probe commands are exempt.
-- At a passed major gate (plan ACCEPT, phase switch) in a session that has
-  already compacted or materially consumed its context, proactively emit the
-  frozen handoff file and recommend starting the next phase in a fresh
-  session; rolling a new phase onto a near-full thread by inertia is a
-  routing defect.
-- Review the ledger at each phase boundary: top-tier spend with no evidence
-  delta, or repeated re-reads of the same files, must change the next round's
-  routing (double-loop).
+Final response: conclusion, changed files, verification, and remaining risk.

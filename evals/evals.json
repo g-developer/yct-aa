@@ -47,23 +47,15 @@
       "id": 2,
       "prompt": "$yct-aa pytest tests/auth/test_refresh.py::test_expired_token fails with the attached stack trace; fix only the involved files",
       "expected_criticality": "L3",
-      "expected_route": "risk-overlay",
-      "expected_output": "Treat the exact auth test as L3 despite its narrow shape; use the risk pipeline, trust-boundary negative tests, PDCA implementation, traceability, runner evidence, and final static acceptance.",
+      "expected_route": "risk-bounded-fix",
+      "expected_output": "Keep the auth risk classification, use the exact failure and trust-boundary behavior to make the smallest production fix, run the targeted real check, and independently verify it. Do not add planning, challenge, or security-review stages unless a current unresolved design or explicit user request requires them.",
       "expected_methods": [
-        "First Principles",
-        "MECE",
-        "Pre-mortem + FMEA-lite",
-        "Steelman + Red Team",
         "Trust Boundary + Abuse Cases",
         "PDCA",
         "Bidirectional Traceability + Adjacency Scan",
         "Test Strategy Selection"
       ],
       "trigger_evidence": {
-        "First Principles": "auth behavior is a safety-sensitive L3 surface",
-        "MECE": "token expiry crosses identity, policy, handler, and test boundaries",
-        "Pre-mortem + FMEA-lite": "auth regression can fail open or lock out valid users",
-        "Steelman + Red Team": "L3 plan requires adversarial challenge",
         "Trust Boundary + Abuse Cases": "auth refresh crosses an authentication/trust boundary",
         "PDCA": "the prompt requests a fix",
         "Bidirectional Traceability + Adjacency Scan": "non-trivial auth implementation requires requirement/diff/test closure",
@@ -72,10 +64,10 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
         "no-focused-risk-downgrade",
-        "plan-reaccepted",
-        "pre-post-security-review",
-        "runner-before-verifier",
-        "composite-l3-gate"
+        "current-risk-only-phases",
+        "security-review-only-if-requested",
+        "targeted-auth-behavior",
+        "production-path-proof"
       ],
       "files": []
     },
@@ -97,7 +89,7 @@
       "expected_gates": [
         "spark-known-available",
         "single-fallback",
-        "runner-before-verifier"
+        "targeted-css-behavior"
       ],
       "files": []
     },
@@ -105,13 +97,11 @@
       "id": 4,
       "prompt": "$yct-aa fix an authorization bypass in the workspace admin endpoint",
       "expected_criticality": "L3",
-      "expected_route": "risk-overlay",
-      "expected_output": "Risk overrides focused-fix shape; use first-principles/MECE planning, FMEA and red-team challenge, pre/post trust-boundary review, PDCA implementation, bidirectional traceability, negative tests, runner evidence, and final static acceptance.",
+      "expected_route": "risk-diagnose-execute",
+      "expected_output": "Risk overrides a casual focused fix: localize the authorization boundary, choose the smallest safe repair, and use planning or challenge only if design remains unresolved. Security-review agents run only when explicitly requested; targeted behavior and independent verification still close the change.",
       "expected_methods": [
         "First Principles",
-        "MECE",
-        "Pre-mortem + FMEA-lite",
-        "Steelman + Red Team",
+        "Hypothesis–Falsification",
         "Trust Boundary + Abuse Cases",
         "PDCA",
         "Bidirectional Traceability + Adjacency Scan",
@@ -119,9 +109,7 @@
       ],
       "trigger_evidence": {
         "First Principles": "authorization bypass is an L3 safety boundary",
-        "MECE": "route, identity, workspace policy, side effect, and tests must be separated",
-        "Pre-mortem + FMEA-lite": "the fix can leave sibling bypasses or reject valid admins",
-        "Steelman + Red Team": "L3 plan requires counterexample and exploit-path challenge",
+        "Hypothesis–Falsification": "the prompt identifies a bypass but not the exact authorization failure site",
         "Trust Boundary + Abuse Cases": "the prompt explicitly names authorization bypass",
         "PDCA": "the prompt requests implementation",
         "Bidirectional Traceability + Adjacency Scan": "the bypass requirement and every changed surface need two-way mapping",
@@ -130,10 +118,10 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
         "no-focused-risk-downgrade",
-        "plan-reaccepted",
-        "pre-post-security-review",
-        "runner-before-verifier",
-        "composite-l3-gate"
+        "current-risk-only-phases",
+        "security-review-only-if-requested",
+        "authorization-boundary-behavior",
+        "production-path-proof"
       ],
       "files": []
     },
@@ -163,7 +151,7 @@
       "prompt": "$yct-aa optimize AGENTS.md, Claude rules, Codex agents, and shortcut routing without changing business code",
       "expected_criticality": "L2",
       "expected_route": "semantic-instruction-change",
-      "expected_output": "Use a MECE instruction-boundary decomposition, bounded PDCA edits, and bidirectional rule/parity traceability. Do not select Double-loop Learning without recurrence evidence.",
+      "expected_output": "Use a MECE instruction-boundary decomposition, bounded PDCA edits, and bidirectional rule/parity traceability. Use semantic-review-agent only if a current owner conflict cannot be closed from source and behavior evidence; do not select Double-loop Learning without recurrence evidence.",
       "expected_methods": [
         "MECE",
         "PDCA",
@@ -177,9 +165,9 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
         "no-business-code",
-        "semantic-review",
+        "semantic-review-only-if-unresolved",
         "method-parity",
-        "runner-before-verifier"
+        "installed-entrypoint-replay"
       ],
       "files": []
     },
@@ -227,7 +215,7 @@
       "prompt": "$yct-aa rename the same metadata key in these four explicit files and make no other changes",
       "expected_criticality": "L1",
       "expected_route": "mechanical-batch",
-      "expected_output": "Use batch-agent on the explicit list with a small PDCA cycle, then static acceptance and any targeted check.",
+      "expected_output": "Use batch-agent on the explicit list, inspect the resulting scope once, and run a targeted behavior check only when the rename has an executable consumer.",
       "expected_methods": [
         "PDCA"
       ],
@@ -238,7 +226,7 @@
       "expected_gates": [
         "explicit-file-list",
         "no-scope-expansion",
-        "static-acceptance"
+        "diff-scope-inspection"
       ],
       "forbidden_gates": [
         "mece-review-inventory",
@@ -252,7 +240,7 @@
       "prompt": "$yct-aa add a multi-module feature but first map the unknown request path and decide the smallest safe design",
       "expected_criticality": "L2",
       "expected_route": "explore-plan-execute",
-      "expected_output": "Use exploration and first-principles planning with a named MECE review inventory; reconcile parallel read-only audits and freeze the deduplicated finding set before bounded execution, then use bidirectional traceability and independent verification.",
+      "expected_output": "Map the unresolved request path once, choose the smallest safe design, execute one bounded change, then use bidirectional traceability and independent verification.",
       "expected_methods": [
         "First Principles",
         "MECE",
@@ -268,11 +256,8 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
         "explore-before-plan",
-        "mece-review-inventory",
-        "parallel-audits-reconciled",
-        "finding-set-frozen-before-writer",
         "bounded-execution",
-        "runner-before-verifier"
+        "real-feature-path"
       ],
       "files": []
     },
@@ -408,7 +393,7 @@
       "prompt": "$yct-fix the parser fails on a few Unicode inputs but we do not know the full failing space",
       "expected_criticality": "L2-diagnostic",
       "expected_route": "diagnostic-then-focused-if-gated",
-      "expected_output": "Enter diagnostic orchestration immediately with explorer-only and no other agent or writer; rank and falsify parser hypotheses; before writing require an invariant/oracle, selected property or metamorphic technique, and rejected alternatives; return to focused fixing only after localization/scope/L1-L2-risk/command gates; run runner before verifier.",
+      "expected_output": "Localize the parser failure with the cheapest discriminating evidence, using explorer-agent only if the code path is still unknown. Write only after the cause and meaningful check are known; choose one property or metamorphic check when the Unicode input space requires it, then run the targeted command and inspect the diff.",
       "expected_methods": [
         "Hypothesis–Falsification",
         "Test Strategy Selection",
@@ -424,11 +409,11 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
         "diagnostic-first",
-        "explorer-only",
+        "explorer-only-if-path-unknown",
         "no-writer-before-localization",
         "focused-return-evidence",
-        "test-strategy-before-writer",
-        "runner-before-verifier"
+        "high-information-test-selection",
+        "targeted-parser-behavior"
       ],
       "files": []
     },
@@ -452,7 +437,7 @@
       "expected_gates": [
         "characterization-before-refactor",
         "no-observable-change",
-        "runner-before-verifier"
+        "behavior-preservation-check"
       ],
       "files": []
     },
@@ -461,7 +446,7 @@
       "prompt": "$yct-risk migrate a published event schema while old and new consumers will coexist for two weeks",
       "expected_criticality": "L3",
       "expected_route": "risk-migration",
-      "expected_output": "Use explicit First Principles and MECE, adversarial FMEA and reversibility analysis, Expand–Migrate–Contract, staged PDCA execution, bidirectional consumer traceability, compatibility tests, and the composite risk gate.",
+      "expected_output": "Use First Principles and MECE to settle the published-schema migration, challenge its credible coexistence and rollback risks once, apply Expand–Migrate–Contract, then prove old/new consumer compatibility through the real wire path.",
       "expected_methods": [
         "First Principles",
         "MECE",
@@ -477,7 +462,7 @@
         "First Principles": "published schema migration is L3 contract work",
         "MECE": "producer, consumers, wire format, data, rollout, and removal must be separated",
         "Pre-mortem + FMEA-lite": "coexistence and partial deployment have credible failures",
-        "Steelman + Red Team": "explicit yct-risk requires plan challenge",
+        "Steelman + Red Team": "published-schema coexistence and removal have concrete rollback and compatibility counterexamples",
         "One-way/Two-way Door + ADR": "published schema changes are costly to reverse",
         "Expand–Migrate–Contract": "old and new consumers explicitly coexist",
         "PDCA": "the prompt requests migration execution",
@@ -490,8 +475,8 @@
         "expand-before-contract",
         "coexistence-window",
         "removal-proof",
-        "runner-before-verifier",
-        "composite-l3-gate"
+        "real-wire-compatibility",
+        "production-path-proof"
       ],
       "files": []
     },
@@ -500,7 +485,7 @@
       "prompt": "$yct-risk duplicate payment capture appears under concurrent retries; design and fix the boundary safely",
       "expected_criticality": "L3",
       "expected_route": "risk-security-concurrency",
-      "expected_output": "Treat duplicate non-idempotent side effects as must-handle even if rare; use First Principles and MECE, FMEA and red-team challenge, the Risk–Complexity Budget to select the smallest sufficient idempotency mechanism, trust-boundary analysis, scoped PDCA implementation, bidirectional traceability, deterministic concurrency/fault-injection tests, and the composite risk gate.",
+      "expected_output": "Treat duplicate non-idempotent side effects as must-handle even if rare; use First Principles, FMEA, and the Risk–Complexity Budget to select the smallest sufficient idempotency mechanism, then use scoped implementation and deterministic concurrency/fault-injection evidence. Add a security-review agent only when explicitly requested.",
       "expected_methods": [
         "First Principles",
         "MECE",
@@ -517,7 +502,7 @@
         "MECE": "request, idempotency store, payment provider, retry, and recovery are separate surfaces",
         "Pre-mortem + FMEA-lite": "concurrent retries create credible duplicate side effects",
         "Risk–Complexity Budget": "a duplicate non-idempotent payment side effect is must-handle, while the mechanism still needs to be the smallest one supported by evidence",
-        "Steelman + Red Team": "explicit yct-risk requires adversarial challenge",
+        "Steelman + Red Team": "the unresolved idempotency design has high-impact counterexamples and needs one adversarial challenge",
         "Trust Boundary + Abuse Cases": "payments and entitlement side effects cross a protected boundary",
         "PDCA": "the prompt asks to design and fix",
         "Bidirectional Traceability + Adjacency Scan": "idempotency requirements and every changed surface need two-way mapping",
@@ -525,13 +510,13 @@
       },
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
-        "plan-reaccepted",
-        "pre-post-security-review",
+        "plan-only-for-unresolved-idempotency-design",
+        "security-review-only-if-requested",
         "idempotency-invariant",
         "must-handle-duplicate-side-effect",
         "fault-injection",
-        "runner-before-verifier",
-        "composite-l3-gate"
+        "payment-boundary-behavior",
+        "production-path-proof"
       ],
       "files": []
     },
@@ -565,10 +550,10 @@
     },
     {
       "id": 22,
-      "prompt": "$yct-aa this is the third time the same task was routed to general-agent instead of the specialist; fix the rules",
+      "prompt": "$yct-aa this is the third time the parent has terminated an unfinished authorized production goal after three consumed attempts even though the latest failure exposed a different safe bounded diagnostic; fix the instruction system",
       "expected_criticality": "L2",
       "expected_route": "semantic-system-fix",
-      "expected_output": "Correct the immediate route and use double-loop learning to repair the underlying trigger, ownership, and regression signal.",
+      "expected_output": "Correct the immediate stop semantics and use double-loop learning at the shared owner: three attempts end only the unchanged strategy or worker packet; consumed attempts are not replayed; new evidence continues through a safe bounded action without redundant permission; overall blocking requires that no safe outcome-relevant action remains.",
       "expected_methods": [
         "Double-loop Learning",
         "MECE",
@@ -576,16 +561,17 @@
         "Bidirectional Traceability + Adjacency Scan"
       ],
       "trigger_evidence": {
-        "Double-loop Learning": "the prompt says this is the third identical route misfire",
-        "MECE": "trigger, route owner, agent description, fixture, and regression test are distinct surfaces",
+        "Double-loop Learning": "the prompt says this is the third identical premature-stop defect",
+        "MECE": "parent stop semantics, worker packet semantics, platform copies, and behavior replay are distinct surfaces",
         "PDCA": "the prompt requests a rule fix",
         "Bidirectional Traceability + Adjacency Scan": "the immediate route and underlying rule change need two-way regression evidence"
       },
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
-        "specialist-route-restored",
-        "underlying-rule-corrected",
-        "regression-signal"
+        "attempt-limit-is-packet-only",
+        "consumed-attempt-not-replayed",
+        "new-evidence-continues-goal",
+        "overall-blocked-requires-no-safe-action"
       ],
       "files": []
     },
@@ -626,8 +612,8 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
         "no-implementation",
-        "forward-matrix",
-        "reverse-matrix",
+        "requirement-to-diff-mapping",
+        "diff-to-requirement-mapping",
         "adjacency-scan"
       ],
       "files": []
@@ -636,8 +622,8 @@
       "id": 25,
       "prompt": "$yct-aa implement this L2 contract across API, service, and UI; review the complete current implementation before changing code and report all discoverable issues at once",
       "expected_criticality": "L2",
-      "expected_route": "review-freeze-execute",
-      "expected_output": "Declare disjoint API, service, UI, producer, and test/config audit scopes; reconcile and deduplicate their evidence into the maximum finding set discoverable from the declared inventory; freeze it before any writer; then execute bounded non-overlapping fixes and independently verify them.",
+      "expected_route": "review-execute",
+      "expected_output": "Review the requested API, service, UI, producer, and test/config surfaces once; deduplicate target-relevant findings, then execute bounded non-overlapping fixes and independently verify them.",
       "expected_methods": [
         "MECE",
         "PDCA",
@@ -650,12 +636,9 @@
       },
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
-        "mece-review-inventory",
-        "disjoint-read-only-audits",
-        "parallel-audits-reconciled",
-        "finding-set-frozen-before-writer",
+        "single-complete-review-pass",
         "bounded-execution",
-        "runner-before-verifier"
+        "real-cross-surface-behavior"
       ],
       "files": []
     },
@@ -687,35 +670,28 @@
       "prompt": "$yct-aa fix normal reconnect timeout behavior explicitly promised by our production SLO; use the smallest mechanism and do not add durable state or background workers unless evidence proves they are needed",
       "expected_criticality": "L3",
       "expected_route": "risk-reliability-bounded",
-      "expected_output": "Handle the explicit reconnect/timeout SLO path, plan and challenge the smallest evidence-backed mechanism, use the Risk–Complexity Budget to reject unnecessary durable state or workers, implement with targeted timeout/reconnect tests, and close with runner evidence and independent verification.",
+      "expected_output": "Trace the explicit reconnect/timeout SLO to the owning production path, use the Risk–Complexity Budget to reject unnecessary durable state or workers, implement the smallest mechanism, and prove it with a real targeted reconnect/timeout check.",
       "expected_methods": [
         "First Principles",
-        "MECE",
-        "Pre-mortem + FMEA-lite",
         "Risk–Complexity Budget",
-        "Steelman + Red Team",
         "PDCA",
         "Bidirectional Traceability + Adjacency Scan",
         "Test Strategy Selection"
       ],
       "trigger_evidence": {
         "First Principles": "production SLO behavior requires separating the promise, current reality, constraints, and minimal solution",
-        "MECE": "client reconnect, server session, timeout ownership, rollout compatibility, and tests are distinct surfaces",
-        "Pre-mortem + FMEA-lite": "a production reconnect change has credible timeout, rollout, and stuck-session failure modes",
         "Risk–Complexity Budget": "the prompt explicitly asks to avoid durable state and workers unless their benefit is evidenced",
-        "Steelman + Red Team": "the L3 production plan needs adversarial challenge before execution",
         "PDCA": "the prompt requests a fix",
         "Bidirectional Traceability + Adjacency Scan": "the SLO promise must map to the reconnect diff and tests without unrelated protocol expansion",
         "Test Strategy Selection": "timeout and reconnect paths need deterministic failure/timing tests"
       },
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [
-        "plan-reaccepted",
         "explicit-product-commitment",
         "smallest-mechanism",
         "expected-reconnect-timeout-path",
-        "runner-before-verifier",
-        "composite-l3-gate"
+        "real-targeted-check",
+        "production-path-proof"
       ],
       "files": []
     },

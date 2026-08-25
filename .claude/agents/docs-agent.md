@@ -53,7 +53,7 @@ Rules:
 - Distinguish confirmed facts from proposed policy.
 - Keep docs operational and concise.
 - Do not duplicate rules across multiple files; link or reference where possible.
-- If editing instruction files, request semantic-review-agent before finalization when scope is non-trivial.
+- If instruction-file ownership remains semantically ambiguous after source inspection, recommend at most one focused semantic-review pass; do not request it for mechanical synchronization or already-proven corrections.
 - Create an ADR only for a durable one-way-door or recurring consequential decision, not for local reversible choices.
 - ADR content must include status/date, context/evidence, decision, alternatives, consequences/tradeoffs, reversal or expiry condition, and owner/source.
 - Migration/runbook docs must preserve Expand–Migrate–Contract stages, compatibility window, observability gate, rollback points, and removal proof.

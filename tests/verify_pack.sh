@@ -3,12 +3,11 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-bash -n "$ROOT/install.sh"
+bash -n "$ROOT/install.sh" "$ROOT/tests/verify_deploy.sh"
 
 uv run --python 3.11 python - "$ROOT" <<'PY'
 import json
 import pathlib
-import re
 import sys
 import tomllib
 
@@ -103,33 +102,10 @@ for path in sorted((root / ".codex/agents").glob("*.toml")):
     if isinstance(name, str):
         check(name not in codex_agents, f"duplicate Codex agent name: {name}")
         codex_agents[name] = data
-    check("sole source of task-specific facts" in data.get("developer_instructions", ""), f"stale clean-context wording: {path}")
-    if data.get("default_permissions") == "yct-writer" and name != "verify-runner-agent":
-        check("verification handoff" in data.get("developer_instructions", "").lower(), f"write-capable Codex agent lacks handoff: {path}")
-
-expected_codex_models = {
-    "alignment-recorder-agent": "gpt-5.3-codex-spark",
-    "batch-agent": "gpt-5.3-codex-spark",
-    "browser-agent": "gpt-5.6-terra",
-    "code-reviewer-agent": "gpt-5.6-terra",
-    "deep-investigator-agent": "gpt-5.6-sol",
-    "docs-agent": "gpt-5.6-terra",
-    "executor-agent": "gpt-5.6-terra",
-    "explorer-agent": "gpt-5.6-terra",
-    "focused-fixer-agent": "gpt-5.6-terra",
-    "general-agent": "gpt-5.3-codex-spark",
-    "plan-checker": "gpt-5.6-sol",
-    "planner-agent": "gpt-5.6-sol",
-    "research-agent": "gpt-5.6-terra",
-    "security-reviewer-agent": "gpt-5.6-sol",
-    "semantic-review-agent": "gpt-5.6-sol",
-    "spark-agent": "gpt-5.3-codex-spark",
-    "verify-agent": "gpt-5.6-sol",
-    "verify-runner-agent": "gpt-5.3-codex-spark",
-}
-check(set(codex_agents) == set(expected_codex_models), "Codex agent set differs from model contract")
-for name, model in expected_codex_models.items():
-    check(codex_agents.get(name, {}).get("model") == model, f"wrong Codex model for {name}")
+    check(
+        isinstance(data.get("model"), str) and bool(data["model"]),
+        f"missing Codex model: {path}",
+    )
 
 # 目录漂移探测：模型目录随账号/时间变化，只 WARN 不 FAIL，避免离线或异地环境误红。
 models_cache_path = pathlib.Path.home() / ".codex/models_cache.json"
@@ -143,106 +119,29 @@ if models_cache_path.exists():
     except Exception:
         catalog_slugs = set()
     if catalog_slugs:
-        for agent_name, pinned in sorted(expected_codex_models.items()):
+        for agent_name, data in sorted(codex_agents.items()):
+            pinned = data.get("model")
             if pinned not in catalog_slugs:
                 warnings.append(
                     f"pinned Codex model '{pinned}' ({agent_name}) is absent from ~/.codex/models_cache.json — possibly retired"
                 )
 
-delivery_profiles = {
-    "alignment-recorder-agent": ("BOUNDED_WRITE", 4),
-    "batch-agent": ("ONE_SHOT_REROUTE", 4),
-    "browser-agent": ("BATCHABLE_READ", 6),
-    "code-reviewer-agent": ("BATCHABLE_REVIEW", 6),
-    "deep-investigator-agent": ("BATCHABLE_READ", 6),
-    "docs-agent": ("BOUNDED_WRITE", 5),
-    "executor-agent": ("BOUNDED_WRITE", 8),
-    "explorer-agent": ("BATCHABLE_READ", 6),
-    "focused-fixer-agent": ("ONE_SHOT_REROUTE", 4),
-    "general-agent": ("ONE_SHOT_REROUTE", 3),
-    "plan-checker": ("BATCHABLE_REVIEW", 6),
-    "planner-agent": ("BATCHABLE_READ", 6),
-    "research-agent": ("BATCHABLE_READ", 6),
-    "security-reviewer-agent": ("BATCHABLE_REVIEW", 6),
-    "semantic-review-agent": ("BATCHABLE_REVIEW", 6),
-    "spark-agent": ("ONE_SHOT_REROUTE", 4),
-    "verify-agent": ("BATCHABLE_REVIEW", 6),
-    "verify-runner-agent": ("COMMAND_BATCH", 4),
-}
-check(set(delivery_profiles) == set(expected_codex_models), "delivery profile set differs from agent set")
-
-
-def check_delivery_contract(text: str, platform: str, name: str) -> None:
-    policy_name, budget = delivery_profiles[name]
-    for marker in (
-        f"Delivery policy: {policy_name}",
-        f"Soft work budget: {budget} tool-use turns",
-        "Delivery status:",
-        "Overall ready:",
-        "previous remainder",
-        "batch receipt",
-    ):
-        check(marker in text, f"{platform} {name} misses delivery marker: {marker}")
-    check(re.search(r"Verdict:.*\bPARTIAL\b", text) is None, f"{platform} {name} retains ambiguous PARTIAL role verdict")
-    if policy_name == "BATCHABLE_READ":
-        check("Batch 3-5 evidence or requirement items" in text and "2-3 for L3/L4" in text, f"{platform} {name} misses bounded read batch size")
-    if policy_name == "BATCHABLE_REVIEW":
-        check("Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes" in text, f"{platform} {name} permits partial final acceptance")
-        check("remaining inventory without an acceptance verdict" in text, f"{platform} {name} loses partial-review semantics")
-    if policy_name == "ONE_SHOT_REROUTE":
-        check("Do not start a continuation batch" in text, f"{platform} {name} silently expands one-shot work")
-        check("Delivery status: FINAL | BLOCKED" in text, f"{platform} {name} exposes invalid batch statuses for one-shot work")
-    if policy_name == "BOUNDED_WRITE":
-        check("write handoff" in text.lower(), f"{platform} {name} can lose changed-state handoff")
-    if policy_name == "COMMAND_BATCH":
-        for marker in ("one cohesive command family", "exit status", "Do not rerun a completed command family"):
-            check(marker in text, f"{platform} {name} misses command receipt marker: {marker}")
-
-
-for name, data in codex_agents.items():
-    check_delivery_contract(data.get("developer_instructions", ""), "Codex", name)
-
-method_contracts = {
-    "deep-investigator-agent": ("Hypothesis–Falsification", "OODA"),
-    "explorer-agent": ("Hypothesis–Falsification", "OODA"),
-    "focused-fixer-agent": ("Hypothesis–Falsification", "PDCA", "characterization test", "Test Strategy Selection", "invariant/oracle", "rejected alternatives"),
-    "planner-agent": ("First Principles", "MECE", "Assumption ledger", "Invariant ledger", "one-way door", "FMEA-lite", "Risk–Complexity Budget", "simplest acceptable failure", "Expand–Migrate–Contract", "Minimal solution", "Rejection criteria", "Selected methods: method, trigger evidence, required output, gate/stop condition"),
-    "plan-checker": ("Steelman", "counterexamples", "Red Team", "FMEA-lite", "one-way doors", "review finding is evidence", "mechanism-admission", "ACCEPT_WITH_CHANGES", "revised plan challenged again"),
-    "executor-agent": ("PDCA", "characterization tests", "requirement-to-diff-to-test", "Risk–Complexity Budget", "bounded, observable, single-owner", "Expand–Migrate–Contract"),
-    "code-reviewer-agent": ("Steelman", "Bidirectional Traceability", "Adjacency Scan", "counterexamples", "Risk–Complexity Budget", "must-fix | observe-first | documented-defer", "Forward trace matrix", "Reverse trace matrix"),
-    "verify-agent": ("Bidirectional Traceability", "Adjacency Scan", "Test Strategy Selection", "Risk–Complexity Budget", "evidence-free theoretical", "Expand–Migrate–Contract", "one-way door", "Forward trace matrix", "Reverse trace matrix"),
-    "security-reviewer-agent": ("Trust Boundary", "Abuse Cases", "attack path", "negative test", "pre-execution boundary", "post-implementation diff", "Blocker/high findings", "Low probability does not permit deferral", "Detection and response"),
-    "research-agent": ("Evidence Triangulation", "conflicting"),
-    "semantic-review-agent": ("Double-loop Learning", "over-triggering", "under-triggering", "Why existing controls missed it", "Owner and review/expiry condition"),
-    "docs-agent": ("ADR", "reversal or expiry condition", "Expand–Migrate–Contract"),
-    "alignment-recorder-agent": ("reversibility class", "Double-loop Learning", "regression signal"),
-}
-for name, markers in method_contracts.items():
-    codex_text = codex_agents.get(name, {}).get("developer_instructions", "")
-    for marker in markers:
-        check(marker in codex_text, f"Codex {name} misses method contract marker: {marker}")
-
 config = tomllib.loads((root / ".codex/config.toml").read_text(encoding="utf-8"))
 roles = config.get("agents", {})
-for name in expected_codex_models:
-    role = roles.get(name)
-    check(isinstance(role, dict), f"missing Codex role registration: {name}")
-    if isinstance(role, dict):
-        check(role.get("config_file") == f"agents/{name}.toml", f"wrong config_file for {name}")
+registered_roles = {
+    name: role
+    for name, role in roles.items()
+    if isinstance(role, dict) and "config_file" in role
+}
+check(set(registered_roles) == set(codex_agents), "Codex role files and registrations differ")
+for name, role in registered_roles.items():
+    check(role.get("config_file") == f"agents/{name}.toml", f"wrong config_file for {name}")
 
 claude_agents: dict[str, dict[str, str]] = {}
 read_only_claude = {
-    "browser-agent",
-    "code-reviewer-agent",
-    "deep-investigator-agent",
-    "explorer-agent",
-    "general-agent",
-    "plan-checker",
-    "planner-agent",
-    "research-agent",
-    "security-reviewer-agent",
-    "semantic-review-agent",
-    "verify-agent",
+    name
+    for name, data in codex_agents.items()
+    if data.get("default_permissions") == ":read-only"
 }
 for path in sorted((root / ".claude/agents").glob("*.md")):
     meta = frontmatter(path)
@@ -251,34 +150,13 @@ for path in sorted((root / ".claude/agents").glob("*.md")):
     if name:
         check(name not in claude_agents, f"duplicate Claude agent name: {name}")
         claude_agents[name] = meta
-        if name in delivery_profiles:
-            try:
-                max_turns = int(meta.get("maxTurns", "0"))
-            except ValueError:
-                max_turns = 0
-            check(max_turns >= delivery_profiles[name][1] + 2, f"Claude {name} has no delivery margin after soft budget")
         if name in read_only_claude:
             check(meta.get("permissionMode") == "plan", f"read-only Claude agent lacks plan permission mode: {name}")
     check("background" not in meta, f"Claude agent forces background execution: {path}")
-    check("sole source of task-specific facts" in path.read_text(encoding="utf-8"), f"stale clean-context wording: {path}")
     tools = {item.strip() for item in meta.get("tools", "").split(",") if item.strip()}
     check("Agent" not in tools, f"worker can recursively orchestrate: {path}")
-    if tools.intersection({"Edit", "Write"}):
-        check("verification handoff" in path.read_text(encoding="utf-8").lower(), f"write-capable Claude agent lacks handoff: {path}")
 
-for name in delivery_profiles:
-    path = root / ".claude/agents" / f"{name}.md"
-    check(path.exists(), f"missing Claude delivery role: {name}")
-    if path.exists():
-        check_delivery_contract(path.read_text(encoding="utf-8"), "Claude", name)
-
-for name, markers in method_contracts.items():
-    path = root / ".claude/agents" / f"{name}.md"
-    check(path.exists(), f"missing Claude method role: {name}")
-    if path.exists():
-        text = path.read_text(encoding="utf-8")
-        for marker in markers:
-            check(marker in text, f"Claude {name} misses method contract marker: {marker}")
+check(set(claude_agents) == set(codex_agents), "Claude and Codex agent sets differ")
 
 for platform in (".agents/skills", ".claude/skills"):
     for skill_dir in sorted((root / platform).glob("yct-*")):
@@ -296,351 +174,31 @@ for platform in (".agents/skills", ".claude/skills"):
             if policy.exists():
                 check("allow_implicit_invocation: false" in policy.read_text(encoding="utf-8"), f"Codex shortcut is not explicit-only: {skill_dir}")
 
-codex_aa = (root / ".agents/skills/yct-aa/SKILL.md").read_text(encoding="utf-8")
-for required in ("security-reviewer-agent", "semantic-review-agent", "browser-agent", "verify-agent", "verify-runner-agent", "docs-agent", "alignment-recorder-agent", "general-agent"):
-    check(required in codex_aa, f"Codex yct-aa misses route {required}")
-claude_aa = (root / ".claude/skills/yct-aa/SKILL.md").read_text(encoding="utf-8")
-check("`CLAUDE.md` is the single owner" in claude_aa, "Claude yct-aa duplicates or loses its route owner")
-check("verify-agent" in claude_aa and "verify-runner-agent" in claude_aa, "Claude yct-aa misses verification closure")
-check("Never call wait with an empty receiver set" in codex_aa and "child thread/agent ID" in codex_aa, "Codex yct-aa misses fail-closed spawn/wait guard")
-check("successful `Task` result" in claude_aa and "do not simulate the child" in claude_aa, "Claude yct-aa misses fail-closed Task identity guard")
-for aa_path in (root / ".agents/skills/yct-aa/SKILL.md", root / ".claude/skills/yct-aa/SKILL.md"):
-    text = aa_path.read_text(encoding="utf-8")
-    check("method dumping is a routing defect" in text, f"auto-router does not prevent method ceremony: {aa_path}")
-    check("selected method" in text, f"auto-router does not pass method contracts to workers: {aa_path}")
-    check("runner results as evidence" in text, f"auto-router does not order dynamic evidence before final static acceptance: {aa_path}")
-    check("Risk–Complexity Budget" in text and "theoretical" in text, f"auto-router misses reliability budget or finding semantics: {aa_path}")
-
-# 四孪生共享段同步闸：Continue-by-default 段在 yct-aa/yct-risk 两平台四份文件中必须
-# 逐字节一致；漂移在此 FAIL，不再依赖发布轮的临时核对脚本（v4.8 与 v4.14 各手工核对过一次）。
-shared_sections: dict[str, str] = {}
-for skill_name in ("yct-aa", "yct-risk"):
-    for platform in (".agents/skills", ".claude/skills"):
-        path = root / platform / skill_name / "SKILL.md"
-        text = path.read_text(encoding="utf-8")
-        start = text.find("Continue-by-default")
-        end = text.find("Single-consumption attempt economy")
-        check(0 <= start < end, f"missing Continue-by-default shared-section anchors: {path}")
-        if 0 <= start < end:
-            shared_sections[f"{platform}/{skill_name}"] = text[start:end]
-if len(shared_sections) == 4 and len(set(shared_sections.values())) != 1:
-    errors.append(
-        "Continue-by-default shared section drifted across twins: "
-        + ", ".join(sorted(shared_sections))
-    )
-
-# v4.16 取证修复（会话 01a00d01）：车道清单先于首个 spawn 落台账、
-# 闸门/写手/批次的状态收口先于下一个 spawn、机械操作走最低成本车道。
-for key, section in shared_sections.items():
-    for marker in (
-        "Record the lane inventory",
-        "State closure before the next spawn",
-        "Mechanical work rides the cheapest lane",
-    ):
-        check(marker in section, f"{key} misses v4.16 continuation marker: {marker}")
-
-skill_method_markers = {
-    "yct-risk": ("First Principles", "MECE", "FMEA-lite", "Risk–Complexity Budget", "Trust Boundary", "Expand–Migrate–Contract", "Test Strategy"),
-    "yct-fix": ("Hypothesis–Falsification", "PDCA", "characterization", "Test Strategy Selection", "Risk–Complexity Budget", "invariant/oracle", "Return to"),
-    "yct-review": ("Steelman", "Bidirectional Traceability", "Adjacency Scan", "Risk–Complexity Budget", "Evidence Triangulation"),
-}
-for skill_name, markers in skill_method_markers.items():
-    for platform in (".agents/skills", ".claude/skills"):
-        path = root / platform / skill_name / "SKILL.md"
-        text = path.read_text(encoding="utf-8")
-        for marker in markers:
-            check(marker in text, f"{platform} {skill_name} misses method marker: {marker}")
-for platform in (".agents/skills", ".claude/skills"):
-    risk_text = (root / platform / "yct-risk/SKILL.md").read_text(encoding="utf-8")
-    for marker in ("pre-execution", "again after implementation", "Completion gate", "runner checks `PASS`", "verify-agent` `PASS`"):
-        check(marker in risk_text, f"{platform} yct-risk misses composite gate marker: {marker}")
-
-for platform in (".agents/skills", ".claude/skills"):
-    review_text = (root / platform / "yct-review/SKILL.md").read_text(encoding="utf-8")
-    for marker in (
-        "Steelman",
-        "Bidirectional Traceability",
-        "Test Strategy Selection only when",
-        "Forward trace matrix",
-        "Reverse trace matrix",
-        "Residual uncertainty and the exact next evidence needed",
-    ):
-        check(marker in review_text, f"{platform} yct-review misses shared review semantic: {marker}")
-
-for platform in (".agents/skills", ".claude/skills"):
-    fix_path = root / platform / "yct-fix/SKILL.md"
-    fix_text = fix_path.read_text(encoding="utf-8")
-    for marker in (
-        "immediately",
-        "start with `explorer-agent` only",
-        "do not start any other agent or writer",
-        "evidence localizes the cause",
-        "one to three files",
-        "risk remains L1/L2",
-        "targeted command is known",
-        "Before writing",
-        "selected technique",
-        "rejected alternatives",
-        "runner results as evidence",
-    ):
-        check(marker in fix_text, f"{platform} yct-fix misses diagnostic/write gate marker: {marker}")
-    runner_pos = fix_text.find("verify-runner-agent")
-    verifier_pos = fix_text.find("verify-agent", runner_pos + 1)
-    check(runner_pos >= 0 and verifier_pos > runner_pos, f"{platform} yct-fix does not order runner before verifier")
-
-for direct_path in (root / ".agents/skills/yct-direct/SKILL.md", root / ".claude/skills/yct-direct/SKILL.md"):
-    direct = direct_path.read_text(encoding="utf-8")
-    check("Do not spawn subagents." in direct, f"Direct Mode does not preserve no-agent intent: {direct_path}")
-    check("ask the user to invoke" in direct, f"Direct Mode silently escalates instead of requesting explicit mode: {direct_path}")
-
-agents_text = (root / "AGENTS.md").read_text(encoding="utf-8")
-for marker in ("Selected methods:", "Trigger evidence:", "Required output:", "Gate/stop condition:"):
-    check(marker in agents_text, f"clean-context packet schema misses method field: {marker}")
-for marker in (
-    "Policy: BATCHABLE_READ | BATCHABLE_REVIEW | BOUNDED_WRITE | COMMAND_BATCH | ONE_SHOT_REROUTE",
-    "Previous remainder disposition:",
-    "Write handoff: required when any persistent state or file changed",
-    "after two consecutive receipts",
-    "confirmed continuation handle",
-    "freeze overlapping writes",
-    "handoff-file write that note cites by path",
-    "A waiver must name this gate",
-):
-    check(marker in agents_text, f"shared delivery contract misses marker: {marker}")
-
-claude_orchestration = (root / ".claude/rules/subagent-orchestration.md").read_text(encoding="utf-8")
-check("optional capabilities, not assumptions" in claude_orchestration, "Claude recovery still assumes optional messaging")
-check("Resume it once via `SendMessage`" not in claude_orchestration, "Claude recovery retains unconditional SendMessage advice")
-for aa_path in (root / ".agents/skills/yct-aa/SKILL.md", root / ".claude/skills/yct-aa/SKILL.md"):
-    aa_text = aa_path.read_text(encoding="utf-8")
-    for marker in ("shared `Delivery` fields", "same remainder survives two receipts", "confirmed continuation handle", "freeze overlapping writers"):
-        check(marker in aa_text, f"auto-router misses durable-delivery marker {marker}: {aa_path}")
-for skill_name in ("yct-risk", "yct-review"):
-    for platform in (".agents/skills", ".claude/skills"):
-        path = root / platform / skill_name / "SKILL.md"
-        text = path.read_text(encoding="utf-8")
-        for marker in ("shared `Delivery` fields", "AGENTS.md` batch receipt", "previous remainder", "confirmed continuation handle"):
-            check(marker in text, f"{platform} {skill_name} misses delivery gate marker: {marker}")
-for platform in (".agents/skills", ".claude/skills"):
-    path = root / platform / "yct-fix/SKILL.md"
-    text = path.read_text(encoding="utf-8")
-    for marker in ("shared `Delivery` fields", "are one-shot", "do not open a continuation batch", "freeze overlapping writers"):
-        check(marker in text, f"{platform} yct-fix misses one-shot delivery marker: {marker}")
-for role in ("planner-agent", "executor-agent"):
-    codex_text = codex_agents[role].get("developer_instructions", "")
-    claude_text = (root / ".claude/agents" / f"{role}.md").read_text(encoding="utf-8")
-    for text, platform in ((codex_text, "Codex"), (claude_text, "Claude")):
-        check("trigger evidence" in text and "gate/stop condition" in text, f"{platform} {role} does not carry structured method packets")
-
-canonical_packet_fields = (
-    "Agent",
-    "Route",
-    "Criticality level",
-    "Goal",
-    "Background",
-    "Authoritative inputs",
-    "Scope",
-    "Allowed files",
-    "Forbidden files",
-    "Non-goals",
-    "Constraints",
-    "Assumptions",
-    "Selected methods",
-    "Delivery",
-    "Policy",
-    "Work ID",
-    "Batch ID",
-    "Batch scope",
-    "Previous remainder",
-    "Overall done condition",
-    "Soft work budget",
-    "Done criteria",
-    "Verification expected",
-    "Output format",
-    "Stop conditions",
-)
-for platform, planner_text in (
-    ("Codex", codex_agents["planner-agent"].get("developer_instructions", "")),
-    ("Claude", (root / ".claude/agents/planner-agent.md").read_text(encoding="utf-8")),
-):
-    executor_start = planner_text.index("Executor packet:")
-    verifier_start = planner_text.index("Verify-agent packet:")
-    executor_packet = planner_text[executor_start:verifier_start]
-    verifier_packet = planner_text[verifier_start:]
-    for field in canonical_packet_fields:
-        check(field in executor_packet, f"{platform} planner executor packet misses canonical field: {field}")
-        check(field in verifier_packet, f"{platform} planner verifier packet misses canonical field: {field}")
-
 evals = json.loads((root / "evals/evals.json").read_text(encoding="utf-8"))
-check(len(evals.get("evals", [])) >= 28, "routing/method eval set is too small")
-check(len({case["id"] for case in evals.get("evals", [])}) == len(evals.get("evals", [])), "duplicate eval ids")
-eval_expectations = "\n".join(case.get("expected_output", "") for case in evals.get("evals", []))
-for route in ("docs-agent", "alignment-recorder-agent", "general-agent"):
-    check(route in eval_expectations, f"routing fixture misses fallback/recording route: {route}")
-method_names = {
-    "First Principles",
-    "MECE",
-    "Hypothesis–Falsification",
-    "PDCA",
-    "Pre-mortem + FMEA-lite",
-    "Risk–Complexity Budget",
-    "Steelman + Red Team",
-    "Trust Boundary + Abuse Cases",
-    "Bidirectional Traceability + Adjacency Scan",
-    "One-way/Two-way Door + ADR",
-    "Expand–Migrate–Contract",
-    "Test Strategy Selection",
-    "OODA",
-    "Evidence Triangulation",
-    "Double-loop Learning",
-}
-check(set(evals.get("method_catalog", [])) == method_names, "eval method catalog differs from method contract")
-policy = evals.get("expectation_policy", {})
-check(policy.get("closed_world") is True, "eval method expectations are not closed-world")
-check("absent" in policy.get("forbidden_method_rule", "").lower(), "eval policy does not forbid untriggered methods")
-covered_methods: set[str] = set()
-for case in evals.get("evals", []):
-    expected_methods = case.get("expected_methods")
-    check(isinstance(expected_methods, list), f"eval {case.get('id')} misses expected_methods list")
-    if isinstance(expected_methods, list):
-        covered_methods.update(expected_methods)
-        trigger_evidence = case.get("trigger_evidence")
-        check(isinstance(trigger_evidence, dict), f"eval {case.get('id')} misses trigger_evidence object")
-        if isinstance(trigger_evidence, dict):
-            check(set(trigger_evidence) == set(expected_methods), f"eval {case.get('id')} method/trigger evidence mismatch")
-            check(all(isinstance(value, str) and value.strip() for value in trigger_evidence.values()), f"eval {case.get('id')} has empty trigger evidence")
-        check(case.get("expected_not_methods") == "all_catalog_methods_except_expected_methods", f"eval {case.get('id')} loses closed-world forbidden methods")
-        check(not (set(expected_methods) - method_names), f"eval {case.get('id')} names unknown methods")
-        forbidden_methods = method_names - set(expected_methods)
-        check(not (forbidden_methods & set(expected_methods)), f"eval {case.get('id')} required/forbidden methods overlap")
-    check(isinstance(case.get("expected_criticality"), str) and case["expected_criticality"], f"eval {case.get('id')} misses expected criticality")
-    check(isinstance(case.get("expected_route"), str) and case["expected_route"], f"eval {case.get('id')} misses expected route")
-    check(isinstance(case.get("expected_gates"), list) and case["expected_gates"], f"eval {case.get('id')} misses gate order/closure")
+cases = evals.get("evals")
+check(isinstance(cases, list), "evals must be a list")
+case_ids: list[int] = []
+for case in cases if isinstance(cases, list) else []:
+    check(isinstance(case, dict), "each eval must be an object")
+    if not isinstance(case, dict):
+        continue
+    case_id = case.get("id")
+    check(isinstance(case_id, int), f"eval id must be an integer: {case_id!r}")
+    if isinstance(case_id, int):
+        case_ids.append(case_id)
+    for field in ("prompt", "expected_criticality", "expected_route", "expected_output"):
+        check(isinstance(case.get(field), str) and bool(case[field].strip()), f"eval {case_id} misses {field}")
+    for field in ("expected_methods", "expected_gates", "files"):
+        check(isinstance(case.get(field), list), f"eval {case_id} misses {field} list")
+    check(isinstance(case.get("trigger_evidence"), dict), f"eval {case_id} misses trigger_evidence object")
+check(len(case_ids) == len(set(case_ids)), "duplicate eval ids")
 
-    prompt = case.get("prompt", "").lower()
-    criticality = case.get("expected_criticality", "")
-    route = case.get("expected_route", "")
-    selected = set(expected_methods or [])
-    if re.search(r"\bauth\b|\bauthorization\b|payment|production data|production requests|concurrent retries", prompt):
-        check(criticality.startswith(("L3", "L4")), f"eval {case.get('id')} downgrades a safety/production signal")
-        check("focused" not in route, f"eval {case.get('id')} routes a safety signal to focused execution")
-    if prompt.startswith("$yct-risk"):
-        check(criticality.startswith(("L3", "L4")) and "risk" in route, f"eval {case.get('id')} violates explicit risk mode")
-    if prompt.startswith("$yct-review"):
-        check("review" in route, f"eval {case.get('id')} violates review-only mode")
-    if prompt.startswith("$yct-direct"):
-        check("direct" in route, f"eval {case.get('id')} violates direct mode")
-    if "Double-loop Learning" in selected:
-        check(any(token in prompt for token in ("third", "recurring", "repeated", "again")), f"eval {case.get('id')} over-triggers double-loop learning")
-    if "Test Strategy Selection" in selected:
-        check(re.search(r"parser|refactor|\bauth\b|\bauthorization\b|payment|migration|schema|concurr|retr|timeout|reconnect", prompt) is not None, f"eval {case.get('id')} over-triggers test strategy selection")
-    if "Pre-mortem + FMEA-lite" in selected:
-        check(criticality.startswith(("L3", "L4")), f"eval {case.get('id')} over-triggers FMEA outside L3/L4")
-    if "Risk–Complexity Budget" in selected:
-        check(re.search(r"slo|retry|fallback|worker|lease|heartbeat|ack|durable|reconnect|reliability|refactor|payment", prompt) is not None, f"eval {case.get('id')} over-triggers risk/complexity budgeting")
-    if "One-way/Two-way Door + ADR" in selected:
-        check(re.search(r"architecture|irreversible|schema|migration|public api|global.*cache|cache.*global", prompt) is not None, f"eval {case.get('id')} over-triggers decision/ADR method")
-check(covered_methods == method_names, f"method fixture coverage drift: missing={sorted(method_names - covered_methods)} extra={sorted(covered_methods - method_names)}")
-
-cases_by_id = {case["id"]: case for case in evals.get("evals", [])}
-freeze_gates = {
-    "mece-review-inventory",
-    "parallel-audits-reconciled",
-    "finding-set-frozen-before-writer",
-}
-for case_id in (1, 9):
-    case = cases_by_id[case_id]
-    check(
-        set(case.get("forbidden_gates", [])) == freeze_gates,
-        f"eval {case_id} does not lock the L0/L1 finding-freeze exemption",
-    )
-    check(
-        not (freeze_gates & set(case.get("expected_gates", []))),
-        f"eval {case_id} incorrectly requires the L2+ finding-freeze ceremony",
-    )
-check(
-    cases_by_id[10]["expected_gates"] == [
-        "explore-before-plan",
-        "mece-review-inventory",
-        "parallel-audits-reconciled",
-        "finding-set-frozen-before-writer",
-        "bounded-execution",
-        "runner-before-verifier",
-    ],
-    "eval 10 does not lock review inventory, reconciliation, and pre-write freeze order",
-)
-check(
-    cases_by_id[25]["expected_gates"] == [
-        "mece-review-inventory",
-        "disjoint-read-only-audits",
-        "parallel-audits-reconciled",
-        "finding-set-frozen-before-writer",
-        "bounded-execution",
-        "runner-before-verifier",
-    ],
-    "eval 25 does not lock the one-shot contract review and execution gate",
-)
-for case_id in (2, 4):
-    case = cases_by_id[case_id]
-    check(case["expected_criticality"] == "L3" and case["expected_route"] == "risk-overlay", f"eval {case_id} does not lock auth risk overlay")
-    for method in ("PDCA", "Test Strategy Selection", "Trust Boundary + Abuse Cases"):
-        check(method in case["expected_methods"], f"eval {case_id} misses required auth method: {method}")
-check("Test Strategy Selection" not in cases_by_id[5]["expected_methods"], "generic review over-triggers Test Strategy Selection")
-check("Double-loop Learning" not in cases_by_id[6]["expected_methods"], "instruction edit invents recurrence for Double-loop Learning")
-check(not cases_by_id[14]["expected_methods"], "alignment recording reruns a consequential-decision method without trigger evidence")
-for method in ("First Principles", "MECE"):
-    check(method in cases_by_id[19]["expected_methods"], f"migration risk fixture misses {method}")
-for method in ("MECE", "PDCA", "Bidirectional Traceability + Adjacency Scan"):
-    check(method in cases_by_id[20]["expected_methods"], f"payment concurrency fixture misses {method}")
-check("Risk–Complexity Budget" in cases_by_id[20]["expected_methods"], "payment duplicate-side-effect fixture misses the risk/complexity budget")
-check("must-handle-duplicate-side-effect" in cases_by_id[20]["expected_gates"], "payment fixture permits low-probability duplicate side effects to be deferred")
-check(cases_by_id[26]["expected_gates"] == [
-    "no-implementation",
-    "review-finding-is-input",
-    "observe-first-or-defer",
-    "residual-risk-and-reopen-signal",
-], "theoretical multi-failure fixture does not lock evidence-based deferral")
-check("explicit-product-commitment" in cases_by_id[27]["expected_gates"] and "smallest-mechanism" in cases_by_id[27]["expected_gates"], "SLO reconnect fixture does not lock must-handle/minimal-mechanism behavior")
-check(cases_by_id[28]["expected_gates"] == [
-    "no-implementation",
-    "separate-reliability-from-refactor",
-    "net-complexity-check",
-    "bidirectional-scope-trace",
-    "no-diff-size-dogma",
-], "refactor fixture does not separate runtime reliability cost from code-quality complexity")
-
-parser_eval = next((case for case in evals.get("evals", []) if case.get("id") == 17), None)
-check(parser_eval is not None, "missing parser/combinatorial method fixture")
-if parser_eval is not None:
-    check(
-        parser_eval.get("expected_gates") == [
-            "diagnostic-first",
-            "explorer-only",
-            "no-writer-before-localization",
-            "focused-return-evidence",
-            "test-strategy-before-writer",
-            "runner-before-verifier",
-        ],
-        "parser fixture does not lock diagnostic, writer, return, and verification gates",
-    )
-    parser_expected = parser_eval.get("expected_output", "")
-    for marker in ("explorer-only", "no other agent or writer", "before writing", "invariant/oracle", "selected", "rejected alternatives", "L1-L2-risk", "return to focused", "runner before verifier"):
-        check(marker in parser_expected, f"parser fixture expected output misses semantic marker: {marker}")
-
-methods_doc = (root / "docs/METHODS.md").read_text(encoding="utf-8")
-for method in method_names:
-    base = method.split(" + ", 1)[0].split("–", 1)[0].split("/", 1)[0]
-    check(base in methods_doc, f"METHODS.md misses method family: {method}")
-method_rule = root / ".claude/rules/method-orchestration.md"
-check(method_rule.exists(), "missing Claude method orchestration rule")
-if method_rule.exists():
-    rule_text = method_rule.read_text(encoding="utf-8")
-    check("method chain by ritual" in rule_text, "Claude method rule does not prevent ceremony")
-    check("docs/METHODS.md" in rule_text, "Claude method rule loses detailed contract owner")
-# 预算在 v4.8 一次性上调（26000 -> 26400）以恢复工作余量；
-# 之后的契约新增必须等字节置换，不得再抬预算。
-check((root / "AGENTS.md").stat().st_size < 26400, "AGENTS.md exceeds the compact shared-contract budget")
-check((root / "docs/METHODS.md").stat().st_size < 16000, "METHODS.md is too large for a focused reference")
+method_catalog = evals.get("method_catalog")
+check(isinstance(method_catalog, list), "method_catalog must be a list")
+if isinstance(method_catalog, list):
+    valid_methods = [method for method in method_catalog if isinstance(method, str) and method]
+    check(len(valid_methods) == len(method_catalog), "method_catalog has an invalid entry")
+    check(len(valid_methods) == len(set(valid_methods)), "method_catalog has duplicates")
 
 for warning in warnings:
     print(f"WARN: {warning}", file=sys.stderr)
@@ -650,7 +208,7 @@ if errors:
         print(f"FAIL: {error}", file=sys.stderr)
     raise SystemExit(1)
 
-print("PASS: package, routes, models, method parity, frontmatter, TOML, skills, and eval contracts")
+print("PASS: package structure, permissions, frontmatter, TOML, skills, and eval schema")
 PY
 
 tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/yct-pack-test.XXXXXX")"

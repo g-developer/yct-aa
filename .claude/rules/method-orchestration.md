@@ -11,12 +11,12 @@ paths:
 
 - Select methods from the task signal before selecting agents. Use only methods that change the decision, evidence, or verification quality.
 - Put selected method names and required outputs into the clean-context packet. Do not assume a child infers the method from criticality alone.
-- Do not invoke a full method chain by ritual. L0 work normally needs none; L1 usually needs PDCA and possibly Hypothesis–Falsification; L3/L4 selects the relevant risk methods.
+- Do not invoke a full method chain by ritual. L0 normally needs none. Keep an L1 loop internal and use Hypothesis–Falsification only when the root cause is unresolved. L3/L4 selects only methods that close a current risk.
 
 ## Role mapping
 
 - `explorer-agent`, `deep-investigator-agent`, `focused-fixer-agent`: Hypothesis–Falsification; OODA only for active incidents.
-- `planner-agent`: First Principles, MECE, ledgers, One-way/Two-way Doors, Pre-mortem/FMEA-lite, Risk–Complexity Budget, Expand–Migrate–Contract.
+- `planner-agent`: First Principles, MECE, One-way/Two-way Doors, Pre-mortem/FMEA-lite, Risk–Complexity Budget, Expand–Migrate–Contract.
 - `plan-checker`: Steelman, counterexamples, Red Team, FMEA, reversibility, and reliability mechanism-admission challenge.
 - `executor-agent`: PDCA/test-first, characterization tests, requirement traceability, approved migration stage.
 - `code-reviewer-agent`, `verify-agent`: Bidirectional Traceability, Adjacency Scan, Test Strategy Selection.
@@ -25,7 +25,7 @@ paths:
 - `docs-agent`, `alignment-recorder-agent`: ADR and evidence-qualified decision/status records.
 - `semantic-review-agent`: Double-loop Learning and method over-trigger/under-trigger review.
 
-## Quality gate
+## Check
 
 - The parent verifies that method outputs are evidence-bearing, not empty headings.
 - A child returning only method names without the required fields is incomplete.

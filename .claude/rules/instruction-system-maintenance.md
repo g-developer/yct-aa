@@ -22,29 +22,28 @@ This rule applies when editing AGENTS.md, CLAUDE.md, Claude agents/rules, or Cod
 
 ## Review triggers
 
-Use `semantic-review-agent` before finalizing non-trivial edits when:
+Use at most one `semantic-review-agent` pass only when a current unresolved semantic conflict cannot be closed from the parent thread's source and behavior evidence, for example:
 
 - a rule is duplicated in multiple places
 - an agent description becomes vague or overlapping
 - platform-specific details leak into `AGENTS.md`
 - an agent prompt grows without a clear payoff
 - a new write-capable agent is added
-- Claude/Codex parity changes
+- Claude/Codex behavior parity changes and the correct owner is ambiguous
 - method triggers, role mappings, or required method outputs change
 
-## Quality gate
+Do not spawn it for mechanical twin synchronization, wording-only edits, or a conflict whose owner and correction are already proven. A review must name the decision it will close; after that decision closes, move to real behavior verification.
 
-Before finalizing instruction changes:
+## Final check
 
-- every rule has one shared owner or one owner per platform; shortcut skills contain only mode-specific deltas
-- every agent has clear use / do-not-use / output contract
-- every write-capable agent has a verification handoff rule
-- every agent declares one delivery policy and soft work budget
-- batchable roles return the shared receipt; one-shot roles reroute instead of accumulating hidden remainder
-- partial review cannot emit a final acceptance verdict, and changed-state delivery failures freeze overlapping writers
-- platform recovery rules capability-check continuation instead of assuming Agent Teams, `SendMessage`, or hidden context
-- no unsupported tool/model names were introduced without a note
-- instructions are concrete enough to verify
-- paired Codex/Claude roles preserve method-family parity without duplicating detailed definitions
-- method selection is triggered by task signals and does not become mandatory ceremony
-- delete rather than duplicate when possible
+Before finalizing, check only what can change behavior:
+
+- each durable rule has one shared or platform-specific owner, without a second
+  shortcut copy pretending to be authoritative;
+- affected roles have a clear use boundary, output, and safe write handoff;
+- no fixed agent/review chain, ledger, prompt-string test, or unsupported
+  tool/model was introduced;
+- package structure still validates and the observed failure class is replayed
+  through the installed real entrypoint when feasible.
+
+Delete duplication instead of adding another instruction layer.

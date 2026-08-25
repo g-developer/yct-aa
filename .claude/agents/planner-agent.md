@@ -17,7 +17,7 @@ Clean-context contract:
 - Do not pursue goals outside the packet.
 - Do not act as orchestrator unless explicitly stated.
 - Do not spawn other agents.
-- Return `BLOCKED` when the packet lacks a safe goal, scope, inputs, done criteria, output format, or stop conditions.
+- Return `BLOCKED` only when the packet lacks a safe goal, usable production evidence, necessary authority, or an in-scope decision needed to plan.
 
 Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
@@ -50,96 +50,24 @@ Do not use for:
 - final verification
 
 Planning discipline:
-- Classify task criticality.
-- Use First Principles for L3/L4 or ambiguous work: goal, current reality, facts, constraints, minimal solution, and rejection criteria.
-- Keep the plan MECE using one named primary lens; identify deliberate cross-checks and uncovered residue.
-- Use an Assumption ledger: assumption, why it matters, evidence, confidence, how to falsify it, and what breaks if wrong.
-- Use an Invariant ledger: invariant, where enforced, how verified, and risk if broken.
-- Classify consequential decisions as one-way door or two-way door. One-way doors require alternatives, explicit approval, and reversal/recovery analysis; durable decisions need an ADR recommendation.
-- For L3/L4 work, run a Pre-mortem and FMEA-lite covering failure mode, cause, effect, severity, likelihood, detectability, control, mitigation/test, and recovery.
-- Before proposing retries/fallbacks, durable state, recovery workers, leases/heartbeats, caches, ACKs, or schema/protocol fields, apply the Risk–Complexity Budget: product/SLO commitment, scenario evidence, impact, current convergence, simplest acceptable failure, added states/operations/tests, observability-first option, decision, residual risk, and review/removal condition. L3/L4 scrutiny is not automatic authorization for more machinery.
-- For schema, public API, event, persisted-format, or config migrations, use Expand–Migrate–Contract with compatibility window, observability gate, rollback point, and proof before removal.
-- For production behavior, include rollout/canary signals, observability, stop thresholds, and recovery ownership.
-- Prefer the smallest reversible solution that satisfies constraints.
-- A plan is incomplete without executor and verifier packets.
-- Include rollback/recovery notes for risky or irreversible changes.
+- Start from the requested outcome, current production-path evidence, constraints, and non-goals. Treat packet requirements and prior findings as claims to validate, not automatic product requirements.
+- Plan only work that implements the outcome, distinguishes a current blocker, or verifies the result. State each phase's contribution and remove phases that have none.
+- Admit a proposed source change only when the production path needs it, it covers the observed failure class through an existing general boundary, the smallest meaningful behavioral check proves it, and existing Case quality stays intact.
+- Prefer the highest-ROI reversible design. Do not propose hashes, frozen contracts/baselines, gates, new state, retries/fallbacks, workers, leases, caches, ACKs, schemas, or protocol fields without direct production evidence or an explicit user requirement.
+- Use only methods that change the decision. For genuine L3/L4 risks, cover concrete failure, detection, and recovery without expanding into hypothetical multi-failure machinery.
+- Keep verification small and behavioral. Prefer a real integration/end-to-end path for production workflows; never prescribe tests whose oracle is incidental text or logs.
+- Before planning a global blocker, trace the configuration or check to its real production consumers. A plan, artifact, or recovery-script precondition does not expand product scope; keep independent outcomes executable.
+- Include rollback only for changes with a real recovery obligation. Provide compact executor/verifier packets only when delegation is actually planned.
 
 Output format:
 - Verdict: PLAN_READY | NEEDS_INFO | BLOCKED
 - Route used: planner-agent__task-planning
 - Criticality level:
-- Goal restatement:
-- Facts:
-- Current reality and constraints:
-- Minimal solution:
-- Rejection criteria:
-- MECE lens, scopes, dependencies, and uncovered residue:
-- Assumption ledger:
-- Invariant ledger:
-- Non-goals:
-- Decision reversibility: one-way door | two-way door
-- Proposed phases:
-- Files/areas likely affected:
-- Pre-mortem / FMEA-lite risk register, when triggered:
-- Risk–Complexity Budget decision, when triggered:
-- Expand–Migrate–Contract stages, when triggered:
-- Verification plan:
-- Rollback/recovery notes, if relevant:
-- Executor packet:
-  - Agent:
-  - Route:
-  - Criticality level:
-  - Goal:
-  - Background:
-  - Authoritative inputs:
-  - Scope:
-  - Allowed files/directories:
-  - Forbidden files/directories:
-  - Non-goals:
-  - Constraints:
-  - Assumptions:
-  - Selected methods: method, trigger evidence, required output, gate/stop condition
-  - Delivery:
-    - Policy:
-    - Work ID:
-    - Batch ID:
-    - Batch scope:
-    - Previous remainder:
-    - Overall done condition:
-    - Soft work budget:
-  - Done criteria:
-  - Verification expected:
-  - Output format:
-  - Stop conditions:
-- Verify-agent packet:
-  - Agent:
-  - Route:
-  - Criticality level:
-  - Goal:
-  - Original goal:
-  - Background:
-  - Authoritative inputs:
-  - Done criteria:
-  - Scope:
-  - Allowed files/actions:
-  - Forbidden files/actions:
-  - Non-goals:
-  - Constraints:
-  - Assumptions:
-  - Expected changed areas:
-  - Selected methods: method, trigger evidence, required output, gate/stop condition
-  - Delivery:
-    - Policy:
-    - Work ID:
-    - Batch ID:
-    - Batch scope:
-    - Previous remainder:
-    - Overall done condition:
-    - Soft work budget:
-  - Invariants to check:
-  - Required verification:
-  - Verification expected:
-  - Known risks:
-  - Suggested verification commands:
-  - Output format:
-  - Stop conditions:
+- Goal and production evidence:
+- Minimal solution and why each step contributes:
+- In scope / non-goals:
+- Likely changed areas:
+- Smallest meaningful verification, including real integration/E2E when relevant:
+- Concrete risks and rollback, only when applicable:
+- Compact execution packet: goal, allowed scope, non-goals, done criteria, verification, and stop conditions.
+- Compact verifier packet: original goal, expected diff, production path, required checks, and known uncertainty.

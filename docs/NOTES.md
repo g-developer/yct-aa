@@ -72,16 +72,17 @@ See `docs/ROUTING.md` for precedence, model tiers, verification closure, and off
 - Mid-session manual rediscovery with `rg --files` does NOT traverse
   symlinked directories unless `-L/--follow` is passed — such a search
   reports a false negative even when the symlink exists.
-- Headless `codex exec` probes should disable MCP servers with
-  `-c 'mcp_servers={}'`: one probe without it hung 19 minutes in MCP
-  startup (process alive, zero TCP connections, no rollout file written).
-- After `install.sh`, `tests/verify_deploy.sh` provides dynamic acceptance
-  for the two runtime behaviors above: the ambient inventory must hide the
-  five explicit-only workflow skills, and explicit `$yct-aa` must inject
-  content matching the installed SKILL.md, checked against the probe
-  session's rollout JSONL (ground truth), never the model's self-report.
-  It spends real tokens (~25k/probe); run it when deployment must be
-  proven at runtime, not on every edit.
+- Behavioral acceptance uses the actual installed skill, normal `codex exec`
+  entrypoint, working directory, and authenticated command environment. A
+  modified tool inventory or internal runner is diagnostic only; if normal
+  startup is blocked, report that environment blocker instead of substituting
+  a different invocation and calling it E2E.
+- After `install.sh`, `tests/verify_deploy.sh` runs one live behavioral E2E
+  through the installed `$yct-aa` and real `codex exec` entrypoint. It verifies
+  observable ordered one-shot receipts and the accepted final outcome; it does
+  not grade model prose or compare prompt/source/log strings. Run it from an
+  authenticated shell when deployment behavior, rather than package shape,
+  must be proven.
 - Skill resolution is cwd-sensitive: with cwd inside the pack repo, the
   repo's own same-named skill source directories collide with the
   installed skills and `$yct-…` silently injects nothing (verified

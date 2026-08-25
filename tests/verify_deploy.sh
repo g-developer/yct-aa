@@ -1,108 +1,141 @@
 #!/usr/bin/env bash
-# Dynamic post-deployment verification for the Codex side of the pack.
+# Live post-install behavioral E2E for the Codex shortcut.
 #
-# verify_pack.sh proves the REPO is internally consistent; install.sh proves the
-# TARGETS are byte-identical to the repo. Neither proves a fresh Codex session
-# actually behaves as designed. This script closes that gap with two live
-# `codex exec` probes against the INSTALLED pack:
-#
-#   Probe 1 (ambient inventory): the five explicit-only workflow skills
-#     (yct-aa/direct/fix/review/risk) must be ABSENT from the ambient skill
-#     inventory — their `agents/openai.yaml` sets
-#     `policy.allow_implicit_invocation: false`, whose official semantics hide
-#     them from default context. If one appears, the policy file was lost.
-#
-#   Probe 2 (explicit invocation): `$yct-aa` must inject the full SKILL.md.
-#     Acceptance is NOT the model's self-report: the probe carries a nonce, and
-#     the script locates the probe session's rollout JSONL under
-#     ~/.codex/sessions/ by that nonce, then greps it for a marker line taken
-#     from the installed ~/.agents/skills/yct-aa/SKILL.md, and additionally
-#     checks EVERY grep-safe installed body line against the session JSONL —
-#     the longest line alone can be identical across versions (observed at
-#     v4.16), so only full line coverage proves the injected content is the
-#     currently installed version, not a stale one.
-#
-# Cost/requirements: needs the `codex` CLI, network access, and spends real
-# tokens (~25k per probe). Probes disable MCP servers (`-c 'mcp_servers={}'`)
-# because MCP startup once hung a headless probe for 19 minutes.
-set -uo pipefail
+# Static package checks prove structure and installation. This probe uses the
+# actual installed $yct-aa through `codex exec` in a neutral working directory
+# and accepts only observable workflow side effects. It does not grade model
+# prose or compare prompt/source/log strings.
+set -euo pipefail
 
-SESSIONS_DIR="${CODEX_HOME:-$HOME/.codex}/sessions"
-AA_SKILL="${AGENTS_SKILLS_HOME:-$HOME/.agents/skills}/yct-aa/SKILL.md"
-WORKFLOW_SKILLS=(yct-aa yct-direct yct-fix yct-review yct-risk)
+AA_SKILL="${AGENTS_SKILLS_HOME:-${HOME:?HOME is not set}/.agents/skills}/yct-aa/SKILL.md"
 
-fail() { echo "FAIL: $*" >&2; exit 1; }
-info() { echo "  $*"; }
-
-command -v codex >/dev/null 2>&1 \
-  || fail "codex CLI not found; dynamic deploy verification requires it (run on the Codex machine after install.sh)"
-[ -f "$AA_SKILL" ] || fail "installed skill missing: $AA_SKILL (run install.sh first)"
-
-# 探针必须在中立目录执行：在包仓库内运行时，仓库自带的同名技能源码目录
-# （.agents/skills/yct-aa 等）会与用户级安装的技能冲突，$yct-aa 静默不注入
-#（2026-08-18 实测：仓库 cwd 注入失败，中立 cwd 注入成功，CLI 同为 0.147.0）。
-PROBE_DIR=$(mktemp -d "${TMPDIR:-/tmp}/yct-deploy-probe.XXXXXX") || fail "cannot create neutral probe dir"
-trap 'rm -rf "$PROBE_DIR"' EXIT
-
-probe() {
-  ( cd "$PROBE_DIR" && codex exec -s read-only --skip-git-repo-check -c 'mcp_servers={}' "$1" 2>/dev/null )
+fail() {
+  printf 'FAIL: %s\n' "$*" >&2
+  exit 1
 }
 
-echo "probe 1: ambient inventory must hide explicit-only workflow skills"
-LIST=$(probe 'Do not use any tools. From the skills list available in this session context, output ONLY the skill names that start with "yct", comma-separated on a single line. If there are none, output exactly: none' \
-  | grep -v '^\s*$' | tail -1)
-[ -n "$LIST" ] || fail "inventory probe returned no output"
-info "inventory answer: $LIST"
-NORMALIZED=",$(echo "$LIST" | tr -d '[:space:]'),"
-for s in "${WORKFLOW_SKILLS[@]}"; do
-  case "$NORMALIZED" in
-    *",$s,"*) fail "workflow skill '$s' appeared in the ambient inventory — allow_implicit_invocation policy not honored (check agents/openai.yaml under the installed skill)" ;;
-  esac
-done
-echo "ok: all five workflow skills absent from ambient inventory (policy honored)"
+command -v codex >/dev/null 2>&1 \
+  || fail 'codex CLI not found; run this check on an authenticated Codex machine after install.sh'
+command -v jq >/dev/null 2>&1 || fail 'jq is required'
+[ -f "$AA_SKILL" ] || fail "installed skill missing: $AA_SKILL"
 
-echo "probe 2: explicit \$yct-aa invocation must inject the installed SKILL.md"
-# 标记行取安装文件正文（跳过 frontmatter，注入时可能被剥离）中最长的、不含
-# 引号/反斜杠的行：长句几乎不会与其他注入源撞车，且在 rollout JSONL 的 JSON
-# 字符串里以原文出现，可直接 grep -F 对账，并随安装版本自动更新。
-MARKER=$(awk 'f >= 2 { print } /^---[[:space:]]*$/ { f++ }' "$AA_SKILL" \
-  | grep -v '["\\]' | grep -v '^\s*$' \
-  | awk '{ if (length($0) > m) { m = length($0); line = $0 } } END { print line }' \
-  | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-[ -n "$MARKER" ] || fail "could not derive a marker line from $AA_SKILL"
-info "marker: $MARKER"
-NONCE="yctdeployprobe$(date +%s)$$"
-ANSWER=$(probe "\$yct-aa Nonce: $NONCE. Do not use any tools and do not start the task. Answer one line: are the full yct-aa skill instructions present in your context this turn, yes or no?" \
-  | grep -v '^\s*$' | tail -1)
-info "model self-report (informational only): ${ANSWER:-<empty>}"
+RUN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/yct-deploy-e2e.XXXXXX")" \
+  || fail 'cannot create isolated E2E directory'
+WORK_DIR="$RUN_DIR/work"
+EVENTS_FILE="$RUN_DIR/events.jsonl"
+STDERR_FILE="$RUN_DIR/codex.stderr"
+mkdir -p "$WORK_DIR"
 
-SESSION_FILE=$(grep -rl --include='*.jsonl' "$NONCE" "$SESSIONS_DIR/$(date +%Y/%m/%d)" 2>/dev/null | head -1)
-[ -n "$SESSION_FILE" ] || fail "probe session rollout JSONL not found under $SESSIONS_DIR for nonce $NONCE"
-info "session ground truth: $SESSION_FILE"
-grep -qF -- "$MARKER" "$SESSION_FILE" \
-  || fail "marker from installed SKILL.md not found in the probe session JSONL — explicit invocation did not inject the installed version"
-echo "ok: installed-version marker found in probe session JSONL (double-source check passed)"
-
-# 版本专属对账：最长行可能跨版本不变（v4.16 实测如此），单标记只证明"注入了
-# 某个版本的 SKILL"，不证明"注入的是当前安装版本"。这里把安装正文中所有可
-# 安全 grep 的行（纯 ASCII、无引号/反斜杠、去空白后 >=16 字符——这类行在
-# rollout JSONL 的 JSON 字符串里以原文出现）逐行对账，任何缺行即注入内容与
-# 安装版本不一致；新版本新增的行自动进入对账集，无需手工维护版本标记。
-MISSING=0
-TOTAL=0
-while IFS= read -r line; do
-  TOTAL=$((TOTAL + 1))
-  if ! grep -qF -- "$line" "$SESSION_FILE"; then
-    MISSING=$((MISSING + 1))
-    if [ "$MISSING" -le 5 ]; then info "missing line: $line"; fi
+cleanup() {
+  status=$?
+  if [ "$status" -eq 0 ]; then
+    rm -rf "$RUN_DIR"
+  else
+    printf 'E2E evidence preserved at %s\n' "$RUN_DIR" >&2
   fi
-done < <(awk 'f >= 2 { print } /^---[[:space:]]*$/ { f++ }' "$AA_SKILL" \
-  | grep -v '["\\]' | LC_ALL=C grep -v '[^ -~]' \
-  | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
-  | awk 'length($0) >= 16')
-[ "$TOTAL" -gt 0 ] || fail "no grep-safe body lines derived from $AA_SKILL for the full-coverage check"
-[ "$MISSING" -eq 0 ] \
-  || fail "$MISSING of $TOTAL installed SKILL.md lines missing from the probe session JSONL — injected content is not the currently installed version"
-echo "ok: all $TOTAL grep-safe installed lines present in probe session JSONL (version-exact check passed)"
+}
+trap cleanup EXIT
 
-echo "PASS: dynamic deploy verification (ambient policy + explicit \$yct-aa injection vs installed marker)"
+cat > "$WORK_DIR/STATE.md" <<'EOF'
+# Authorized completion state
+
+The requested outcome is `final/report.json` with an accepted latest funnel
+and daily report. It is incomplete.
+
+Code repair, real E2E, static acceptance, and exact-image construction are
+already complete. The remaining local fixture actions are safe, reversible,
+ordered, and already authorized:
+
+1. `./artifact_once.sh`
+2. `./producer_once.sh`
+3. `./recovery_once.sh`
+4. `./acceptance_once.sh`
+
+Run each exactly once and inspect its receipt before continuing. Do not replay
+a consumed action. No additional authority is needed and no blocker is known.
+EOF
+
+cat > "$WORK_DIR/REQUEST.txt" <<'EOF'
+$yct-aa Complete the already-authorized outcome in STATE.md.
+EOF
+
+cat > "$WORK_DIR/completed_milestones.json" <<'EOF'
+{"code_fix":"complete","real_e2e":"pass","static_acceptance":"pass","exact_image":"complete","outcome":"incomplete"}
+EOF
+
+cat > "$WORK_DIR/artifact_once.sh" <<'EOF'
+#!/bin/sh
+set -eu
+mkdir -p calls state
+printf 'called\n' >> calls/artifact.calls
+test ! -e state/artifact.json
+printf '%s\n' '{"stage":"artifact","status":"complete"}' > state/artifact.json
+EOF
+
+cat > "$WORK_DIR/producer_once.sh" <<'EOF'
+#!/bin/sh
+set -eu
+mkdir -p calls state
+printf 'called\n' >> calls/producer.calls
+test -f state/artifact.json
+test ! -e state/producer.json
+printf '%s\n' '{"stage":"producer","status":"complete","latest_funnel":"funnel-current","daily_report":"daily-current"}' > state/producer.json
+EOF
+
+cat > "$WORK_DIR/recovery_once.sh" <<'EOF'
+#!/bin/sh
+set -eu
+mkdir -p calls state
+printf 'called\n' >> calls/recovery.calls
+test -f state/producer.json
+test ! -e state/recovery.json
+printf '%s\n' '{"stage":"recovery","status":"complete"}' > state/recovery.json
+EOF
+
+cat > "$WORK_DIR/acceptance_once.sh" <<'EOF'
+#!/bin/sh
+set -eu
+mkdir -p calls final
+printf 'called\n' >> calls/acceptance.calls
+test -f state/recovery.json
+test ! -e final/report.json
+printf '%s\n' '{"status":"accepted","latest_funnel":"funnel-current","daily_report":"daily-current"}' > final/report.json
+EOF
+
+chmod +x "$WORK_DIR"/*_once.sh
+git -C "$WORK_DIR" init -q
+
+if ! (
+  cd "$WORK_DIR"
+  codex exec --json --sandbox workspace-write --skip-git-repo-check - < REQUEST.txt
+) > "$EVENTS_FILE" 2> "$STDERR_FILE"; then
+  tail -n 80 "$STDERR_FILE" >&2 || true
+  fail 'codex exec did not reach a successful terminal state'
+fi
+
+for receipt in \
+  state/artifact.json \
+  state/producer.json \
+  state/recovery.json \
+  final/report.json; do
+  [ -f "$WORK_DIR/$receipt" ] || fail "missing outcome receipt: $receipt"
+done
+
+jq -e '
+  .status == "accepted"
+  and (.latest_funnel | type == "string" and length > 0)
+  and (.daily_report | type == "string" and length > 0)
+' "$WORK_DIR/final/report.json" >/dev/null \
+  || fail 'final report does not contain the accepted observable outcome'
+
+for stage in artifact producer recovery acceptance; do
+  calls_file="$WORK_DIR/calls/$stage.calls"
+  [ -f "$calls_file" ] || fail "$stage action was not executed"
+  [ "$(wc -l < "$calls_file" | tr -d ' ')" -eq 1 ] \
+    || fail "$stage one-shot was not executed exactly once"
+done
+
+jq -s -e 'any(.type == "turn.completed")' "$EVENTS_FILE" >/dev/null \
+  || fail 'codex event stream lacks a terminal completed turn'
+
+echo 'PASS: installed $yct-aa completed every authorized stage exactly once and produced the accepted final outcome'

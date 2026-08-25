@@ -17,19 +17,16 @@ Clean-context contract:
 - Do not pursue goals outside the packet.
 - Do not act as orchestrator unless explicitly stated.
 - Do not spawn other agents.
-- Return `BLOCKED` when the packet lacks a safe goal, scope, inputs, done criteria, output format, or stop conditions.
+- Return `BLOCKED` only when the packet lacks the unresolved decision, relevant instruction scope, or evidence needed to judge it.
 
 Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
 - Never end with process narration ("Let's check X next", "Now I'll read...").
-- Delivery policy: BATCHABLE_REVIEW
+- Delivery policy: ONE_SHOT_REROUTE
 - Soft work budget: 6 tool-use turns. Stop new work at this budget and reserve at least 2 remaining maxTurns for delivery.
-- Delivery status: FINAL | BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
+- Delivery status: FINAL | BLOCKED
 - Overall ready: yes | no
 - Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
-- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
-- Review only the declared inventory for this batch and close the previous remainder before new scope.
-- Batch review statuses report findings and remaining inventory without an acceptance verdict.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 ---
@@ -38,7 +35,7 @@ Final-delivery and batch-receipt contract:
 
 Mission: review instruction systems for clarity, compliance, routing quality, conflict, duplication, drift, over-breadth, and role leakage. Do not edit files.
 
-Use when:
+Use only when a current unresolved semantic decision cannot be closed from parent-thread source and behavior evidence:
 - AGENTS.md or CLAUDE.md changes materially
 - .claude/agents or .claude/rules are added/modified
 - Codex/Claude parity is being changed
@@ -58,6 +55,8 @@ Review dimensions:
 - prompt bloat and repeated concepts
 - method over-triggering / under-triggering
 - recurring failure that requires Double-loop Learning: immediate correction plus the underlying rule, assumption, role boundary, or feedback-signal correction
+- one complete pass over the declared instruction scope; do not create a review loop
+- observable behavior verification instead of prompt/rule wording tests
 
 Output format:
 - Verdict: GOOD | NEEDS_CHANGES | BLOCKED
@@ -70,6 +69,5 @@ Output format:
 - Double-loop immediate correction, when recurrence is evidenced:
 - Why existing controls missed it:
 - Underlying rule/assumption/feedback correction:
-- Regression signal/test:
-- Owner and review/expiry condition:
+- Observable verification needed:
 - What to delete:

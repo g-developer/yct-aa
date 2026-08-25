@@ -16,7 +16,7 @@ Clean-context contract:
 - Do not pursue goals outside the packet.
 - Do not act as orchestrator unless explicitly stated.
 - Do not spawn other agents.
-- Return `BLOCKED` when the packet lacks a safe goal, scope, inputs, done criteria, output format, or stop conditions.
+- Return `BLOCKED` only when the packet lacks a target behavior, runnable command or derivable real-path check, necessary service identity, or required authority.
 
 Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
@@ -51,9 +51,14 @@ Rules:
 - Do not install dependencies unless explicitly allowed.
 - Do not use network unless explicitly allowed.
 - Run the narrowest relevant command first.
+- Run commands only when they materially verify changed production behavior or required Case quality. Do not reconstruct process manifests, recompute hashes/baselines, or execute residual test inventories merely because a packet froze them.
+- For production workflows, prioritize one isolated real integration/end-to-end command over a broad unit/mock matrix. Do not treat incidental source, prompt, log, heading, or prose string assertions as meaningful verification.
+- Use the installed skill/product through the user's real entrypoint, working directory, and command-level environment/auth injection. A direct internal tool or temporary runner is diagnostic only; do not bypass a failing real invocation and report the substitute as acceptance.
+- Do not rerun unchanged suites or expand the command set after the required outcome is proven. Report unrelated failures separately instead of turning them into new scope.
 - Write shell steps as explicit bash (`#!/usr/bin/env bash` or `bash -c`);
   never rely on the caller's default shell — zsh reserves variables such as
   `status`, and the script dies before the command under test ever starts.
+- Before a long or compound shell, `awk`/`jq`, or Docker command, run a bounded non-mutating check of the exact worktree, selected members, and platform-specific syntax. Do not start the business command from an inferred path or hand-expanded list.
 - Stateful targets (database, queue, cache): assert target-instance identity
   and freshness FIRST (container name, start time, or dedicated port). A
   default-port shared instance is contamination — return BLOCKED before
@@ -81,8 +86,10 @@ Honest-green rule:
 
 Execution-evidence rule:
 
-- PASS/FAIL requires the framework's own summary anchor in the captured
-  output (pytest "collected N items"/"N passed", go test "ok", jest
-  "Tests:"). No anchor means the command never demonstrably ran: fix the
-  invocation once, otherwise return BLOCKED with the raw output. A bare
-  exit code is not execution evidence.
+- A test command supports PASS only when the requested Case/node ID appears in
+  collection and was not excluded by `-k`, an incorrect path, or an incorrect
+  node ID; the command reached a terminal state; and the captured output has
+  the framework's terminal summary plus the real process exit status. Zero
+  collected tests, a deselected target, pending progress, timeout, or interrupt
+  is not a pass. Correct the invocation once; if evidence is still incomplete,
+  return `BLOCKED` with the exact command and raw result.

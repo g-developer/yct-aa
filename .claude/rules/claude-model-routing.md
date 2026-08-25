@@ -28,15 +28,13 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
 - If an alias is unavailable in the account or provider, change that agent to `inherit` or a permitted full model ID.
 - Never set `CLAUDE_CODE_SUBAGENT_MODEL` in settings.json env: it outranks per-call and frontmatter pins (documented precedence env > per-call > frontmatter > session) and silently flattens every subagent to one model, destroying this tier design (incident 2026-08-13). Preflight it is unset before diagnosing routing.
 
-## Parent-tier economy (2026-07-13)
+## Outcome and cost economy (2026-07-13)
 
-- A parent session running on `fable`/`opus` must not do inline work that the route table
-  assigns to cheaper tiers: scoped implementation belongs to `executor-agent` (sonnet)，
-  mechanical batch/verification belongs to `batch-agent`/`haiku` workers. The parent's
-  inline turns are the most expensive tokens in the system — reserve them for adjudication,
-  packet construction, and integration of results.
-- Exception: single-file edits where the packet-writing overhead exceeds the edit itself
-  (L0/L1), per the AGENTS.md criticality table.
+- Model cost may choose between otherwise suitable routes; it must not create a
+  delegation phase. Keep bounded work in the parent when packet, coordination,
+  and review overhead would exceed the work or add no decision evidence.
+- When a genuinely independent or noisy task is delegated, use the cheapest
+  model that still meets that role's quality floor.
 
 ## Failure re-route & dynamic selection (2026-07-13)
 
@@ -52,14 +50,13 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
 
 | 任务 | 模型档 |
 |---|---|
-| L0/L1 + 机械操作（轮询/状态读取/测试执行/证据整理/文件定位/diff 自检/trace 更新） | haiku 或脚本（顶配出现在此为路由缺陷） |
+| L0/L1 + 机械操作（轮询/状态读取/测试执行/证据整理/文件定位/diff 自检） | haiku、脚本或父线程直接完成 |
 | L2 勘探 / 实现 / 定向评审 | sonnet |
 | L3 计划 / 独立验证 / 工程评审 | opus（实例复杂度低时可 per-call 降 sonnet） |
 | L3/L4 架构裁决、对抗评审、冲突裁决、最终安全审计 | opus/fable（唯一允许的顶配场景） |
 
-机械操作强制低成本路径是硬规则；每轮的模型选择与 token 消耗记入会话路由台账，
-高档消耗无证据增量 → 记为路由缺陷并在下一轮降档（Double-loop）。
+机械操作走低成本路径；高档调用若没有增加决策所需证据，下一次同类工作降档，不创建会话路由台账。
 
 质量地板：裁决类角色（planner/plan-checker/verify/security/code-review/semantic）
 降档地板为 `sonnet`——弱模型盖章式通过比 BLOCKED 更危险；触底改报 BLOCKED，
-操作者显式授权方可破例（记入路由台账）。机械/记录类可至 `haiku`。
+操作者显式授权方可破例。机械/记录类可至 `haiku`。

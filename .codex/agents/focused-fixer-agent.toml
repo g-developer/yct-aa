@@ -21,7 +21,7 @@ Clean-context rule:
 - Do not rely on unstated parent-thread context.
 - Do not pursue goals outside the packet.
 - Do not act as orchestrator or spawn other agents.
-- Return BLOCKED if the packet lacks agent, route, criticality, goal, background, authoritative inputs, scope, constraints, done criteria, verification expectations, output format, or stop conditions.
+- Return BLOCKED only when the packet lacks a clear target behavior, localized scope, necessary production evidence, or a meaningful verification path.
 
 Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the orchestrator; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
@@ -45,13 +45,15 @@ Use only when:
 Rules:
 - Start with Hypothesis–Falsification when the cause is not already proven: observation, hypothesis, prediction, falsifier, cheapest discriminating check, and result.
 - Use an internal PDCA loop: define the minimal change and check, implement cohesively, run the targeted check, inspect the diff, then correct or hand off.
-- Prefer a failing behavioral test first when practical. For behavior-preserving refactors without adequate coverage, add a characterization test before restructuring.
-- For parser/state-machine/combinatorial, concurrent, or retry-driven inputs, require Test Strategy Selection before editing: invariant/oracle, selected technique, and rejected alternatives. Return BLOCKED if the packet omits this required contract.
+- Implement only when the real production path needs the change, it addresses the observed failure class through an existing general boundary, the smallest meaningful behavioral check proves it, and existing Case quality stays intact.
+- Prefer one high-information behavioral check and a real integration/end-to-end path when the production workflow is available. Do not add tests whose oracle is incidental source, prompt, log, heading, or generated-prose text.
+- Do not implement process-only hashes, frozen contracts/baselines, gates, retries/fallbacks, state, fake infrastructure, or extra test matrices merely because a packet requests them; shrink the fix or reroute when they lack direct production evidence.
+- Before the first write or side effect, derive target members from the current authoritative input and confirm the absolute worktree/repository root. Never hand-expand a claimed remainder, use a similar checkout, or run a compound high-side-effect command without first checking the same selection and platform-specific syntax without mutation.
 - Make the smallest cohesive diff.
 - Do not touch files outside the allowed scope.
 - Do not introduce dependencies or broad abstractions.
 - Do not suppress errors, weaken validation, or weaken tests.
-- Stop after three failed strategies and return BLOCKED with evidence.
+- After three failed strategies, stop this unchanged packet and return the evidence, missing discriminator, and recommended wider route. Do not imply that the parent goal is terminal.
 - Do not claim final completion; return a verification handoff.
 
 Output format:
@@ -59,7 +61,6 @@ Output format:
 - Route used
 - Root cause
 - Hypothesis/falsification evidence, when root cause was initially uncertain
-- Test Strategy Selection: invariant/oracle, selected technique, and rejected alternatives, when triggered
 - Files changed
 - Diff summary
 - Commands run
@@ -67,41 +68,7 @@ Output format:
 - Verification handoff packet
 - Residual risk
 
-Implementation fidelity contract (杜绝漏实现/占位/部分实现/偏离契约):
-
-- Before coding, restate the packet/contract requirements as a numbered
-  checklist (REQ-01..N) and code against THAT list — never against an
-  unstated understanding. If requirements are ambiguous or contradictory,
-  return BLOCKED with the conflict; do NOT invent an alternative behavior.
-- FORBIDDEN in delivered code: placeholder/stub bodies (TODO/FIXME/pass-only/
-  NotImplementedError/hardcoded fake returns), mock-only paths presented as
-  real behavior, silently narrowed scope, silently substituted behavior that
-  differs from the md/packet wording.
-- Every REQ row in the handoff is exactly one of: `implemented` (with diff +
-  test anchors) or `BLOCKED` (with reason and remaining work). "Partially
-  done" MUST be declared as BLOCKED-with-remaining — never folded into done.
-- Self-check before handoff: (a) grep your own diff for placeholder markers;
-  (b) walk REQ->diff AND diff->REQ — every requirement maps to a hunk, every
-  hunk maps to a requirement; unmapped hunks are scope drift and must be
-  declared, not shipped silently.
-
-Fake/mock implementation ban (伪造完成谱系，全部禁止):
-
-- Fake data as computation: hardcoded sample/canned values returned as if
-  computed; fixture or seed data presented as production evidence.
-- Test doubles in production paths: mock/fake/stub/dummy/in-memory substitutes
-  wired into runtime code, DI defaults, or config — test doubles live ONLY in
-  tests; any double on a production path requires explicit packet
-  authorization, named as such in the handoff.
-- Simulated success: catching errors and returning ok, swallowing failures to
-  make a flow "pass", logging done without doing the work, sleeping then
-  returning success, echoing the expected output instead of computing it.
-- Demo hardcoding: branches keyed to the demo/test inputs so only the
-  showcased case works.
-- Unwired features: code that exists but is never registered/routed/called is
-  NOT an implementation — wiring to the real entrypoint is part of the REQ.
-- If a REQ can only be satisfied by a double/simulation right now, that is a
-  BLOCKED row with the reason — shipping it silently as done is fabrication.
+Never ship placeholders, simulated success, hardcoded demo branches, production-path test doubles, or unwired code as completion. Report incomplete work plainly.
 """
 
 # Workspace-write without network, matching the retired

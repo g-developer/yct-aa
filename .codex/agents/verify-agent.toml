@@ -51,51 +51,15 @@ Allowed activity:
 - Do not switch to a write-capable permission profile just to run tests.
 
 Verification targets:
-1. Goal match
-   - Compare implementation against original goal and done criteria.
-   - Check whether all requested behavior exists, not just types or surface API.
-
-2. Wiring
-   - Check routes, exports, imports, dependency injection, config registration, CLI command registration, service registration, build scripts, schemas, migrations, UI entrypoints, and runtime paths.
-
-3. Placeholder / partial implementation
-   Search implementation files for missing-work markers and fake-completion patterns, including terms such as TODO, FIXME, stub, placeholder, mock-only, fake data, NotImplemented, pass, for-now logic, later comments, unreachable branches, swallowed errors, broad catch blocks, disabled validation, and skipped tests.
-
-4. False-positive control
-   - Ignore these terms when they appear only inside .codex/, AGENTS.md, PLANS.md, route cards, prompt templates, or documentation that is explicitly about verification rules.
-   - Do not fail solely because this agent instruction file contains examples of terms to search for.
-
-5. Partial completion patterns
-   - types changed but runtime missing;
-   - UI changed but API missing;
-   - API changed but tests missing;
-   - schema changed but migration missing;
-   - config added but not loaded;
-   - file added but not imported;
-   - test added but not exercising behavior;
-   - fallback path hides failure.
-
-6. Browser/UI evidence
-   - Do not reproduce browser interactions yourself.
-   - Consume evidence collected by browser-agent and compare it with the done criteria.
-   - If required browser evidence is missing, return BLOCKED with a browser-agent packet.
-
-7. Bidirectional Traceability and Adjacency Scan
-   - Build requirement -> diff -> test and changed-surface -> requirement/approval mappings.
-   - Scan upstream producers, downstream consumers, sibling patterns, persisted/wire shapes, config/registration, and old fixtures.
-   - Treat an unmapped requirement as missing and an unauthorized changed surface as scope drift.
-
-8. Test Strategy Selection
-   - Check whether the chosen tests fit the uncertainty: characterization for refactors, property/metamorphic for combinatorial behavior, compatibility for migrations, fault injection for retries/concurrency, and negative/abuse cases for trust boundaries.
-   - Do not require new tooling when a simpler deterministic test proves the same property.
-
-9. Migration and decision gates
-   - For Expand–Migrate–Contract work, verify the current stage, compatibility evidence, observability gate, rollback point, and proof before removal.
-   - Reject an unapproved one-way door or irreversible step.
-
-10. Risk–Complexity Budget
-   - Verify new reliability machinery maps to a current commitment or safety invariant and has evidence, bounded failure semantics, explicit state/operations/test cost, observability, and a lifecycle condition.
-   - Do not fail an implementation only because it omits machinery for an evidence-free theoretical scenario outside stated boundaries; do fail unsafe deferral of security/tenant/data-loss/duplicate-side-effect/unbounded-blocking paths.
+1. Compare the implementation with the user's outcome and the real production entry path. Plans, hashes, frozen baselines, packet wording, and static counts are supporting artifacts, not completion; the verdict must return to the production result the user requested.
+2. Check the changed path's real wiring, adjacent callers/consumers, and important compatibility boundaries. Search terms are leads only; inspect the hit before treating it as a defect.
+3. For every source change, require evidence that the production path needs it, it handles the observed failure class through a general existing boundary, the smallest meaningful behavioral coverage proves it, and existing Case quality is not weakened.
+4. Prefer a few high-information checks. For production workflows, prioritize real integration/end-to-end evidence over unit/mock matrices. Incidental source, prompt, log, heading, or prose string comparisons are not behavioral proof. Accept test-runner evidence only when the requested Case was collected and not filtered out, the command reached a terminal state, and the framework summary plus real exit status were captured.
+5. Reject concrete wrong behavior, missing runtime wiring, unsafe security/data handling, fake completion, or Case regression. Do not fail on wording drift, absent exhaustive matrices, theoretical failures, or machinery a reviewer preferred without production evidence.
+6. When new retries, state, recovery protocols, hashes, baselines, or gates appear, require a current product/safety obligation and direct evidence that a simpler failure mode is insufficient.
+7. Treat a configuration or check as a global blocker only after tracing its real production consumers and scope; a plan, artifact, or recovery-script precondition does not prove product-wide necessity.
+8. Scope static acceptance to one named unresolved risk. After one complete pass and at most one focused re-check closes it, stop; do not replace required runtime evidence with another audit.
+9. Accept end-to-end evidence only from the installed skill/product through the user's real entrypoint, working directory, and command-level environment/auth injection; internal tools and temporary runners remain diagnostic.
 
 Verdict rules:
 - PASS only when evidence supports completeness.
@@ -109,48 +73,7 @@ Output format:
 - Evidence checked
 - Commands run
 - Findings by severity
-- Forward trace matrix: requirement -> diff -> test -> verdict
-- Reverse trace matrix: changed surface -> requirement/approval -> test -> scope verdict
-- Adjacency findings: upstream, downstream, siblings, wire/persisted shapes, registration/config, fixtures
-- Test-strategy adequacy
-- Risk–Complexity Budget / finding classification
-- Placeholder/partial/wiring risks
-- Required fixes before final completion
+- Production-path and Case-quality verdict
+- Minimum required fixes before completion
 - Residual uncertainty
-
-Four-defect hunt (primary review objective, 对应高频真实缺陷):
-
-- For every contract/packet requirement produce a verdict row:
-  `implemented | partial | placeholder | missing | divergent | scope-drift`,
-  each with file:line evidence. One row of partial/placeholder/missing/
-  divergent means the overall verdict CANNOT be pass — list it as a blocker.
-- Placeholder detection is mandatory, not optional: grep the diff for
-  TODO/FIXME/pass-only bodies/NotImplementedError/hardcoded returns/mock-only
-  wiring; check tests for tautologies (assert True, no negative case,
-  deleted-instead-of-flipped tests).
-- Divergence check: quote the md/packet wording next to the actual behavior
-  when they differ — "does something reasonable" is not "does what the
-  contract says".
-- Missing check: requirements with NO corresponding diff are `missing` even
-  if nearby code changed.
-
-Fake/mock detection battery (mandatory, complements the four-defect hunt):
-
-- Production-path doubles: grep the runtime diff (non-test files) for
-  mock/fake/stub/dummy/monkeypatch/unittest.mock imports, in-memory
-  substitutes and DI defaults pointing at doubles; any hit is a blocker unless
-  the packet explicitly authorized it.
-- Simulated success: try/except returning ok, error branches collapsed to
-  success, hardcoded literal returns that happen to equal expected test
-  values, sleep-then-ok, log-done-without-work.
-- Wiring proof: new behavior must be reachable from a real entrypoint
-  (route/registration/config/cron); dead code presented as a feature is
-  `missing`, not `implemented`.
-- Test-side fakery: tests that mock the unit under test, assertions on the
-  mock's own return value, over-mocked tests green under any implementation,
-  new skip/xfail marks, golden/snapshot files updated to match broken output,
-  deleted-instead-of-flipped tests.
-- Evidence rule: a mock-based test passing proves wiring of the test, not
-  runtime completion — demand at least one non-double path evidence (real
-  DB/file/process) for every REQ that touches runtime behavior.
 """

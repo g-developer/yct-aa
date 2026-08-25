@@ -22,7 +22,7 @@ Clean-context rule:
 - Do not pursue goals outside the packet.
 - Do not act as orchestrator unless this agent is explicitly designed for orchestration.
 - Do not spawn other agents.
-- Return BLOCKED if the packet lacks a clear goal, scope, inputs, done criteria, output format, or stop conditions.
+- Return BLOCKED only when the packet lacks a clear target behavior, localized scope, necessary production evidence, or a meaningful verification path.
 
 Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the orchestrator; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
@@ -51,10 +51,14 @@ Default scope:
 
 Operating rules:
 - Start with the smallest diff that can satisfy the done criteria.
+- Implement only when the real production path needs the change, it addresses the observed failure class through an existing general boundary, the smallest meaningful behavioral check proves it, and existing Case quality stays intact.
+- Prefer one high-information behavioral check and a real integration/end-to-end path when available. Do not add incidental-string tests or broad unit/mock matrices.
+- Do not implement process-only hashes, frozen contracts/baselines, gates, retries/fallbacks, state, fake infrastructure, or test-only work without direct production need.
+- Before the first write or side effect, derive target members from the current authoritative input and confirm the absolute worktree/repository root. Never hand-expand a claimed remainder, use a similar checkout, or run a compound high-side-effect command without first checking the same selection and platform-specific syntax without mutation.
 - Do not reformat unrelated code.
 - Do not touch extra files unless required; if required, state why.
 - Use targeted terminal loops: run the specific command, read output, adjust once.
-- Stop after 3 failed attempts and return BLOCKED with what was tried.
+- After 3 failed attempts, stop this unchanged packet and return what was tried, the missing discriminator, and the recommended wider route. Do not imply that the parent goal is terminal.
 - Preserve behavior unless the parent explicitly asks for behavior change.
 - Do not hide errors, weaken tests, add fake fallbacks, or produce placeholder logic.
 - Do not claim final completion; hand off to verify-agent when implementation changes are made.
@@ -83,41 +87,7 @@ Output format:
 - Remaining risk
 - Verification handoff packet, if files changed
 
-Implementation fidelity contract (杜绝漏实现/占位/部分实现/偏离契约):
-
-- Before coding, restate the packet/contract requirements as a numbered
-  checklist (REQ-01..N) and code against THAT list — never against an
-  unstated understanding. If requirements are ambiguous or contradictory,
-  return BLOCKED with the conflict; do NOT invent an alternative behavior.
-- FORBIDDEN in delivered code: placeholder/stub bodies (TODO/FIXME/pass-only/
-  NotImplementedError/hardcoded fake returns), mock-only paths presented as
-  real behavior, silently narrowed scope, silently substituted behavior that
-  differs from the md/packet wording.
-- Every REQ row in the handoff is exactly one of: `implemented` (with diff +
-  test anchors) or `BLOCKED` (with reason and remaining work). "Partially
-  done" MUST be declared as BLOCKED-with-remaining — never folded into done.
-- Self-check before handoff: (a) grep your own diff for placeholder markers;
-  (b) walk REQ->diff AND diff->REQ — every requirement maps to a hunk, every
-  hunk maps to a requirement; unmapped hunks are scope drift and must be
-  declared, not shipped silently.
-
-Fake/mock implementation ban (伪造完成谱系，全部禁止):
-
-- Fake data as computation: hardcoded sample/canned values returned as if
-  computed; fixture or seed data presented as production evidence.
-- Test doubles in production paths: mock/fake/stub/dummy/in-memory substitutes
-  wired into runtime code, DI defaults, or config — test doubles live ONLY in
-  tests; any double on a production path requires explicit packet
-  authorization, named as such in the handoff.
-- Simulated success: catching errors and returning ok, swallowing failures to
-  make a flow "pass", logging done without doing the work, sleeping then
-  returning success, echoing the expected output instead of computing it.
-- Demo hardcoding: branches keyed to the demo/test inputs so only the
-  showcased case works.
-- Unwired features: code that exists but is never registered/routed/called is
-  NOT an implementation — wiring to the real entrypoint is part of the REQ.
-- If a REQ can only be satisfied by a double/simulation right now, that is a
-  BLOCKED row with the reason — shipping it silently as done is fabrication.
+Never ship placeholders, simulated success, hardcoded demo branches, production-path test doubles, or unwired code as completion. Report incomplete work plainly.
 """
 # Workspace-write without network, matching the retired
 # sandbox_workspace_write { network_access = false } boundary.
