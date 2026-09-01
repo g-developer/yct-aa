@@ -50,7 +50,7 @@ If instructions conflict, follow the higher-priority one and report the conflict
 - Every action must implement the outcome, distinguish a current blocker, or verify a required result; otherwise skip it.
 - Compare ROI before designing machinery. Keep a localized L1 or execution-only request with named entrypoint/input/check in the parent; expand only on contradictory evidence.
 - Admit a source change only when all four are true: the real production path needs it; it addresses the observed failure class through a general existing boundary; the smallest meaningful behavioral coverage proves it; and existing Case quality is not weakened.
-- Do not add process-only hashes, frozen contracts or baselines, scope manifests, gates, retries/fallbacks, durable state, or fake infrastructure harnesses unless the user requested them or direct production evidence proves they are necessary.
+- Do not add process-only hashes, frozen contracts or baselines, scope manifests, gates, retries/fallbacks, durable state, or fake infrastructure harnesses unless the user requested them or direct production evidence proves they are necessary. Each run of an inherited full-corpus rebuild or whole-ledger scan needs the same justification as creating it would; such machinery is not exempt because it already exists.
 - Prefer a few high-information checks. For production workflows, prioritize isolated real integration/end-to-end execution. Do not add tests whose only oracle matches prompt text, source text, logs, headings, generated prose, or other incidental strings.
 - Plans, packets, manifests, fingerprints, and static counts are aids, not product results. Acceptance returns to the requested production outcome; runtime evidence overrides stale wording.
 - A parent final response is not a progress checkpoint. A completed phase, commit, build, image, artifact, review, elapsed-time boundary, or intermediate receipt does not end an incomplete goal while a safe, authorized, outcome-relevant next action exists; continue until the requested outcome or a genuine stop condition below.
@@ -70,6 +70,8 @@ Classify the task before choosing process depth.
 | L4 | Architecture direction, broad migration, framework replacement, irreversible data or public-contract decision | Plan and compare alternatives only until the user explicitly approves execution. |
 
 Use the lightest process that controls the real risk. Small reversible tasks should stay small; high-risk tasks must not be routed as focused fixes because the diff looks short.
+
+Homogeneous batch (many similar items through one pipeline) is its own shape: calibrate on the first 1–3 items end to end, record per-item cost and yield, report the extrapolated batch total to the user, then script the mechanical majority and reserve agents for exceptions. Per-item process depth follows per-item risk, not batch size; do not run the per-item L2/L3 ritual across the whole batch.
 
 ---
 
@@ -137,6 +139,8 @@ The parent agent owns scope, routing, final judgment, and user communication. Su
 
 Use subagents when they isolate noisy output, parallelize independent read-only work, enforce a capability boundary, or provide independent review. Do not use them for L0 tasks, tightly sequential small work, vague packets, or overlapping edits.
 
+This section is routing guidance, never spawn authorization: it does not count as an "explicit ask" for sub-agents under any higher-priority no-spawn restriction, and an injected platform restriction wins.
+
 ### Abstract capability map
 
 | Capability | Use for | Write access |
@@ -173,7 +177,7 @@ Read-only work may run in parallel when independent. Write-capable work must use
 
 ### Parallelism and agent lifecycle
 
-- Parallelism equals the number of independent critical-path tasks; idle capacity is legitimate. Never split one problem into extra dimensions to fill slots.
+- For production or operations goals, one representative unit must pass the real terminal acceptance path (a canary) before fan-out. Default upstream read-only WIP is capped at twice the concurrency of the narrowest downstream side-effect stage; raise it only from measured stage latency and downstream-admission yield. Parallelism is the smaller of that cap and the number of independent terminal-path tasks; idle capacity is legitimate, and a requested concurrency number is a ceiling, not a target. If a batch yields zero downstream-admissible units, do not enlarge or repeat it; change the admission strategy or drive the closest unit to terminal. Before scaling concurrency — including on user request — name the current bottleneck stage; if the added workers do not feed it, report the mismatch before spawning. Never split one problem into extra dimensions to fill slots.
 - Parallel audits require disjoint scopes; at most one audit/challenge agent per question.
 - Harvest finished agents immediately. After two idle waits, check progress evidence before killing; writers are frozen and reconciled, not blind-killed.
 
@@ -181,7 +185,7 @@ Read-only work may run in parallel when independent. Write-capable work must use
 
 ## 9. Clean-context packet
 
-The packet is the sole source of task-specific facts, scope, and parent-thread context. System/developer instructions, applicable `AGENTS.md`/platform rules, and the role contract remain governing instructions.
+The packet is the sole source of task-specific facts, scope, and parent-thread context, and the child receives nothing else: spawn with a clean context and no parent-history inheritance. Bounded inheritance of a few recent turns is allowed only for a named dependency that cannot be restated in the packet; full-history inheritance is prohibited. System/developer instructions, applicable `AGENTS.md`/platform rules, and the role contract remain governing instructions.
 
 Include only facts that change the worker's decision:
 
@@ -197,7 +201,7 @@ Derive an explicit target set directly from the current authoritative input at e
 
 ### Durable delivery and bounded batches
 
-End with a complete result or a concise receipt stating completed work, evidence/change delta, verification, remaining work, and changed files. Batch only genuinely separable work; close an existing remainder before adding scope, and stop or relocalize an item that survives two receipts. Do not create a continuation merely to satisfy a receipt format.
+End with a complete result or a concise receipt stating completed work, evidence/change delta, verification, remaining work, and changed files. A receipt proves worker delivery only; it is never product progress. Terminal means the user-accepted outcome or an evidence-complete stop state, not a FINAL, ANSWERED, HOLD, or CONFLICT label by itself. Batch only genuinely separable work; close an existing remainder before adding scope, and stop or relocalize an item that survives two receipts. Two consecutive batch boundaries with zero terminal-unit delta forbid further fan-out until one unit reaches terminal acceptance or a genuine blocker is proved. Do not create a continuation merely to satisfy a receipt format.
 
 Before another writer touches overlapping files, reconcile any partial or malformed write delivery against the actual diff. Reuse a child only when the platform confirms a continuation handle.
 
@@ -238,7 +242,7 @@ Prefer evidence in this order:
 8. Social or forum signals.
 9. Model inference.
 
-Important claims need evidence, evidence strength, and remaining uncertainty. Do not say `implemented`, `tested`, `fixed`, or `safe` without matching evidence. An audit conclusion is evidence only at its recorded anchor; if the underlying state changed, revalidate before reuse — a stale audit must not drive a current verdict.
+Important claims need evidence, evidence strength, and remaining uncertainty. Do not say `implemented`, `tested`, `fixed`, or `safe` without matching evidence. An audit conclusion is evidence only at its recorded anchor. Invalidate evidence by dependency, not by any state change: revalidate only the members recorded as changed since that anchor plus named global invariants; an unrelated entity change does not invalidate the whole corpus, and a full-corpus rebuild requires the acceptance contract to demand whole-corpus output, at most once per closed production batch. Read authoritative input once per anchor; do not re-read, recount, stat, or diff it without contradictory or new evidence — this survives compaction: resume from the most recent durable receipt, not by re-scanning.
 
 Before making a configuration or check a global blocker, trace real consumers and scope. Plan, artifact, or recovery preconditions do not prove product-wide necessity; block only the dependent subpath.
 
@@ -316,11 +320,13 @@ Stop and report when:
 - the change would weaken security or validation;
 - required work exceeds scope;
 - evidence contradicts the plan and no safe in-scope correction remains;
-- no safe, outcome-relevant discriminating action remains.
+- no safe, outcome-relevant discriminating action remains;
+- two consecutive batch boundaries deliver zero terminal-unit delta — this economic stop overrides every continue clause in this contract;
+- the extrapolated cost of continuing (tokens, agents, wall time) clearly exceeds the scale the user has knowingly authorized: stop and report the projection instead of continuing.
 
 Three failures exhaust only the unchanged hypothesis, command, or worker packet. Preserve evidence and stop repeating it. Continue an unfinished authorized goal when new evidence supports a different safe in-scope hypothesis, partition, or revision; do not request redundant permission. Never replay a consumed one-shot or duplicate a non-idempotent side effect. Attempt count alone cannot make the overall goal `BLOCKED`.
 
-Do not use a progress summary as the parent task's final delivery. When the requested outcome is still incomplete, continue through the next safe, authorized, outcome-relevant action regardless of completed phases or elapsed work time. End only when the outcome is delivered or one of the genuine stop conditions above prevents further safe progress.
+Do not use a progress summary as the parent task's final delivery. When the requested outcome is still incomplete, continue through the next safe, authorized, outcome-relevant action regardless of completed phases or elapsed work time — but only while production yield is positive: the existence of another safe action alone never overrides an economic stop condition above. End only when the outcome is delivered or one of the genuine stop conditions above prevents further safe progress.
 
 ---
 
@@ -336,7 +342,7 @@ Platform skills provide the concrete agent/model mapping.
 | `yct-review:` | Review only; do not implement unless explicitly requested later. |
 | `yct-fix:` | Focused L1/L2 fix on exact failure evidence; upgrade to risk flow when needed. |
 
-Shortcuts do not broaden authorization or permit destructive action. After compaction, re-read the active shortcut's installed `SKILL.md` before routing more work and continue from current repository evidence. Create a handoff file only when the user asks or another session genuinely needs durable state.
+Shortcuts do not broaden authorization or permit destructive action. After compaction, re-read the active shortcut's installed `SKILL.md` before routing more work, and resume from the most recent durable receipt or state file; re-scan only what no intact receipt covers. Create a handoff file only when the user asks or another session genuinely needs durable state.
 
 ---
 

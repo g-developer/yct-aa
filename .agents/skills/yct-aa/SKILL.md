@@ -8,7 +8,7 @@ description: Explicit auto-routing mode for non-trivial engineering tasks. Invok
 Task:
 $ARGUMENTS
 
-This is explicit authorization to spawn appropriate Codex subagents. Follow
+This mode authorizes considering Codex subagents; it does not authorize any spawn until the AGENTS.md admission gates (canary before fan-out, downstream WIP cap, terminal-unit yield) pass. Follow
 `AGENTS.md` and `.codex/agents/*.toml`; this skill adds routing, not a second
 governance system.
 
@@ -75,7 +75,7 @@ governance system.
    one complete challenge and at most one focused re-check. Once that risk is
    closed, stop static review and move to real integration/E2E or the production
    result; reopen only for new runtime evidence.
-6. Give writers complete clean-context packets and non-overlapping ownership.
+6. Give every subagent a complete clean-context packet and non-overlapping ownership. Always pass fork_turns explicitly: "none" by default, a small number only for a named recent dependency; "all" — or omitting the parameter, which defaults to all — is forbidden.
    Include the target behavior, production-path evidence, non-goals, allowed
    files, and the four change conditions above. Writers derive target members
    from the current authoritative input and confirm the absolute worktree before
@@ -105,7 +105,9 @@ governance system.
    build, image, artifact, review PASS, elapsed-time boundary, or progress
    receipt is only a milestone: do not return a progress-only final while the
    requested outcome is incomplete and a safe, authorized, outcome-relevant
-   next action exists.
+   next action exists. This continue clause is subordinate to the AGENTS.md
+   economic stop conditions: when one triggers, stop and report even though
+   a safe next action remains.
 10. Do not create process files beyond a required plan; create a handoff only
     when asked. Runtime caches from a required check are not process artifacts:
     report Git-visible residue once instead of starting a cleanup/debug loop.
