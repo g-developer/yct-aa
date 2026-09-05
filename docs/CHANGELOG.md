@@ -1,5 +1,34 @@
 # Changelog
 
+## v4.19
+
+- Moved Codex planner, plan checker, deep investigator, and explicitly requested
+  security review to GPT-6 Astra xhigh; retained Sol for semantic review and
+  independent static verification.
+- Moved normal batch, alignment recording, and small read-only work to Luna;
+  dynamic verification now uses Terra. Added the optional Codex-only
+  `batch-spark-agent`, with `batch-agent` as its non-Spark substitute.
+- Made the parent responsible for Spark quota/entitlement failure, including
+  failed spawn: skip both Spark roles for the current task, reconcile partial
+  work, and continue through the named non-Spark route. Removed obsolete
+  commented fallback fields that never implemented runtime switching.
+- Corrected Claude model precedence for 2.1.251+ and the force override added
+  in 2.1.257; frontmatter models are defaults subject to quality floors.
+  Removed unsupported effort settings from Haiku roles.
+
+- Consolidated shared change admission and verification in AGENTS.md; the
+  yct-aa twins now focus on task intent, risk, role selection, and completion.
+- Distinguished required feature behavior from incident evidence, bounded
+  canary preparation from batch fan-out, and parent acceptance from worker
+  delivery. Preserved existing role boundaries, permissions, and explicit
+  invocation policy while updating the model assignments above.
+- Corrected role instructions that blocked on optional packet fields, treated
+  soft budgets as forced stops, or demanded fixed planning/review stages.
+- Replaced the mechanical worker's duplicated requirement ledger and textual
+  placeholder census with scoped diff and behavior verification.
+- Updated current routing documentation to match the installed configuration
+  format and package model pins; historical audit records remain unchanged.
+
 ## v4.18
 
 Orchestration-runaway release derived from three-way forensics (Claude Opus 5 + Codex gpt-5.6-sol max + Claude Fable 5, with cross-review of each other's findings) of the 2026-08-31/09-01 MusicTagWeb Codex sessions (`rollout-2026-08-31T14-36-54-01a05689...jsonl`, `rollout-2026-09-01T11-22-31-01a05afd...jsonl`; >=698.5M tokens combined at review snapshot, ~23 h, 3 completed migrations against a 1,070-directory target). Observed failure chain: skill blanket spawn authorization plus permissive §8 wording -> unbounded read-only fan-out with no canary or WIP cap -> `fork_turns:"all"` context inheritance (75 children, 195.8M tokens, 71% of session-A child spend; omitting the parameter defaults to all) -> worker receipts consumed as product-progress scheduling signals -> local changes escalated into 16 full-ledger rebuilds (22,727 rows each) -> §13 persistence clauses converting failure into more fan-out. Every edit below was applied to the live Mac/NAS installs first, byte-verified identical across both, and independently verified by Fable 5 (diff-vs-spec, byte identity plus permissions, semantic regression, and 5 behavioral acceptance scenarios: PASS_WITH_ISSUES, residuals below).

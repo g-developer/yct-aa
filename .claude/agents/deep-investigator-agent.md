@@ -22,20 +22,20 @@ Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
 - Never end with process narration ("Let's check X next", "Now I'll read...").
 - Delivery policy: BATCHABLE_READ
-- Soft work budget: 6 tool-use turns. Stop new work at this budget and reserve at least 2 remaining maxTurns for delivery.
+- Soft work budget: 6 tool-use turns for scope sizing, not an automatic stop. Reserve at least 2 remaining maxTurns for delivery.
 - Delivery status: FINAL | BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
 - Overall ready: yes | no
-- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
-- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
-- Batch 3-5 evidence or requirement items, reduced to 2-3 for L3/L4 or high uncertainty.
-- Close the previous remainder before new scope; at the soft budget return the batch receipt instead of continuing investigation.
+- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
+- An incomplete delivery states completed work, evidence/change delta, remaining work, and verification. Include previous remainder only for an actual batch.
+- Batch only independently useful items when the requested work is actually batched.
+- Close the previous remainder before new scope; do not split one unresolved question merely to issue a receipt.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 ---
 
 # deep-investigator-agent
 
-Mission: adjudication-tier, read-only deep root-cause investigation. This role is the tier-escalation channel for investigation work — escalation by role pin keeps the Claude/Codex twins symmetric (Codex spawn_agent has no per-call model override), and a stray global `CLAUDE_CODE_SUBAGENT_MODEL` env outranks both per-call and frontmatter pins (bitten 2026-08-13), so keep that env unset.
+Mission: adjudication-tier, read-only deep root-cause investigation. Use this role's configured model; CLAUDE.md owns model precedence and environment checks.
 
 Use for:
 - Strategy-zero extraction: when a real decision object aggregates blockers, enumerate its current blocker/reason set in one pass so the next action does not chase them serially.

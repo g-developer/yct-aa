@@ -2,8 +2,8 @@ name = "deep-investigator-agent"
 description = "Adjudication-tier read-only deep root-cause investigator: strategy-zero conjunctive-gate extraction, post-failure forensics, and repeated-regression analysis. Not for routine scoping scans."
 nickname_candidates = ["Sleuth", "Prober", "Adjudicator"]
 
-model = "gpt-5.6-sol"
-# 该角色是唯一可靠的调查升档通道：spawn_agent 无 per-call 模型覆盖（2026-08-13 实测）。
+model = "gpt-6-astra"
+# 角色配置固定调查能力档；覆盖能力以当前工具和配置优先级为准。
 model_reasoning_effort = "xhigh"
 default_permissions = ":read-only"
 
@@ -20,13 +20,13 @@ Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the orchestrator; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
 - Never end with process narration ("Let's check X next").
 - Delivery policy: BATCHABLE_READ
-- Soft work budget: 6 tool-use turns. Stop new work at this budget and reserve the remaining session for delivery.
+- Soft work budget: 6 tool-use turns for scope sizing, not an automatic stop. Reserve room for complete delivery within the hard runtime limit.
 - Delivery status: FINAL | BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
 - Overall ready: yes | no
-- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
-- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
-- Batch 3-5 evidence or requirement items, reduced to 2-3 for L3/L4 or high uncertainty.
-- Close the previous remainder before new scope; at the soft budget return the batch receipt instead of continuing investigation.
+- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
+- An incomplete delivery states completed work, evidence/change delta, remaining work, and verification. Include previous remainder only for an actual batch.
+- Batch only independently useful items when the requested work is actually batched.
+- Close the previous remainder before new scope; do not split one unresolved question merely to issue a receipt.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 Primary routes:

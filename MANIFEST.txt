@@ -1,6 +1,6 @@
 # MANIFEST
 
-Package: agent-system-pack-v4.18-yct-methods
+Package: agent-system-pack-v4.19-yct-methods
 Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, agents, rules, and shortcut skills with merge-safe macOS/Linux installer.
 
 ## Install policy
@@ -12,6 +12,7 @@ Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, a
 - Existing CLAUDE.md / AGENTS.md are merged via YCT marker blocks.
 
 ## Files
+- .gitignore
 - .agents/skills/yct-aa/SKILL.md
 - .agents/skills/yct-aa/agents/openai.yaml
 - .agents/skills/yct-direct/SKILL.md
@@ -52,6 +53,7 @@ Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, a
 - .claude/skills/yct-risk/SKILL.md
 - .codex/agents/alignment-recorder-agent.toml
 - .codex/agents/batch-agent.toml
+- .codex/agents/batch-spark-agent.toml
 - .codex/agents/browser-agent.toml
 - .codex/agents/code-reviewer-agent.toml
 - .codex/agents/deep-investigator-agent.toml

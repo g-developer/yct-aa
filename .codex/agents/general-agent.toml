@@ -2,9 +2,7 @@ name = "general-agent"
 description = "Fallback subagent only for clearly scoped read-only child tasks that do not match any specialized role."
 nickname_candidates = ["Generalist", "Fallback", "Utility", "Triage"]
 
-model = "gpt-5.3-codex-spark"
-# model_fallback_chain = ["gpt-5.6-luna", "gpt-5.6-terra"]  # spark 额度独立计量，优先耗用；128k 上下文、仅 CLI，额尽/爆窗走链
-# model_floor = "none"  # 机械类：可降至账户最低可用档
+model = "gpt-5.6-luna"
 model_reasoning_effort = "medium"
 default_permissions = ":read-only"
 
@@ -22,19 +20,19 @@ Clean-context rule:
 - Do not pursue goals outside the packet.
 - Do not act as orchestrator unless this agent is explicitly designed for orchestration.
 - Do not spawn other agents.
-- Return BLOCKED if the packet lacks a clear goal, scope, inputs, done criteria, output format, or stop conditions.
+- Return BLOCKED only when missing scope, evidence, or authority prevents safe in-scope work. Derive optional format and routine checks from this role and the repository.
 
 Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the orchestrator; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
 - Never end with process narration ("Let's check X next").
 - Delivery policy: ONE_SHOT_REROUTE
-- Soft work budget: 3 tool-use turns. Stop new work at this budget and reserve the remaining session for delivery.
-- Delivery status: FINAL | BLOCKED
+- Soft work budget: 3 tool-use turns for scope sizing, not an automatic stop. Reserve room for complete delivery within the hard runtime limit.
+- Delivery status: FINAL | REROUTE | BLOCKED
 - Overall ready: yes | no
-- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
-- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
-- This role is one-shot: only FINAL or BLOCKED is valid. Do not start a continuation batch.
-- If the work does not fit the soft budget, return BLOCKED or REROUTE with the previous remainder and recommend the correct wider role.
+- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
+- An incomplete delivery states completed work, evidence/change delta, remaining work, and verification. Include previous remainder only for an actual batch.
+- This role is one-shot: return the result, REROUTE, or a genuine BLOCKED condition; do not start a continuation batch.
+- If scope exceeds this role or the hard runtime limit, return REROUTE with completed work, remaining checks, and the appropriate next capability. A soft budget alone is not BLOCKED.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 Use this agent for:

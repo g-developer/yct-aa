@@ -18,6 +18,8 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
 - `xhigh`: hard reasoning, security, architecture, ambiguous debugging, adversarial review.
 - `max`: exceptional only; risk of overthinking and high token spend.
 
+Haiku does not support effort control; omit `effort` for Haiku roles.
+
 ## Rules
 
 - Use `sonnet` for scoped implementation, including approved L3 execution. Use Opus/Fable around it for planning, challenge, security review, and verification rather than implying an unavailable stronger write route.
@@ -26,7 +28,17 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
 - Do not use `fable` by default. The parent may override planner-agent or plan-checker per invocation for justified L4 work; fall back to their Opus defaults when unavailable.
 - Use aliases unless reproducibility requires pinned full model IDs.
 - If an alias is unavailable in the account or provider, change that agent to `inherit` or a permitted full model ID.
-- Never set `CLAUDE_CODE_SUBAGENT_MODEL` in settings.json env: it outranks per-call and frontmatter pins (documented precedence env > per-call > frontmatter > session) and silently flattens every subagent to one model, destroying this tier design (incident 2026-08-13). Preflight it is unset before diagnosing routing.
+- On Claude Code 2.1.251+, model precedence is per-call override > agent
+  frontmatter > `CLAUDE_CODE_SUBAGENT_MODEL` > parent model. On 2.1.257+,
+  `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` makes the environment model (or the
+  parent model when none is set) override per-call and frontmatter choices.
+  Do not enable that force flag for this
+  tiered setup. Diagnose the installed version, both variables, and alias
+  overrides in the actual invocation environment before claiming a model ran.
+- Before 2.1.251, `CLAUDE_CODE_SUBAGENT_MODEL` takes precedence over per-call
+  and frontmatter models. Leave it unset to preserve these role defaults on
+  older clients; before 2.1.196 even the value `inherit` forces the parent
+  model. Do not apply the newer precedence or force-flag behavior to old clients.
 
 ## Outcome and cost economy (2026-07-13)
 
@@ -38,13 +50,15 @@ This rule is Claude-specific. Do not copy it into `AGENTS.md` unless another too
 
 ## Failure re-route & dynamic selection (2026-07-13)
 
-- Spawn failure with a model/alias-unavailable error -> retry once with an
-  explicit per-call `model` override on the Agent tool, walking down
-  fable -> opus -> sonnet -> inherit; report the downgrade. Never repeat the
-  same unavailable alias, and never claim the pinned tier ran after a downgrade.
-- Frontmatter pins are ceilings: for low-complexity instances of a role
-  (an L2 plan, a light diff review), the parent should pass a cheaper per-call
-  `model` override, guided by criticality and remaining budget.
+- On a model/alias-unavailable error, use at most one known available substitute
+  through an exposed per-call override or equivalent role. Check the quality
+  floor below first; `inherit` is suitable only when the inherited model meets
+  it. Report the actual route and downgrade. Do not walk unknown aliases or
+  repeat the same unavailable model.
+- Frontmatter models are defaults constrained by the quality floors below.
+  Use a cheaper per-call model only when it still meets the task's floor;
+  escalate to Opus/Fable when the actual risk requires it. Overrides must be
+  supported by the installed runtime and must preserve role permissions.
 
 ## Tier-by-criticality matrix (2026-07-13)
 

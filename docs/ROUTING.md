@@ -1,6 +1,7 @@
 # Routing Contract and Model Rationale
 
-Date checked: 2026-07-10
+Configuration reviewed: 2026-09-05. Model names below describe package pins,
+not account entitlement or proof of a live delegated run.
 
 This document records design decisions. Runtime rules remain owned by:
 
@@ -30,19 +31,64 @@ Method selection occurs after task/risk classification and before agent selectio
 4. Route each method to its owning capability.
 5. Reject empty method headings and method dumping during verification.
 
-Examples: explorers/fixers own hypothesis falsification, planners own first-principles/MECE/ledgers/FMEA/risk–complexity budgeting/migration staging, plan and code reviewers classify theoretical findings instead of promoting them directly to requirements, security reviewers own trust boundaries and abuse cases, verifiers own bidirectional traceability and test-strategy adequacy, and semantic reviewers own double-loop learning.
+Examples: explorers/fixers narrow causes, planners resolve design uncertainty, plan and code reviewers assess concrete findings, security reviewers inspect trust boundaries, verifiers check the requested outcome and wiring, and semantic reviewers resolve instruction conflicts. Each method needs a task signal; a role assignment does not activate its whole method catalog.
 
 Risk routing and mechanism admission are separate decisions. A safety or production signal can require L3 review while the accepted implementation remains a timeout, fail-fast path, local boundary fix, or observability-only change. New durable state, workers, retries/fallbacks, leases, ACKs, and protocol fields still require a current commitment or safety invariant, occurrence evidence, explicit lifecycle cost, and an activation signal.
 
 ## Codex model tiers
 
-| Tier | Model | Roles |
+| Role | Model | Effort |
 |---|---|---|
-| Demanding | `gpt-5.6` | planner, plan checker, executor, code/security/semantic review, static verifier, browser evidence |
-| Fast portable | `gpt-5.6-terra` | explorer, research, docs, general fallback, alignment recording, focused fixer, batch edits, dynamic runner |
-| Optional latency path | `gpt-5.3-codex-spark` | Spark-only focused text iteration when ChatGPT Pro preview availability is known |
+| `alignment-recorder-agent` | `gpt-5.6-luna` | low |
+| `batch-agent` | `gpt-5.6-luna` | low |
+| `batch-spark-agent` | `gpt-5.3-codex-spark` | low |
+| `browser-agent` | `gpt-5.6-terra` | high |
+| `code-reviewer-agent` | `gpt-5.6-terra` | high |
+| `deep-investigator-agent` | `gpt-6-astra` | xhigh |
+| `docs-agent` | `gpt-5.6-terra` | medium |
+| `executor-agent` | `gpt-5.6-terra` | medium |
+| `explorer-agent` | `gpt-5.6-terra` | medium |
+| `focused-fixer-agent` | `gpt-5.6-terra` | medium |
+| `general-agent` | `gpt-5.6-luna` | medium |
+| `plan-checker` | `gpt-6-astra` | xhigh |
+| `planner-agent` | `gpt-6-astra` | xhigh |
+| `research-agent` | `gpt-5.6-terra` | medium |
+| `security-reviewer-agent` | `gpt-6-astra` | xhigh |
+| `semantic-review-agent` | `gpt-5.6-sol` | xhigh |
+| `spark-agent` | `gpt-5.3-codex-spark` | medium |
+| `verify-agent` | `gpt-5.6-sol` | xhigh |
+| `verify-runner-agent` | `gpt-5.6-terra` | medium |
 
-`focused-fixer-agent` is the portable default. A model/entitlement failure from `spark-agent` may reroute once to the focused fixer; do not retry Spark repeatedly.
+Astra is reserved for difficult planning, adversarial challenge, repeated-failure
+investigation, and explicitly requested security review. Its stronger long-task
+capabilities justify evaluating these roles first; the existing xhigh effort is
+preserved. Sol remains the default for semantic review and independent static
+verification. These are responsibility-based choices, not a local quality,
+latency, or cost benchmark.
+
+Normal batch, recording, and small read-only work use Luna. Dynamic verification
+uses Terra because collecting valid terminal evidence needs more than launching
+a command. None of these normal routes depends on Spark quota.
+
+`batch-spark-agent` and `spark-agent` are optional speed routes. Their explicit
+non-Spark substitutes are `batch-agent` and `focused-fixer-agent`, respectively.
+The two batch variants keep the same mechanical scope and permissions; only
+one writer runs on a target at a time. Claude keeps its existing Sonnet batch
+role and does not install a Spark batch variant.
+
+The parent handles quota or entitlement failure, including failed dispatch.
+Confirmed Spark unavailability skips both Spark roles for the current task
+unless new availability evidence arrives. Reconcile partial edits and running
+commands before handing over the remainder; never repeat completed side
+effects. No quota polling, persistent ledger, or automatic model-fallback
+configuration is introduced. Runtime recovery rules live in the Codex shortcut
+skills. A custom provider may have additional shared limits; changing a role
+does not create a new allowance.
+
+Role TOML files pin both model and effort. These pins override per-call model
+requests, so a replacement must use an exposed equivalent role or safe parent
+execution with the required independence and permissions. Do not claim an
+intended model ran without runtime evidence.
 
 ## Claude model tiers
 
@@ -50,14 +96,16 @@ Risk routing and mechanism admission are separate decisions. A safety or product
 |---|---|---|
 | Cheap/fast | `haiku` | alignment recording and read-only fallback |
 | Normal engineering | `sonnet` | exploration, implementation, focused fixes, batch edits, research, browser evidence, docs, dynamic verification, code review |
-| High assurance | `opus` | planning, adversarial plan review, security review, semantic review, static verification |
+| High assurance | `opus` | planning, adversarial plan review, deep investigation, security review, semantic review, static verification |
 | Optional L4 escalation | `fable` | per-invocation planner or plan-checker override when available and justified |
 
-Approved L3 implementation remains on the scoped Sonnet executor. Opus/Fable planning and verification surround it. The pack does not claim to have a stronger write-capable Claude route that it does not define.
+Authorized L3 implementation remains on the scoped Sonnet executor. Add planning
+or challenge only for an unresolved design or irreversible decision; use the
+verification required by the actual risk.
 
 ## Verification closure
 
-- Delegated source edits always receive static acceptance from `verify-agent`.
+- The parent owns final acceptance. A localized obvious delegated edit may use parent inspection and its targeted behavioral check; non-trivial, risky, or uncertain edits need independent static verification.
 - `verify-runner-agent` runs tests, lint, typecheck, builds, and smoke commands when needed.
 - Runner results are evidence for the static verifier, not a substitute for goal-match, wiring, regression, and fake-completion review.
 - Direct L0/L1 work may be verified by the parent without ritual subagent spawning.
@@ -65,18 +113,18 @@ Approved L3 implementation remains on the scoped Sonnet executor. Opus/Fable pla
 ## Runtime dispatch guard
 
 - Codex must receive a successful spawn response with a child thread/agent ID before calling wait. An empty receiver set is a dispatch failure, not an idle child.
-- Claude must receive a successful `Task` result identifying the configured child before claiming delegation.
-- On either platform, a failed or identity-less spawn returns `BLOCKED` with the tool evidence. The parent must not simulate the child or silently execute the delegated scope itself.
+- Claude uses the Agent/Task tool actually exposed by the runtime and must receive a successful result identifying the child before claiming delegation.
+- A failed or identity-less spawn is not a delegated result. Reconcile any changed state, then use one suitable available route or safe parent execution. Report the substitution; block only work whose required capability or independence is unavailable.
 
 ## Durable delivery and batching
 
-- Every role declares one delivery policy and a soft work budget. The soft budget stops new work early enough to preserve a final-delivery margin; it is not permission to exceed the platform's hard limit.
+- Every role declares a delivery policy and soft scope estimate. Reserve a final-delivery margin within the hard runtime limit; the estimate alone does not force a stop or a new batch.
 - Evidence/planning and review roles may return bounded receipts. Review acceptance (`ACCEPT`, `PASS`, `NO_BLOCKERS`, or equivalent) is final-only and requires the declared inventory plus all prior remainder to be closed.
 - The executor, docs, and alignment roles may batch only non-overlapping requirement/file ownership. Focused fixer, Spark, mechanical batch, and general fallback remain one-shot and reroute when their bounded scope does not fit.
 - The runner handles one command or cohesive command family per batch and records command, exit status, key output, artifacts, and remaining commands before starting another family.
 - Empty, progress-only, tool-log-only, or malformed output never advances the parent state. A changed-state delivery failure freezes overlapping writers until the actual diff/artifacts are reconciled.
-- Same-agent continuation is an optimization only when the runtime returns a confirmed handle. Otherwise the receipt and evidence ledger are the portable continuation state; no platform messaging feature is assumed.
-- Static package tests validate prompt/config parity and receipt contracts. They cannot force a provider process to emit output after an external hard termination.
+- Same-agent continuation requires a confirmed handle. Otherwise carry the concise result and evidence delta; no separate ledger or messaging feature is assumed.
+- Static package tests validate package structure, role registration, permissions, metadata, and installation. They do not grade prompt wording or prove live model decisions.
 
 ## Portability boundaries
 
@@ -84,11 +132,14 @@ Approved L3 implementation remains on the scoped Sonnet executor. Opus/Fable pla
 - Browser agents are read-only evidence collectors. Codex requires an available inherited browser tool; Claude requires the browser tool to be exposed in the child profile's allowlist, or an allowed browser CLI through `Bash`.
 - Codex role registrations are explicit in `.codex/config.toml`; the installer appends missing role tables while preserving existing same-name tables and warning on incompatible depth/thread settings.
 - Account model allowlists and local tool availability remain runtime facts. Static parsing cannot prove a live spawn used the intended model.
-- Method fixtures prove static contract coverage only. They do not prove a live model selected the intended method for a prompt.
+- Method fixtures are historical evaluation inputs, not evidence that a live model selected a method or that a fixed agent chain is required.
 
 ## Official references
 
-- Codex subagents and model guidance: <https://learn.chatgpt.com/docs/agent-configuration/subagents>
+- Codex subagents and configuration precedence: <https://developers.openai.com/codex/subagents>
+- Astra capabilities and migration guidance: <https://developers.openai.com/api/docs/guides/latest-model>
+- Luna model scope: <https://developers.openai.com/api/docs/models/gpt-5.6-luna>
+- Spark usage limits: <https://developers.openai.com/codex/pricing>
 - Codex configuration reference: <https://developers.openai.com/codex/config-reference/>
 - Codex skills and invocation policy: <https://developers.openai.com/codex/skills/>
 - Claude Code subagents: <https://code.claude.com/docs/en/sub-agents>

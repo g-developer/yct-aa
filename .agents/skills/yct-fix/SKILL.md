@@ -19,9 +19,11 @@ This authorizes a focused write-capable agent when it is actually useful.
    check are known. Use `focused-fixer-agent` for a localized one-to-three-file
    change, `spark-agent` only when explicitly appropriate and available, and
    `executor-agent` when the bounded change is wider.
-4. Change source only when the production path needs it, it handles the observed
-   failure class through a general existing boundary, the smallest meaningful
-   behavioral check proves it, and existing Case quality stays intact.
+   The parent handles Spark quota/entitlement failure, including failed spawn:
+   reconcile any partial edits and running commands, then send only remaining
+   work to `focused-fixer-agent`. Skip all Spark roles for this task unless new
+   availability evidence arrives; preserve scope and verification requirements.
+4. Apply AGENTS.md §3 change admission to the requested fix or refactor.
 5. Prefer one high-information check and a real integration/end-to-end path
    when available. Use property, metamorphic, or characterization coverage only
    when the input space or behavior uncertainty requires it. Do not add tests

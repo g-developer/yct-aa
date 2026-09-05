@@ -1,11 +1,11 @@
-# Claude Native Layer v4.7
+# YCT Claude Native Layer
 
 This pack keeps `AGENTS.md` as the cross-tool contract and upgrades the Claude side to use Claude Code native concepts:
 
 - `CLAUDE.md` imports `AGENTS.md` and adds only Claude-specific orchestration.
 - `.claude/rules/` stores Claude-only model routing, method-to-role mapping, subagent orchestration, and instruction-maintenance rules.
 - `.claude/agents/*.md` uses Claude frontmatter with `model`, `effort`, `maxTurns`, permission modes, and tool allowlists. It does not force `background`; Claude chooses foreground/background from dependency order.
-- Every Claude role stops new work at a role-specific soft budget before `maxTurns` and returns a complete result or structured batch receipt. Agent Teams and `SendMessage` are optional; recovery capability is checked before use.
+- Every Claude role uses its soft budget for scope sizing and reserves delivery time before `maxTurns`. It returns a complete result or concrete remainder. Agent Teams and `SendMessage` are optional; continuation requires an available runtime handle.
 - Write-capable agents are Sonnet by default; hard planning/review agents use Opus; cheap/status agents use Haiku.
 - Fable is an optional L4 planner/plan-checker invocation override. Opus remains the portable high-capability default.
 - `.claude/rules/method-orchestration.md` maps the task-selected contracts in `docs/METHODS.md` to Claude roles without duplicating their definitions.

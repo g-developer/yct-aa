@@ -1,4 +1,4 @@
-# Agent System Pack v4.7 YCT Routing and Methods
+# YCT Agent System Pack
 
 This package installs a merge-safe user-level agent system for Claude Code and Codex.
 
@@ -97,7 +97,7 @@ v4.7 selects engineering methods from task signals instead of applying a full pr
 Examples:
 
 - unknown root cause → Hypothesis–Falsification;
-- L3/L4 design → First Principles, MECE, ledgers, Pre-mortem/FMEA-lite;
+- unresolved L3/L4 design → First Principles and the specific decomposition or failure analysis needed for the decision;
 - auth/data boundary → Trust Boundary and Abuse Cases;
 - new retries, fallbacks, durable state, workers, cache/lease/ACK protocols, or theoretical reliability findings → Risk–Complexity Budget;
 - schema/API migration → Expand–Migrate–Contract;
@@ -110,23 +110,30 @@ The risk budget does not weaken safety boundaries: authorization, tenant isolati
 
 ## Bounded agent delivery
 
-Long work is divided into explicit batches instead of relying on a child agent to finish before a hard turn limit. Every role has a soft work budget and returns either a complete final result or a structured receipt containing completed work, evidence or file changes, verification, remaining items, and the next packet.
+Batch only work with independently useful items. Every role estimates scope with a soft work budget and reserves room for delivery within the runtime's hard limit. A soft budget alone does not stop useful work or justify `BLOCKED`. The child returns a complete result or a concise account of completed work, changed files, verification, and the concrete remainder.
 
-The next batch closes the previous remainder before taking new scope. A remainder that survives two receipts stops as `BLOCKED` or becomes a separate evidence task. Review agents cannot return `PASS`, `ACCEPT`, or `NO_BLOCKERS` from partial coverage. Small focused agents stay one-shot and reroute instead of silently growing into long jobs. If a writer returns invalid output after changing files, overlapping writers stop until the actual diff is reconciled.
+The next batch closes the previous remainder before taking new scope. A recurring remainder is relocalized or stopped with evidence. Review agents cannot claim acceptance from partial coverage. Focused agents reroute when their scope no longer fits. If a writer returns invalid output after changing files, overlapping writers stop until the actual diff is reconciled.
 
-Same-agent continuation is used only when the runtime confirms that capability. The portable continuation state is the receipt plus evidence ledger; neither Claude Agent Teams/`SendMessage` nor a Codex continuation handle is assumed.
+Same-agent continuation requires a confirmed runtime handle. Pass the concise result and evidence delta when a new child is needed; no separate ledger is required.
 
 ## Claude routing note
 
 Claude uses `focused-fixer-agent` for small focused fixes. `spark-agent` is retained only as a legacy compatibility worker for packets that explicitly request it.
 
-Claude model routing uses Haiku for cheap recording/fallback work, Sonnet for implementation and normal engineering work, Opus for planning/security/semantic review/independent verification, and optional Fable overrides for justified L4 planning or plan challenge. The Sonnet executor remains deliberate even in an approved L3 pipeline; stronger models surround it with plan and verification gates.
+Claude model routing uses Haiku for recording/fallback work, Sonnet for implementation and normal engineering work, Opus for demanding reasoning and independent verification, and optional Fable overrides for justified L4 planning or challenge. Select those roles only when the task needs them; they are not a fixed pipeline.
 
 ## Codex routing note
 
-Codex requires explicit subagent authorization. Use `$yct-aa ...` to authorize Codex to choose and spawn suitable agents according to `AGENTS.md`.
+Codex delegation requires a direct request or applicable project/skill instruction, subject to runtime restrictions. Invoke `$yct-aa ...` to request useful routing. Mentioning or editing the skill is not a spawn request.
 
-Codex uses GPT-5.6 for demanding implementation/planning/review, GPT-5.6 Terra for fast read-heavy and mechanical work, and `focused-fixer-agent` as the portable focused-fix default. `spark-agent` is optional because GPT-5.3-Codex-Spark is a ChatGPT Pro research-preview model; use it only when availability is known and latency is the priority.
+Codex pins GPT-6 Astra for difficult planning, challenge, deep investigation, and
+explicit security review; GPT-5.6 Sol for semantic review and static verification;
+GPT-5.6 Terra for normal engineering and dynamic verification; and GPT-5.6 Luna
+for mechanical batches, recording, and small read-only work. Spark is optional:
+`batch-spark-agent` uses `batch-agent` as its non-Spark substitute, and
+`spark-agent` uses `focused-fixer-agent`. The parent handles quota failure and
+reconciles partial work before switching. Model availability is account-dependent.
+See `docs/ROUTING.md` for all 19 Codex roles and substitution limits.
 
 
 ## Codex instruction size

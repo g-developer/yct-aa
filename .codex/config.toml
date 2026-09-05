@@ -19,6 +19,10 @@ config_file = "agents/alignment-recorder-agent.toml"
 description = "Apply one mechanical operation to an explicit small file list."
 config_file = "agents/batch-agent.toml"
 
+[agents."batch-spark-agent"]
+description = "Optional Spark acceleration for the same mechanical batch scope; use batch-agent when Spark is unavailable."
+config_file = "agents/batch-spark-agent.toml"
+
 [agents."browser-agent"]
 description = "Collect read-only browser, UI, console, network, and screenshot evidence."
 config_file = "agents/browser-agent.toml"

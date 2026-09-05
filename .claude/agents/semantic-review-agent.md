@@ -23,10 +23,10 @@ Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
 - Never end with process narration ("Let's check X next", "Now I'll read...").
 - Delivery policy: ONE_SHOT_REROUTE
-- Soft work budget: 6 tool-use turns. Stop new work at this budget and reserve at least 2 remaining maxTurns for delivery.
-- Delivery status: FINAL | BLOCKED
+- Soft work budget: 6 tool-use turns for scope sizing, not an automatic stop. Reserve at least 2 remaining maxTurns for delivery.
+- Delivery status: FINAL | REROUTE | BLOCKED
 - Overall ready: yes | no
-- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
+- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 ---

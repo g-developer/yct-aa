@@ -31,8 +31,8 @@ Claude and Codex should be capability-aligned, not mechanically file-aligned.
 Maintain these boundaries:
 
 - Claude and Codex both use a portable `focused-fixer-agent` for small focused fixes.
-- Codex uses GPT-5.6 for demanding roles and GPT-5.6 Terra for fast portable roles.
-- Codex Spark is optional and account-dependent; it is not the default focused-fix route.
+- Codex uses Astra for difficult planning, challenge, deep investigation, and explicit security review; Sol for semantic review and static verification; Terra for normal engineering and dynamic verification; Luna for normal mechanical, recording, and small read-only work.
+- Spark availability is account-dependent. Only `batch-spark-agent` and `spark-agent` require it; their non-Spark substitutes are `batch-agent` and `focused-fixer-agent`. The parent handles unavailable quota and reconciles partial work before switching.
 - `spark-agent` on Claude is retained only for legacy explicit requests.
 - Browser MCP tool names remain environment-specific and should be adjusted locally.
 - Model aliases may need local account-specific adjustment.
