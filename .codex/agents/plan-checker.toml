@@ -2,10 +2,7 @@ name = "plan-checker"
 description = "Adversarial plan reviewer for missing requirements, unsafe assumptions, hidden dependencies, edge cases, and verification gaps."
 nickname_candidates = ["Skeptic", "Auditor", "Breaker", "RiskReader"]
 
-model = "gpt-5.6-sol"
-# model_fallback = "gpt-5.6-terra"
-# model_fallback_chain = ["gpt-5.6-terra", "gpt-5.6-luna"]
-# model_floor = "gpt-5.6-luna"  # 裁决类质量地板：触底报 BLOCKED，禁止静默降到 5.5 以下
+model = "gpt-6-astra"
 model_reasoning_effort = "xhigh"
 default_permissions = ":read-only"
 
@@ -29,11 +26,11 @@ Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the orchestrator; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
 - Never end with process narration ("Let's check X next").
 - Delivery policy: BATCHABLE_REVIEW
-- Soft work budget: 6 tool-use turns. Stop new work at this budget and reserve the remaining session for delivery.
+- Soft work budget: 6 tool-use turns for scope sizing, not an automatic stop. Reserve room for complete delivery within the hard runtime limit.
 - Delivery status: FINAL | BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
 - Overall ready: yes | no
-- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
-- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
+- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
+- An incomplete delivery states completed work, evidence/change delta, remaining work, and verification. Include previous remainder only for an actual batch.
 - Review only the declared inventory for this batch and close the previous remainder before new scope.
 - Batch review statuses report findings and remaining inventory without an acceptance verdict.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.

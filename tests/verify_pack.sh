@@ -50,8 +50,9 @@ actual = {
     if path.is_file()
     and path.name != ".DS_Store"
     and ".git" not in path.relative_to(root).parts
-    # .serena 是 Serena 工具的本地项目缓存，不属于包内容
-    and ".serena" not in path.relative_to(root).parts
+    # 分析工具缓存和临时实现计划不属于发布包。
+    and not {".serena", ".codegraph"}.intersection(path.relative_to(root).parts)
+    and path.relative_to(root).as_posix() != "IMPLEMENTATION_PLAN.md"
 }
 check(manifest == actual, f"manifest drift: missing={sorted(actual - manifest)} extra={sorted(manifest - actual)}")
 
@@ -153,10 +154,31 @@ for path in sorted((root / ".claude/agents").glob("*.md")):
         if name in read_only_claude:
             check(meta.get("permissionMode") == "plan", f"read-only Claude agent lacks plan permission mode: {name}")
     check("background" not in meta, f"Claude agent forces background execution: {path}")
+    if meta.get("model") == "haiku":
+        check("effort" not in meta, f"Haiku does not support effort control: {path}")
     tools = {item.strip() for item in meta.get("tools", "").split(",") if item.strip()}
     check("Agent" not in tools, f"worker can recursively orchestrate: {path}")
 
-check(set(claude_agents) == set(codex_agents), "Claude and Codex agent sets differ")
+check(
+    set(claude_agents) == set(codex_agents) - {"batch-spark-agent"},
+    "platform role sets differ beyond the Codex-only Spark batch variant",
+)
+for spark_name, portable_name in (
+    ("batch-spark-agent", "batch-agent"),
+    ("spark-agent", "focused-fixer-agent"),
+):
+    spark = codex_agents.get(spark_name, {})
+    portable = codex_agents.get(portable_name, {})
+    check(spark.get("model") == "gpt-5.3-codex-spark", f"missing Spark model: {spark_name}")
+    check(
+        bool(portable.get("model")) and portable["model"] != spark.get("model"),
+        f"Spark substitute must use a non-Spark model: {portable_name}",
+    )
+    check(
+        spark.get("default_permissions") == portable.get("default_permissions")
+        and spark.get("permissions") == portable.get("permissions"),
+        f"Spark substitution changes permissions: {spark_name} -> {portable_name}",
+    )
 
 for platform in (".agents/skills", ".claude/skills"):
     for skill_dir in sorted((root / platform).glob("yct-*")):

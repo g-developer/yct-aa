@@ -8,7 +8,7 @@ Method selection and Claude role mapping are owned by `.claude/rules/method-orch
 
 - Use custom YCT agents when their model/tool/permission contract matters; do not substitute built-in Explore for `explorer-agent` inside `/yct-aa`.
 - Do not force `background` in agent frontmatter. Let Claude choose based on whether the parent needs the result before continuing.
-- Parallelize only independent read-only work. Chain dependent planning, implementation, and verification stages.
+- Parallelize independent work only. Writers need disjoint file ownership or isolated worktrees; dependent planning, implementation, and verification remain sequential.
 - Read-only custom agents use `permissionMode: plan` where supported. Write-capable agents receive only the tools needed for their role.
 - Omit `Agent` from worker tool lists so workers cannot recursively orchestrate.
 - Use `isolation: worktree` only when the packet explicitly needs isolated writes and the repository state supports it.
@@ -24,7 +24,7 @@ If the local Claude Code version or organization policy does not support a confi
 
 - Treat an empty, progress-only, tool-log-only, or malformed child result as delivery failure, not completion. Preserve the child ID, packet, and known changed-state evidence.
 - Continue the same child once only when the active runtime exposes and has confirmed a continuation handle. Agent Teams and `SendMessage` are optional capabilities, not assumptions. If continuation is unavailable, create a new bounded packet containing only the prior result and evidence delta, or return `BLOCKED` when changed state cannot be reconciled safely.
-- Do not ask a child that reached its soft work budget to continue exploration. Ask only for the required receipt/finalization, then apply the two-consecutive-remainder stop rule from `AGENTS.md`.
+- Treat a soft work budget as a scope estimate. Let a bounded remaining check finish within the hard runtime limit; otherwise collect the concrete remainder and resize the packet. Do not create batches merely because a soft budget elapsed.
 - For a write-capable child with invalid delivery, pause overlapping writers, inspect the actual worktree/artifacts, and reconstruct the handoff before any further writes.
 - Do not paste large file bodies into packets; pass paths/line anchors — read-only agents
   can Read them, and packet bloat is paid on every resume.

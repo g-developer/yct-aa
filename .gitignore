@@ -1,0 +1,9 @@
+# >>> yct-ca managed block >>>
+
+.serena/
+.codegraph/
+.claude/worktrees/
+.codex-private-tmp-*/
+.codex_tmp/
+
+# <<< yct-ca managed block <<<

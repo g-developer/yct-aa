@@ -22,11 +22,11 @@ Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
 - Never end with process narration ("Let's check X next", "Now I'll read...").
 - Delivery policy: COMMAND_BATCH
-- Soft work budget: 4 tool-use turns. Stop new work at this budget and reserve at least 2 remaining maxTurns for delivery.
+- Soft work budget: 4 tool-use turns for scope sizing, not an automatic stop. Reserve at least 2 remaining maxTurns for delivery.
 - Delivery status: FINAL | BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
 - Overall ready: yes | no
-- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
-- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
+- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
+- An incomplete delivery states completed work, evidence/change delta, remaining work, and verification. Include previous remainder only for an actual batch.
 - Run one cohesive command family per batch and close any previous remainder before starting another family.
 - Preserve the exact command, exit status, key output, and artifacts in the batch receipt. Do not rerun a completed command family without new evidence.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.

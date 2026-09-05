@@ -20,4 +20,4 @@ Rules:
 - Run targeted validation if code changes.
 - Report only conclusion, change summary, verification, and risk.
 
-If the task becomes multi-module, risky, ambiguous, or requires independent agent verification, continue only with safe main-thread analysis. Stop before unsafe execution and ask the user to invoke `/yct-aa` or `/yct-risk` explicitly.
+More files or higher risk do not themselves change this no-agent mode. Continue authorized work in the parent with the required risk checks. If safe execution needs independent agent verification that this mode prohibits, finish safe preparation and report that specific limit before asking for a mode change.

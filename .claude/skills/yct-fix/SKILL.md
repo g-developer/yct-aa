@@ -18,9 +18,7 @@ $ARGUMENTS
 3. Write only after the cause, expected behavior, allowed files, and a meaningful
    check are known. Use `focused-fixer-agent` for a localized one-to-three-file
    change and `executor-agent` when the bounded change is wider.
-4. Change source only when the production path needs it, it handles the observed
-   failure class through a general existing boundary, the smallest meaningful
-   behavioral check proves it, and existing Case quality stays intact.
+4. Apply AGENTS.md §3 change admission to the requested fix or refactor.
 5. Prefer one high-information check and a real integration/end-to-end path
    when available. Use property, metamorphic, or characterization coverage only
    when the input space or behavior uncertainty requires it. Do not add tests

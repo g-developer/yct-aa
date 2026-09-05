@@ -37,10 +37,7 @@ model owners in `CLAUDE.md`; do not turn this mode into a fixed agent pipeline.
 
 ## Change and test admission
 
-- Change source only when the real production path needs it, the change handles
-  the observed failure class through a general existing boundary, the smallest
-  meaningful behavioral coverage proves it, and mature Case quality does not
-  decline.
+- Apply AGENTS.md §3 change admission to the authorized behavior or migration.
 - Do not add hashes, frozen contracts/baselines, manifests, ledgers, process
   gates, broad defensive branches, or fake infrastructure without direct
   production necessity.
@@ -70,8 +67,9 @@ model owners in `CLAUDE.md`; do not turn this mode into a fixed agent pipeline.
   that remains unresolved: `deep-investigator-agent`.
 - Scoped implementation: `executor-agent` or `focused-fixer-agent` when truly
   localized.
-- Dynamic commands: `verify-runner-agent`; one independent static acceptance
-  after delegated source edits: `verify-agent`.
+- Dynamic commands: `verify-runner-agent`; independent static verification
+  for risky or uncertain delegated edits: `verify-agent`. The parent owns
+  final acceptance.
 - Research or browser evidence only when current external or UI state is
   necessary.
 
@@ -80,4 +78,4 @@ checks pass, the final diff is in scope, and remaining risk is stated. Report
 `BLOCKED` only under the conditions above. A completed phase, commit, build,
 image, artifact, review PASS, elapsed-time boundary, or intermediate receipt
 is not final delivery while a safe, authorized, outcome-relevant next action
-exists.
+exists. The AGENTS.md economic stop conditions still apply to actual batches.

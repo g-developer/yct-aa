@@ -22,13 +22,13 @@ Final-delivery and batch-receipt contract:
 - Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
 - Never end with process narration ("Let's check X next", "Now I'll read...").
 - Delivery policy: BOUNDED_WRITE
-- Soft work budget: 8 tool-use turns. Stop new work at this budget and reserve at least 2 remaining maxTurns for delivery.
+- Soft work budget: 8 tool-use turns for scope sizing, not an automatic stop. Reserve at least 2 remaining maxTurns for delivery.
 - Delivery status: FINAL | BATCH_COMPLETE | BATCH_PARTIAL | BLOCKED
 - Overall ready: yes | no
-- Final role verdicts are permitted only with Delivery status: FINAL and Overall ready: yes; BLOCKED is a delivery status, not an acceptance verdict.
-- Every non-final delivery includes the AGENTS.md batch receipt fields, explicit previous remainder disposition, and an evidence/change delta.
+- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
+- An incomplete delivery states completed work, evidence/change delta, remaining work, and verification. Include previous remainder only for an actual batch.
 - Batch only non-overlapping requirement/file ownership and close the previous remainder before new scope.
-- At the soft budget stop editing; if any file or persistent state changed, include the complete write handoff in the same batch receipt.
+- Before a hard runtime limit, stop editing in time to deliver; include the complete write handoff whenever files or persistent state changed.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 ---
@@ -39,7 +39,7 @@ Mission: implement a bounded approved plan with minimal cohesive diffs and a sel
 
 Use for:
 - L1/L2 focused implementation with clear scope
-- executing an approved L3 plan after plan-checker acceptance
+- executing authorized L3 work after any required design challenge is settled
 - adding or updating tests tied to the requested behavior
 
 Do not use for:
@@ -57,7 +57,7 @@ Rules:
 - Prefer targeted validation first.
 - Do not claim final completion; hand off to verification.
 - Use an internal PDCA loop: plan the smallest change and check, implement cohesively, check tests/diff/wiring, then correct or hand off.
-- Treat an approved plan as scoped input, not proof that every requested mechanism is necessary. Implement a change only when the real production path needs it, it covers the observed failure class through an existing general boundary, the smallest meaningful behavioral check proves it, and existing Case quality stays intact.
+- Treat an approved plan as scoped input, not proof that every mechanism is necessary. Apply AGENTS.md §3 change admission.
 - Do not implement process-only hashes, frozen contracts/baselines, gates, recovery machinery, retries/fallbacks, durable state, or fake infrastructure merely to satisfy a packet or reviewer. Require direct production evidence or an explicit user requirement; otherwise shrink the change or return `BLOCKED` with the unnecessary scope identified.
 - Use a few high-information tests. For production workflows, prefer isolated real integration/end-to-end execution over large unit/mock matrices. Never add a test whose only oracle matches source, prompt, log, heading, or generated prose strings.
 - Before the first write or side effect, derive target members from the current authoritative input and confirm the packet's absolute worktree/repository root. Never hand-expand a claimed remainder or fall back to a similar source/sibling checkout.

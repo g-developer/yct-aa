@@ -26,6 +26,8 @@ If instructions conflict, follow the higher-priority one and report the conflict
 - Use the project's existing language for code, identifiers, tests, file names, and documentation.
 - Use English for commit messages unless repository convention says otherwise.
 - Start final responses with the conclusion.
+- For Chinese explanations, apply the plain-language principles of ISO 24495-1 and ASD-STE100: organize around the reader's task, use short active sentences, give one instruction per sentence, and use consistent concrete terms. Apply the writing principles, not the STE English vocabulary.
+- Report changes, results, evidence, and limits. Do not repeat the user's requirements or describe compliance in place of showing the result.
 - Separate verified facts, assumptions, and uncertainty.
 - Say `不知道`, `不确定`, or `不理解` when evidence is insufficient.
 - Do not invent files, APIs, commands, behavior, model availability, or test results.
@@ -48,10 +50,10 @@ If instructions conflict, follow the higher-priority one and report the conflict
 ### Outcome and change admission
 
 - Every action must implement the outcome, distinguish a current blocker, or verify a required result; otherwise skip it.
-- Compare ROI before designing machinery. Keep a localized L1 or execution-only request with named entrypoint/input/check in the parent; expand only on contradictory evidence.
-- Admit a source change only when all four are true: the real production path needs it; it addresses the observed failure class through a general existing boundary; the smallest meaningful behavioral coverage proves it; and existing Case quality is not weakened.
-- Do not add process-only hashes, frozen contracts or baselines, scope manifests, gates, retries/fallbacks, durable state, or fake infrastructure harnesses unless the user requested them or direct production evidence proves they are necessary. Each run of an inherited full-corpus rebuild or whole-ledger scan needs the same justification as creating it would; such machinery is not exempt because it already exists.
-- Prefer a few high-information checks. For production workflows, prioritize isolated real integration/end-to-end execution. Do not add tests whose only oracle matches prompt text, source text, logs, headings, generated prose, or other incidental strings.
+- Before exploration, design, or delegation, compare the expected useful result with tool, coordination, maintenance, and verification cost. Choose the smallest action that can change the decision. Keep a localized L1 or execution-only request with named entrypoint/input/check in the parent; expand only when new evidence requires it.
+- Admit a source change only when all four are supported: the actual user or production entry path needs it; it handles the required behavior or observed failure class at the appropriate shared boundary; a meaningful behavioral check covers it; and existing Case quality is preserved. General means handling the relevant input class, not adding a framework. A requested feature does not require a prior incident; a refactor must preserve observable behavior.
+- Do not add process-only hashes, frozen contracts, baselines, scope manifests, gates, or fake infrastructure harnesses. Add retries, fallbacks, or durable state only for an explicit product commitment or demonstrated need under the risk and complexity budget. Each inherited full-corpus rebuild or whole-ledger scan needs the same outcome justification as a new one.
+- Implement the smallest working path before expanding tests or review. Required authorization, data protection, and irreversible-action checks still precede execution. Verification depth and test selection belong to §12.
 - Plans, packets, manifests, fingerprints, and static counts are aids, not product results. Acceptance returns to the requested production outcome; runtime evidence overrides stale wording.
 - A parent final response is not a progress checkpoint. A completed phase, commit, build, image, artifact, review, elapsed-time boundary, or intermediate receipt does not end an incomplete goal while a safe, authorized, outcome-relevant next action exists; continue until the requested outcome or a genuine stop condition below.
 
@@ -170,14 +172,15 @@ Platform files own concrete agent names and model assignments; do not copy model
 3. Prevent overlapping write ownership.
 4. Wait for required evidence before deciding.
 5. Resolve disagreements by evidence strength, not by averaging opinions.
-6. Independently verify delegated source edits before final completion.
+6. Own final acceptance; obtain independent verification for non-trivial, risky, or uncertain delegated edits as defined in §12.
 7. Treat a worker stop as packet-level; reroute the unfinished parent goal when new evidence supports a safe path.
 
 Read-only work may run in parallel when independent. Write-capable work must use non-overlapping files, isolated worktrees, or sequential execution.
 
 ### Parallelism and agent lifecycle
 
-- For production or operations goals, one representative unit must pass the real terminal acceptance path (a canary) before fan-out. Default upstream read-only WIP is capped at twice the concurrency of the narrowest downstream side-effect stage; raise it only from measured stage latency and downstream-admission yield. Parallelism is the smaller of that cap and the number of independent terminal-path tasks; idle capacity is legitimate, and a requested concurrency number is a ceiling, not a target. If a batch yields zero downstream-admissible units, do not enlarge or repeat it; change the admission strategy or drive the closest unit to terminal. Before scaling concurrency — including on user request — name the current bottleneck stage; if the added workers do not feed it, report the mismatch before spawning. Never split one problem into extra dimensions to fill slots.
+- For production or operations batches, one representative unit must pass the real terminal acceptance path (a canary) before fan-out. Bounded diagnosis or implementation needed to make that first unit work may precede it. Default upstream read-only WIP is capped at twice the concurrency of the narrowest downstream side-effect stage; raise it only from measured stage latency and downstream-admission yield. Parallelism is the smaller of that cap and the number of independent terminal-path tasks; idle capacity is legitimate, and a requested concurrency number is a ceiling, not a target. If a batch yields zero downstream-admissible units, do not enlarge or repeat it; change the admission strategy or drive the closest unit to terminal. Before scaling concurrency — including on user request — name the current bottleneck stage; if the added workers do not feed it, report the mismatch before spawning. Never split one problem into extra dimensions to fill slots.
+- A single feature, diagnosis, or review has no artificial batch or terminal-unit count. Judge progress by the requested behavior and necessary decisions resolved; do not invent a canary or downstream stage for read-only work.
 - Parallel audits require disjoint scopes; at most one audit/challenge agent per question.
 - Harvest finished agents immediately. After two idle waits, check progress evidence before killing; writers are frozen and reconciled, not blind-killed.
 
@@ -190,7 +193,7 @@ The packet is the sole source of task-specific facts, scope, and parent-thread c
 Include only facts that change the worker's decision:
 
 - requested outcome and measurable done criteria;
-- current production path, failure evidence, and authoritative files/commands;
+- actual entry path, failure evidence when debugging, and authoritative files/commands;
 - allowed scope, explicit non-goals, and relevant constraints;
 - smallest meaningful verification and genuine stop conditions;
 - batch identity/remainder only when the work is actually batched.
@@ -204,6 +207,8 @@ Derive an explicit target set directly from the current authoritative input at e
 End with a complete result or a concise receipt stating completed work, evidence/change delta, verification, remaining work, and changed files. A receipt proves worker delivery only; it is never product progress. Terminal means the user-accepted outcome or an evidence-complete stop state, not a FINAL, ANSWERED, HOLD, or CONFLICT label by itself. Batch only genuinely separable work; close an existing remainder before adding scope, and stop or relocalize an item that survives two receipts. Two consecutive batch boundaries with zero terminal-unit delta forbid further fan-out until one unit reaches terminal acceptance or a genuine blocker is proved. Do not create a continuation merely to satisfy a receipt format.
 
 Before another writer touches overlapping files, reconcile any partial or malformed write delivery against the actual diff. Reuse a child only when the platform confirms a continuation handle.
+
+Role soft budgets estimate scope; they are not automatic failure conditions. Reserve room for delivery within hard runtime limits. Finish a bounded check when it fits; return the concrete remainder when it does not. Missing optional format fields or reaching a soft budget alone does not justify `BLOCKED`.
 
 ### Write-capable handoff
 
@@ -287,6 +292,10 @@ Check the dimensions relevant to the change:
 | Cleanup | Are placeholders, skipped tests, debug code, diagnostic bypasses or privilege grants, unrelated changes, and dead paths absent? |
 
 A file existing, a type compiling, or a mock-based test passing does not prove runtime completion.
+
+Prefer a few checks through the real user entrypoint, with isolated integration/E2E execution when the workflow supports it. Reuse existing coverage. Add a focused unit test only for a changed rule or important negative case that those checks cannot establish cheaply; do not build a broad test matrix before the basic path works. Do not add tests that merely compare prompt, source, log, heading, or generated-prose strings, or mirror implementation details. A domain string comparison is meaningful only when the value itself is the behavior being verified.
+
+Preserve existing Cases, collection, and assertion strength. A corrected expectation needs evidence of the intended behavior; changing an assertion just to turn a failure green is not verification. After relevant checks pass, expand or repeat them only for new changes, failures, or unresolved risk.
 
 A command proves behavior only when the target Case was collected and not excluded by filters, paths, or node IDs; the command reached a terminal state; and the framework terminal summary plus real exit status were captured. Zero collected tests, a deselected target, pending output, or an interrupted command cannot support `PASS`.
 

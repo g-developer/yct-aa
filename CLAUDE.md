@@ -6,13 +6,9 @@ This file is Claude-specific. Keep durable cross-tool engineering rules in `AGEN
 
 ## Priority
 
-1. Direct user instruction in the current session.
-2. `AGENTS.md` shared engineering contract.
-3. This `CLAUDE.md` Claude orchestration layer.
-4. `.claude/rules/*.md` path or topic rules.
-5. `.claude/agents/*.md` role contracts for spawned subagents.
-
-When these conflict, obey the more specific instruction unless it weakens safety, scope, or verification.
+Use the precedence in `AGENTS.md` §1, including system/developer instructions
+and applicable nested rules. This layer selects Claude capabilities; it does
+not create a different authority order or override a runtime no-spawn rule.
 
 ## Claude model policy
 
@@ -32,7 +28,10 @@ Use `effort` deliberately:
 - `xhigh`: hard reasoning, security, architecture, adversarial review.
 - `max`: rare; use only when explicitly justified.
 
-Do not set `CLAUDE_CODE_SUBAGENT_MODEL` globally unless intentionally overriding all subagent model choices.
+Haiku roles omit `effort`, which Haiku does not support. Model override
+precedence and `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` are defined in
+`.claude/rules/claude-model-routing.md`; do not force one model across these
+role defaults.
 
 ## Claude workflow
 
@@ -88,6 +87,9 @@ For approved L3 implementation, keep `executor-agent` on Sonnet. Add stronger-mo
 | Record confirmed status/decision deltas | `alignment-recorder-agent` |
 | Review rule/prompt quality | `semantic-review-agent` |
 | Small read-only fallback | `general-agent` |
+
+`spark-agent` is a legacy compatibility name on Claude. Use it only when
+explicitly requested; normal focused fixes use `focused-fixer-agent`.
 
 ## Browser and external sources
 

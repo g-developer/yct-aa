@@ -6,9 +6,14 @@ This is the detailed method owner for the YCT agent pack. `AGENTS.md` owns only 
 
 The objective is better decisions and evidence, not more headings. Use a method only when its trigger is present. Combining two methods is useful when they answer different questions; applying the whole catalog to every task is a routing defect.
 
-## 1. First Principles with Assumption and Invariant Ledgers
+AGENTS.md owns task triggers, change admission, and verification depth. The
+fields and tables below are prompts for necessary reasoning, not required
+files, output formats, or additional gates. Use concise prose when it carries
+the evidence; load only the method needed for the current decision.
 
-Use for ambiguous architecture, L3/L4 work, disputed fundamentals, or a plan built on uncertain premises.
+## 1. First Principles with Assumptions and Invariants
+
+Use for unresolved architecture, disputed fundamentals, a one-way L3/L4 decision, or a plan built on uncertain premises.
 
 Required output:
 
@@ -16,10 +21,10 @@ Required output:
 Goal:
 Current reality:
 Verified facts:
-Assumption ledger:
+Assumptions:
   - Assumption / Why it matters / Evidence / Confidence / How to falsify / What breaks if wrong
 Constraints:
-Invariant ledger:
+Invariants:
   - Invariant / Where enforced / How verified / Risk if broken
 Non-goals:
 Minimal solution:
@@ -77,17 +82,17 @@ Rules:
 Use internally for L1+ implementation:
 
 - Plan: goal, constraints, non-goals, minimal change, verification.
-- Do: one cohesive change; add a failing behavioral test first when practical.
+- Do: one cohesive change; reuse existing coverage or add a focused failing behavioral check when a relevant gap justifies it.
 - Check: targeted tests, diff inspection, wiring, negative path, unrelated changes.
 - Act: finalize, correct the approach, or stop with a blocker.
 
 Do not expose PDCA headings to the user unless requested. The method controls the work loop; it is not a reporting template.
 
-For behavior-preserving refactors without adequate tests, add characterization tests before restructuring. A characterization test records current observable behavior; it is not proof that the behavior is desirable.
+Before restructuring behavior that existing checks do not protect, capture it through a focused characterization or real integration check. This records current observable behavior; it does not prove that the behavior is desirable.
 
 ## 5. Pre-mortem and FMEA-lite
 
-Use before L3/L4 execution, migrations, concurrency/cache changes, and production behavior changes.
+Use before risky execution when a credible failure path needs mitigation, detection, or recovery. A risk label alone does not require a separate review stage.
 
 First ask: `Assume this shipped and caused a serious failure. What credible path produced it?`
 
@@ -298,7 +303,7 @@ Rules:
 | Role capability | Primary methods |
 |---|---|
 | Explorer / focused fixer | Hypothesis–Falsification; OODA for active incidents |
-| Planner | First Principles; MECE; ledgers; One-way/Two-way; Pre-mortem/FMEA; Risk–Complexity Budget; Expand–Migrate–Contract |
+| Planner | First Principles; MECE; assumptions/invariants; One-way/Two-way; Pre-mortem/FMEA; Risk–Complexity Budget; Expand–Migrate–Contract |
 | Plan checker | Steelman; Counterexamples; Red Team; FMEA and mechanism-admission challenge |
 | Executor | PDCA/test-first; requirement traceability; characterization; approved reliability/migration stage |
 | Code reviewer / verifier | Bidirectional Traceability; Adjacency Scan; Test Strategy Selection; finding classification |

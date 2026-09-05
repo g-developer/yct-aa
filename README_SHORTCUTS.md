@@ -1,4 +1,4 @@
-# Shortcut Layer v4.7
+# YCT Workflow Shortcuts
 
 This package reduces repeated prompt boilerplate for Claude Code and Codex.
 
@@ -42,10 +42,10 @@ $yct-fix pytest failure in tests/auth/test_refresh.py
 
 Why `$yct-aa` instead of typing the long prompt:
 
-- `$yct-aa` explicitly authorizes Codex to spawn suitable subagents.
-- The skill loads the clean-context packet, routing, and verification rules.
+- `$yct-aa` requests useful delegation within the active runtime restrictions.
+- The skill selects the next action and role; `AGENTS.md` owns shared change, packet, and verification rules.
 - It selects only task-relevant methods and passes their output contracts to the responsible agent.
-- It gives every child a bounded delivery policy: complete final result or a reusable batch receipt, never progress-only output.
+- It gives every child bounded scope and a useful result or concrete remainder; ordinary tasks do not acquire artificial batches.
 - It keeps your task prompt short while preserving the multi-agent discipline.
 - Focused fixes use the portable `focused-fixer-agent` by default; Spark is an optional known-available acceleration route.
 
