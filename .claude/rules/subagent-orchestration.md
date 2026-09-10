@@ -24,7 +24,7 @@ If the local Claude Code version or organization policy does not support a confi
 
 - Treat an empty, progress-only, tool-log-only, or malformed child result as delivery failure, not completion. Preserve the child ID, packet, and known changed-state evidence.
 - Continue the same child once only when the active runtime exposes and has confirmed a continuation handle. Agent Teams and `SendMessage` are optional capabilities, not assumptions. If continuation is unavailable, create a new bounded packet containing only the prior result and evidence delta, or return `BLOCKED` when changed state cannot be reconciled safely.
-- Treat a soft work budget as a scope estimate. Let a bounded remaining check finish within the hard runtime limit; otherwise collect the concrete remainder and resize the packet. Do not create batches merely because a soft budget elapsed.
+- Treat a role's expected size as a scope estimate. Let a bounded remaining check finish within the hard runtime limit; otherwise collect the concrete remainder and resize the packet. Do not create batches merely because the estimate was exceeded.
 - For a write-capable child with invalid delivery, pause overlapping writers, inspect the actual worktree/artifacts, and reconstruct the handoff before any further writes.
 - Do not paste large file bodies into packets; pass paths/line anchors — read-only agents
   can Read them, and packet bloat is paid on every resume.

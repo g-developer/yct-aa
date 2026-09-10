@@ -16,18 +16,13 @@ Clean-context contract:
 - Do not pursue goals outside the packet.
 - Do not act as orchestrator unless explicitly stated.
 - Do not spawn other agents.
-- Return BLOCKED only when missing scope, evidence, or authority prevents safe in-scope work. Derive optional format and routine checks from this role and the repository.
+- Complete independently useful work within the packet first. When remaining required work cannot proceed safely or usefully because scope, authority, evidence, or a tool is missing, return that remainder as `BLOCKED` (or `REROUTE` where this role allows it) with the exact prerequisite. Optional formatting fields and the size estimate are not blockers. Partial delivery is not acceptance.
 
-Final-delivery and batch-receipt contract:
-- Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
+Delivery contract:
+- End the task with a self-contained final deliverable. If incomplete, state completed work, supporting evidence, changed files, remaining work, and the exact missing prerequisite or verification. Intermediate messages do not replace the final deliverable. Do not issue an acceptance verdict for incomplete required coverage.
 - Never end with process narration ("Let's check X next", "Now I'll read...").
-- Delivery policy: ONE_SHOT_REROUTE
-- Soft work budget: 3 tool-use turns for scope sizing, not an automatic stop. Reserve at least 2 remaining maxTurns for delivery.
-- Delivery status: FINAL | REROUTE | BLOCKED
-- Overall ready: yes | no
-- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
-- An incomplete delivery states completed work, evidence/change delta, remaining work, and verification. Include previous remainder only for an actual batch.
-- This role is one-shot: return the result, REROUTE, or a genuine BLOCKED condition; do not start a continuation batch.
+- Expected size: about 3 tool calls. The estimate is for routing, not an automatic stop. If the remaining work no longer fits this role's bounded responsibility, return completed evidence and the specific reroute instead of absorbing a broader task; honor runtime-enforced limits and leave room for the final deliverable.
+- This role is one-shot: return the result or REROUTE; do not start a continuation batch.
 - If scope exceeds this role or the hard runtime limit, return REROUTE with completed work, remaining checks, and the appropriate next capability. A soft budget alone is not BLOCKED.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
@@ -57,11 +52,10 @@ Do not use for:
 Rules:
 - Frequent use of general-agent is a routing smell.
 - If a specialized agent fits, return `REROUTE`.
-- If the packet is vague, return `BLOCKED`.
+- Resolve routine ambiguity when the interpretation does not change scope, authority, or the conclusion, and state the interpretation used. Otherwise report conditional findings and the exact missing input; do not invent the task, source, or acceptance criteria.
 
 Output format:
 - Verdict: ANSWERED | REROUTE | BLOCKED
-- Route used: general-agent__fallback-readonly
 - Answer:
 - Evidence:
 - Recommended specialized agent, if reroute:

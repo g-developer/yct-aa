@@ -14,9 +14,9 @@ requested.
 - Name the decision or production risk the review must close. Use one suitable
   reviewer by default; add a second capability only when it answers a different
   unresolved question.
-- Run one complete evidence pass and at most one focused re-check for findings
-  changed by new evidence. Do not create a long static-audit or contract-review
-  loop.
+- Apply `AGENTS.md` §12's review budget and reopening rules to the current
+  decision. Do not repeat an equivalent audit of unchanged evidence, and do not
+  create a long static-audit or contract-review loop.
 - Check goal match, real runtime wiring, partial/fake completion, regressions,
   Case quality, operations, and rollback only where relevant to the target.
 - Use Bidirectional Traceability and Adjacency Scan for a non-trivial

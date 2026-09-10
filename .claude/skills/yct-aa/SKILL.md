@@ -1,6 +1,6 @@
 ---
 name: yct-aa
-description: Explicit routing for engineering work. Invoke /yct-aa to preserve the task's change, review, diagnosis, or execution scope, choose useful Claude subagents when justified, and verify the requested outcome.
+description: Route an engineering task to the smallest useful Claude agent set and drive it to the requested outcome. Invoke /yct-aa for change, review, diagnosis, or execution work.
 argument-hint: [task]
 disable-model-invocation: true
 ---
@@ -48,8 +48,14 @@ A role table does not override a higher-priority restriction.
 6. Inspect the actual delivery and diff. Use existing checks and the real
    entrypoint; retain the terminal result and exit status. Obtain independent
    static verification for non-trivial, risky, or uncertain delegated edits.
-   The parent owns final acceptance and continues within the existing authority
-   and economic stop conditions until the requested outcome is delivered.
+   The parent owns final acceptance.
+7. Drive to completion. Apply `AGENTS.md` §3: continue independent work
+   while a required clarification is pending, treat a status question as an
+   update to the active goal, and collect task-critical child results before
+   final delivery, subject to cancellation, runtime deadlines, and §13 limits.
+   After a zero-yield boundary apply §13 before any further production
+   fan-out. Report genuine blockers as §1 requires; a partial worker
+   delivery does not terminate the parent goal.
 
 ## Dispatch and recovery
 
@@ -65,8 +71,10 @@ required independence and write boundaries; stop only the work that lacks
 them. Report the failed dispatch and actual route; do not claim an unverified
 model ran.
 
-Harvest results before dependent work. Reconcile partial or malformed writer
-delivery against the actual worktree before another writer starts. Continue a
+Harvest results before dependent work. A role's expected size is a scope
+estimate, not a stop; do not relay a child's receipt labels to the user.
+Reconcile partial or malformed writer delivery against the actual worktree
+before another writer starts. Continue a
 child only with a confirmed continuation handle; do not assume Agent Teams or
 SendMessage. Do not repeat unchanged attempts or replay one-shot side effects.
 
