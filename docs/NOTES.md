@@ -145,17 +145,33 @@ See `docs/ROUTING.md` for precedence, model tiers, verification closure, and off
   three tool calls. A session that used it for a 151-call workhorse task was
   a routing defect; use `explorer-agent` or `executor-agent` for that shape.
   That subagent session (24 turn contexts, `gpt-5.6-luna`/medium) also
-  recorded `sandbox_policy = danger-full-access` and claimed to have written
-  a file, although the role declares `default_permissions = ":read-only"`.
-  Every one of the 30 sessions, including the parent interactive session
-  and all scripted exec jobs, had `danger-full-access` turns (one parent turn
-  was `workspace-write`), so the child most likely inherited the parent's
-  session-wide bypass. The cause is not
-  verified; adding the same `:read-only` line again cannot fix it. Check it
-  with an isolated test file: spawn `general-agent` from a parent that runs
-  with the default sandbox, ask it to write, and confirm the write is
-  refused. Check the effective policy after a real spawn and use an isolated
-  write probe; a verbal refusal by the model does not prove the boundary.
+  recorded `sandbox_policy = danger-full-access` and wrote a file although
+  the role declares `default_permissions = ":read-only"`. Verified
+  2026-09-10 with isolated write probes on the NAS and the Mac (CLI 0.153.4,
+  parent `codex exec` spawning a child through a `config_file` role layer,
+  child `turn_context` and tool results read from the rollout JSONL):
+  - A Codex subagent always inherits the parent's sandbox policy. Role-layer
+    `default_permissions = ":read-only"`, `sandbox_mode = "read-only"`, and
+    both together left the child's recorded policy equal to the parent's,
+    and the child's shell write succeeded under a `danger-full-access`
+    parent on both machines and under a `workspace-write` parent on the Mac.
+    The official subagent docs state the same inheritance; the config
+    reference documents `default_permissions` for sandboxed tool calls, but
+    a role layer does not make a child stricter than its parent in 0.153.4.
+  - The `:read-only` lines in the 19 Codex role files are therefore
+    documentation of intent, not an enforced boundary. The only enforced
+    boundary is the parent session's own sandbox. The real `general-agent`
+    declined verbally in four probes (REROUTE/BLOCKED without a tool call),
+    which is model behavior, not enforcement; the 151-call session shows it
+    can be talked past.
+  - On the NAS the `workspace-write` sandbox is unusable: the kernel lacks
+    user namespaces, bubblewrap fails (`bwrap: Creating new namespace
+    failed`), the parent's own `ls -la` fails, and `apply_patch` reports
+    `Failed to write file` even for a `:workspace` role. That is why every
+    NAS session runs `danger-full-access`; on the NAS no Codex role has a
+    runtime write boundary at all.
+  - Not tested: `default_permissions` at the top level of `config.toml`
+    rather than in a role layer; that does not change the subagent result.
 - Follow-ups recorded from the two-round Astra review of v4.20, not applied
   in this release. These are open items of the original configuration and
   skills review, not resolved problems:

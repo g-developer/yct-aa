@@ -1,5 +1,16 @@
 # Changelog
 
+## v4.20.1
+
+Documentation only. `docs/NOTES.md` records the verified result of the
+`general-agent` write probes (2026-09-10, CLI 0.153.4, NAS and Mac): Codex
+subagents inherit the parent's sandbox policy; role-layer
+`default_permissions = ":read-only"` and `sandbox_mode = "read-only"` do not
+make a child stricter, so the `:read-only` lines in the Codex role files are
+intent, not enforcement. The NAS `workspace-write` sandbox is unusable
+(bubblewrap cannot create user namespaces), which is why NAS sessions run
+`danger-full-access`.
+
 ## v4.20
 
 Initiative and follow-through release for GPT-6 Astra, derived from forensics
