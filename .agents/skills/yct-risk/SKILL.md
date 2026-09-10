@@ -19,9 +19,9 @@ irreversible, security-weakening, or public-contract-changing execution.
   rollback conditions.
 - L3/L4 raises the evidence bar; it does not require every planning, challenge,
   audit, or agent stage. Use `planner-agent` only when design remains unresolved
-  or execution crosses a one-way door. Use `plan-checker` once only when a
-  current decision needs adversarial challenge, with at most one focused
-  re-check for named findings.
+  or execution crosses a one-way door. Use `plan-checker` only when a
+  current decision needs adversarial challenge, applying `AGENTS.md` §12's
+  review budget and reopening rules.
 - Use `security-reviewer-agent` only when the user explicitly requests a
   security review. Do not replace ordinary trust-boundary reasoning with a
   mandatory review chain.
@@ -77,4 +77,5 @@ checks pass, the final diff is in scope, and remaining risk is stated. Report
 `BLOCKED` only under the conditions above. A completed phase, commit, build,
 image, artifact, review PASS, elapsed-time boundary, or intermediate receipt
 is not final delivery while a safe, authorized, outcome-relevant next action
-exists. The AGENTS.md economic stop conditions still apply to actual batches.
+exists. Apply `AGENTS.md` §13's batch-yield and total-cost limits; a worker
+or strategy stop does not by itself terminate the parent goal.

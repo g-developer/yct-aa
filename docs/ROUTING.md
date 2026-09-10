@@ -1,6 +1,6 @@
 # Routing Contract and Model Rationale
 
-Configuration reviewed: 2026-09-05. Model names below describe package pins,
+Configuration reviewed: 2026-09-10. Model names below describe package pins,
 not account entitlement or proof of a live delegated run.
 
 This document records design decisions. Runtime rules remain owned by:
@@ -118,12 +118,15 @@ verification required by the actual risk.
 
 ## Durable delivery and batching
 
-- Every role declares a delivery policy and soft scope estimate. Reserve a final-delivery margin within the hard runtime limit; the estimate alone does not force a stop or a new batch.
-- Evidence/planning and review roles may return bounded receipts. Review acceptance (`ACCEPT`, `PASS`, `NO_BLOCKERS`, or equivalent) is final-only and requires the declared inventory plus all prior remainder to be closed.
+- Every role states an expected size in tool calls. It is a routing estimate for the parent, not an automatic stop; when the remaining work no longer fits the role's bounded responsibility, the child returns completed evidence and the specific reroute, and leaves room for the final deliverable within runtime-enforced limits.
+- A child ends with a self-contained final deliverable: result, evidence, changed files, verification, remaining work, and the exact missing prerequisite when incomplete. Roles no longer emit receipt headers (delivery status, overall ready, route used); the parent evaluates the underlying evidence and reports outcomes to the user without copying a child's labels.
+- A child completes independently useful work first and returns the remainder as `BLOCKED` (or `REROUTE` where the role allows it) with the exact prerequisite when scope, authority, evidence, or a tool is missing. Optional fields and an exceeded estimate are not blockers; partial delivery is not acceptance, and a child blocker does not by itself terminate the parent goal.
+- Review acceptance (`ACCEPT`, `PASS`, `NO_BLOCKERS`, or equivalent) requires the declared inventory to be closed; a partial inventory is a finding list, not acceptance.
 - The executor, docs, and alignment roles may batch only non-overlapping requirement/file ownership. Focused fixer, Spark, mechanical batch, and general fallback remain one-shot and reroute when their bounded scope does not fit.
 - The runner handles one command or cohesive command family per batch and records command, exit status, key output, artifacts, and remaining commands before starting another family.
 - Empty, progress-only, tool-log-only, or malformed output never advances the parent state. A changed-state delivery failure freezes overlapping writers until the actual diff/artifacts are reconciled.
 - Same-agent continuation requires a confirmed handle. Otherwise carry the concise result and evidence delta; no separate ledger or messaging feature is assumed.
+- `AGENTS.md` §13 batch rule: a zero-yield boundary triggers diagnosis of the shared cause; two consecutive zero-yield boundaries pause further production fan-out until a representative trial shows the cause is removed. Debugging and single-feature work are exempt from the yield threshold; a user-directed rerun of independent items is still a batch, and authorization, safety, and total-cost limits apply to every task shape.
 - Static package tests validate package structure, role registration, permissions, metadata, and installation. They do not grade prompt wording or prove live model decisions.
 
 ## Portability boundaries

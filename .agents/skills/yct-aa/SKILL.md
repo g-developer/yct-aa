@@ -1,6 +1,6 @@
 ---
 name: yct-aa
-description: Explicit routing for engineering work. Invoke with $yct-aa to preserve the task's change, review, diagnosis, or execution scope, choose useful Codex subagents when justified, and verify the requested outcome.
+description: Route an engineering task to the smallest useful Codex agent set and drive it to the requested outcome. Invoke with $yct-aa for change, review, diagnosis, or execution work.
 ---
 
 # YCT Auto-agent Mode
@@ -46,8 +46,14 @@ A role table does not override a higher-priority restriction.
 6. Inspect the actual delivery and diff. Use existing checks and the real
    entrypoint; retain the command's terminal result and exit status. Get
    independent static verification for non-trivial, risky, or uncertain
-   delegated edits. The parent owns final acceptance. Continue to the requested
-   outcome within the existing authority and economic stop conditions.
+   delegated edits. The parent owns final acceptance.
+7. Drive to completion. Apply `AGENTS.md` §3: continue independent work
+   while a required clarification is pending, treat a status question as an
+   update to the active goal, and collect task-critical child results before
+   final delivery, subject to cancellation, runtime deadlines, and §13 limits.
+   After a zero-yield boundary apply §13 before any further production
+   fan-out. Report genuine blockers as §1 requires; a partial worker
+   delivery does not terminate the parent goal.
 
 ## Select a role
 
@@ -108,9 +114,10 @@ not proof of the model that ran.
 
 Harvest a child's result before assigning dependent work. Partial or malformed
 writer delivery requires worktree reconciliation before another writer starts.
-A soft work budget calls for sizing or a concise remainder, not a false
-`BLOCKED` or a new batch ritual. Do not repeat unchanged failed attempts or
-replay one-shot side effects.
+A role's expected size is a scope estimate, not a stop; a child that runs
+over it delivers the result or a concise remainder, never a false `BLOCKED`.
+Do not relay a child's receipt labels to the user; report outcomes. Do not
+repeat unchanged failed attempts or replay one-shot side effects.
 
 Finish with the result, changed files, meaningful verification, and remaining
 limits. Do not repeat this workflow or the user's requirements in the answer.

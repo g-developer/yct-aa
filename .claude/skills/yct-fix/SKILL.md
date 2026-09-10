@@ -30,8 +30,10 @@ $ARGUMENTS
    non-trivial, risky, or has uncertain wiring.
 
 A focused worker's `BLOCKED`, reroute, or three-attempt stop ends only that
-packet. Preserve its evidence and continue the parent goal through a new safe
-route when one exists; never repeat the unchanged attempt.
+packet. Preserve its evidence and continue the parent goal in the same turn
+through a new route that is supported by the evidence and within the
+authorized scope and cost; never repeat the unchanged attempt, and do not hand
+the remainder back to the user while such a route exists.
 
 Use `/yct-risk` safety discipline for auth, data/security boundaries,
 migrations, concurrency, public APIs, irreversible actions, or production

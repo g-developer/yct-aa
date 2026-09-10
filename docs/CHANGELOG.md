@@ -1,5 +1,125 @@
 # Changelog
 
+## v4.20
+
+Initiative and follow-through release for GPT-6 Astra, derived from forensics
+of the 30 most recent NAS Codex sessions (2026-09-06..09; main session
+`01a06e89`, 79 turns, 4,739 tool calls, MusicTagWeb batch reruns) read against
+the Astra guide (bias toward action and completion; complete authorized work
+before asking; audit older-model "ask first / stop" scaffolding; name and
+quote the skill instruction that caused a pause) and pvncher's Astra skill
+notes (stable facts in AGENTS.md, completion criteria, risk by tools not
+prompts). Observed failure chain: §13's "two zero-delta boundaries override
+every continue clause" fired on a debug loop and on user-authorized batches,
+ending goals with 445 items unstarted ("触发你提供的 AGENTS.md 停批条件"); the
+parent ended turns with a progress note while its own children ran, so the
+user had to type "继续"; the parent sampled slow items instead of measuring the whole batch
+("此前我只分析了部分慢样本"), consistent with §11's read-once rule and the
+one-pass review budget although the transcript does not record the rule
+being cited; role receipt headers (Delivery status / Overall
+ready / Route used) appear in the supplied digests, although whether they
+were emitted as parent final responses remains unverified; `general-agent` ran a
+151-call task against a 3-call estimate.
+
+- AGENTS.md §1: precedence item 1 now names system and developer
+  instructions. Direct user instructions outrank this contract and skill or
+  role guidance within file-based guidance, but not `developer_instructions`
+  or enforced permissions; the parent routes authorized work to a suitable
+  role. A file rule that blocks authorized work must be named, linked, and
+  quoted, separated from the model's interpretation. §13/§15 refer to §1
+  instead of repeating the quote duty.
+- AGENTS.md §3, new "Initiative and follow-through": treat `帮我/你去/能不能/
+  我想要` as instructions; ask for missing information when a dependent
+  decision needs it and continue independent authorized work in the same
+  turn; check whether authorization is already established before asking
+  again; collect task-critical child results before final delivery, subject
+  to cancellation, runtime deadlines, and §13 limits; finish everything
+  independent of an external blocker before reporting it (repeated probes of
+  the same dependency are not independent work); status questions and
+  corrections are updates to the active goal, not cancellation. "Smallest
+  action" now means no wasted steps, not shallow: measure the whole input
+  once when the decision depends on the whole.
+- AGENTS.md §13: the batch rule is decidable again. A zero-yield boundary
+  triggers diagnosis of the shared cause; two consecutive zero-yield
+  boundaries pause further production fan-out; bounded diagnosis, repair, or
+  one representative trial continues, and fan-out resumes only when the trial
+  shows the cause removed. A renamed strategy, smaller packet, or new agent
+  is not evidence. Debugging and single-feature work are exempt from the
+  yield threshold; a user-directed rerun of independent items is still a
+  batch, and authorization, safety, and total-cost limits apply to every
+  task shape. Three failures exhaust only the unchanged attempt; continue
+  through a different approach when evidence supports a specific explanation
+  and a discriminating check. The cost-projection stop reports and asks
+  instead of ending. The duplicate two-boundary rule in §9 and the
+  yield-gated continue paragraph are removed; §3 owns continuation.
+- AGENTS.md §2/§4/§8/§9/§11/§12: progress notes only at decision points, and
+  never as a substitute for continuing; batch calibration report is not a
+  waiting point; WIP-cap formula replaced by bottleneck naming plus an
+  explicit "do not increase fan-out when added workers do not feed the
+  bottleneck"; workers complete independently useful work first and return
+  the remainder as `BLOCKED`/`REROUTE` with the exact prerequisite (partial
+  delivery is not acceptance, and a worker blocker does not end the parent
+  goal); a receipt label alone is not evidence, the parent judges the
+  underlying evidence and reports outcomes without copying delivery headers;
+  evidence-insufficient dispositions are reported separately from successful
+  units; §11 evidence reuse is bounded by validity of inputs, code,
+  environment, and acceptance criteria instead of receipt integrity, and
+  whole-input measurement is allowed; §12 review budget applies to one
+  decision with unchanged evidence, and new requirements, source changes,
+  test results, or concrete counterexamples may reopen a conclusion.
+- All 19 Codex role TOMLs and 18 Claude agent files: receipt ritual removed
+  (delivery status, overall ready, acceptance-verdict line, delivery policy,
+  route used); "Soft work budget: N tool-use turns" became "Expected size:
+  about N tool calls", a routing estimate rather than an automatic stop, with
+  a reroute when the remaining work no longer fits the role; the final
+  deliverable is self-contained (completed work, evidence, changed files,
+  remaining work, exact missing prerequisite) and no acceptance verdict is
+  issued for incomplete required coverage; unified `BLOCKED` semantics as in
+  §9. Verdict enums gain `PARTIAL` for implementation roles, `REJECT` and
+  `NEEDS_INFO` for plan-checker, and `REROUTE` for verify-agent (workspace
+  writes reroute to the runner instead of blocking). Role-specific: executor
+  derives routine checks but not product policy, completes an in-scope change
+  only when it is independently coherent, and returns a tradeoff instead of
+  silently shrinking requested behavior; general-agent resolves only routine
+  ambiguity that does not change scope, authority, or conclusion; plan-checker
+  and security reviewer distinguish inability to complete a review from a
+  blocking finding and withhold acceptance for unreviewed required scope;
+  focused-fixer reports the three strategies tried. Runner/batch boundary
+  `BLOCKED`s (unavailable services, judgement-heavy work) are unchanged.
+- `yct-aa` twins: new step 7 "Drive to completion" (apply §3: continue
+  independent work while clarification is pending, status question is a goal
+  update, collect child results subject to cancellation and §13, apply §13
+  before further fan-out after zero yield, report blockers per §1); sharper
+  descriptions; expected-size wording; no receipt-label relay. `yct-fix`
+  continues through a route supported by the evidence and within authorized
+  scope and cost; `yct-risk` applies §13's batch-yield and total-cost limits;
+  `yct-direct` completes only work independent of a prohibited verification
+  and never executes a dependent action before a required pre-execution
+  check.
+- docs/ROUTING.md durable-delivery section, README bounded-delivery
+  paragraph, and `.claude/rules/subagent-orchestration.md` updated to the
+  expected-size, deliverable, `BLOCKED`, and batch-rule semantics;
+  docs/NOTES.md gains an Astra calibration section (literal instruction
+  following, effort as a tuning experiment with the recorded model/effort
+  mix, exec-job context size, general-agent misuse and its unexplained
+  `danger-full-access` sandbox).
+- Review: the whole change set was reviewed by GPT-6 Astra (`codex exec`,
+  reasoning effort max) in two rounds; its accepted edits are the §1/§3/§8/
+  §9/§11/§12/§13 wording above, the role `BLOCKED`/deliverable/size lines,
+  the model-attribution correction, and the round-2 fixes (clarification
+  exception phrased by runtime capability, verify-agent mission/REROUTE
+  consistency, Codex semantic-review `BLOCKED` verdict, `yct-review` and
+  `yct-risk` deferring to §12's review budget and reopening rules, and the
+  digest-based claims in docs marked as unverified where the channel was not
+  preserved). Not applied: removing the §7 method table and §8 capability
+  map (no evidence they cause stops), `unbounded_connection_retries = false`
+  (503 path unverified), narrowing Mac workspace roots and runner
+  permissions, and the two behavioral E2E scenarios the review requires
+  (recorded as open follow-ups in docs/NOTES.md).
+- Installed configs (not in the package): NAS yct `model_reasoning_effort`
+  medium -> high as a tuning experiment; stale `[projects]` trust entries for
+  missing directories removed on Mac and NAS with backups.
+
 ## v4.19
 
 - Moved Codex planner, plan checker, deep investigator, and explicitly requested

@@ -17,16 +17,12 @@ Clean-context contract:
 - Do not pursue goals outside the packet.
 - Do not act as orchestrator unless explicitly stated.
 - Do not spawn other agents.
-- Return `BLOCKED` only when the packet lacks the unresolved decision, relevant instruction scope, or evidence needed to judge it.
+- Complete independently useful work within the packet first. When remaining required work cannot proceed safely or usefully because scope, authority, evidence, or a tool is missing, return that remainder as `BLOCKED` (or `REROUTE` where this role allows it) with the exact prerequisite. Optional formatting fields and the size estimate are not blockers. Partial delivery is not acceptance.
 
-Final-delivery and batch-receipt contract:
-- Your FINAL message is the only thing returned to the parent; it must be a complete final deliverable or the structured AGENTS.md batch receipt, never a progress note.
+Delivery contract:
+- End the task with a self-contained final deliverable. If incomplete, state completed work, supporting evidence, changed files, remaining work, and the exact missing prerequisite or verification. Intermediate messages do not replace the final deliverable. Do not issue an acceptance verdict for incomplete required coverage.
 - Never end with process narration ("Let's check X next", "Now I'll read...").
-- Delivery policy: ONE_SHOT_REROUTE
-- Soft work budget: 6 tool-use turns for scope sizing, not an automatic stop. Reserve at least 2 remaining maxTurns for delivery.
-- Delivery status: FINAL | REROUTE | BLOCKED
-- Overall ready: yes | no
-- Acceptance verdicts require complete evidence and Overall ready: yes. REROUTE and BLOCKED report delivery limits; they are not acceptance verdicts.
+- Expected size: about 6 tool calls. The estimate is for routing, not an automatic stop. If the remaining work no longer fits this role's bounded responsibility, return completed evidence and the specific reroute instead of absorbing a broader task; honor runtime-enforced limits and leave room for the final deliverable.
 - Keep the returned report lean: tables and file:line anchors over pasted file bodies; no repetition of packet text.
 
 ---
@@ -60,7 +56,6 @@ Review dimensions:
 
 Output format:
 - Verdict: GOOD | NEEDS_CHANGES | BLOCKED
-- Route used: semantic-review-agent__instruction-system-review
 - Highest-impact fixes:
 - Conflicts or duplicates:
 - Missing boundaries:

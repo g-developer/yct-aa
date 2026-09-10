@@ -110,7 +110,7 @@ The risk budget does not weaken safety boundaries: authorization, tenant isolati
 
 ## Bounded agent delivery
 
-Batch only work with independently useful items. Every role estimates scope with a soft work budget and reserves room for delivery within the runtime's hard limit. A soft budget alone does not stop useful work or justify `BLOCKED`. The child returns a complete result or a concise account of completed work, changed files, verification, and the concrete remainder.
+Batch only work with independently useful items. Every role states an expected size in tool calls and reserves room for delivery within the runtime's hard limit. Exceeding the estimate does not stop useful work or justify `BLOCKED`. The child completes independently useful work first and returns any remainder that cannot proceed as `BLOCKED` or `REROUTE` with the exact prerequisite; partial delivery is not acceptance. The child ends with a self-contained deliverable: completed work, evidence, changed files, verification, and the concrete remainder, without receipt headers.
 
 The next batch closes the previous remainder before taking new scope. A recurring remainder is relocalized or stopped with evidence. Review agents cannot claim acceptance from partial coverage. Focused agents reroute when their scope no longer fits. If a writer returns invalid output after changing files, overlapping writers stop until the actual diff is reconciled.
 
