@@ -269,6 +269,34 @@ Owner and review/expiry condition:
 
 Do not turn every bug into governance work. Trigger double-loop learning only with recurrence or clear systemic evidence.
 
+### Correcting task drift
+
+Use this only when work diverges from the goal, repeats without useful evidence,
+adds unsupported design, or claims completion without the required result.
+A long task by itself is not a trigger.
+
+1. Recover the current target from the original request, later authorized
+   changes and acceptance criteria. Preserve verified work whose inputs remain
+   valid; do not restart because an old handoff is incomplete.
+2. Compare task-relevant changes since the previous checkpoint. A live process,
+   existing diff or new status message alone is not progress. A normal long
+   operation may be progressing before it yields final acceptance evidence.
+3. Check goal alignment and value for effort. Reconcile concrete findings in
+   one place; prune unsupported scope and choose the smallest useful remaining
+   outcome. Use an independent reviewer only for a question that needs it.
+4. Preserve partial work. Reuse a suitable child only with a confirmed handle
+   and explicit worktree; otherwise pass recovered evidence to a new packet.
+   Stop redundant attempts, not independent work that still advances the goal.
+5. At completion, use AGENTS.md §12 cumulative-change acceptance. At a real
+   handoff, update the existing record with surprises, changed decisions and
+   reasons, unresolved judgments, deferred work and evidence pointers. Honor
+   cancellation and hard runtime limits; never claim missing work completed.
+
+References: [long-task-control](https://github.com/patrick-fu/awesome-skills/tree/084bb57bccfe108fd39c9bf714fe25b7f7de426f/long-task-control)
+and its [design article](https://my.feishu.cn/wiki/DTviwlUiLiEd1YkjI0ecOBO0nWd).
+Adapt the decision principles, not the default dual-review topology or a rule
+that stops merely because a running operation has no final result yet.
+
 ## 15. Risk–Complexity Budget and Observability-First Reliability
 
 Use when a plan, fix, or review proposes new retries/fallbacks, durable state, recovery workers, leases/heartbeats, cache-consistency behavior, ACKs, tables/fields, or other runtime protocol machinery. The objective is the smallest mechanism that satisfies current product promises, not theoretical completeness.

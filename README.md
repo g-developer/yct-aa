@@ -1,6 +1,6 @@
 # YCT Agent System Pack
 
-This package installs a merge-safe user-level agent system for Claude Code and Codex.
+This package installs a merge-safe user-level agent system for Claude Code, Codex, and TraeX.
 
 ## Daily usage
 
@@ -61,7 +61,60 @@ Install only one side:
 ```bash
 ./install.sh --claude-only
 ./install.sh --codex-only
+./install.sh --traex-only --dry-run
+./install.sh --traex-only
 ```
+
+For an existing hand-copied TraeX installation, review the preview and use
+`./install.sh --traex-only --replace-conflicts --dry-run`, then the same command
+without `--dry-run`. This backs up old YCT import blocks, roles and duplicate YCT
+shortcut directories outside discovery before replacing them. Unrelated skills,
+model defaults, authentication and MCP settings are preserved.
+Each canonical YCT shortcut directory is managed as one asset: obsolete files
+inside it are backed up with the directory before replacement. Put custom
+skills outside those directories. System path aliases are supported, but the
+resolved install, shared-skill and backup roots must not overlap.
+Legacy standalone rule files are not removed based on their names or text.
+After reviewing a specific old YCT file, select it explicitly with
+`uv run --no-project python scripts/install_traex.py --replace-conflicts --retire-legacy rules/subagent-orchestration.md --dry-run`,
+then remove `--dry-run` to retire that file after backup.
+
+TraeX guidance is embedded in `$TRAE_HOME/AGENTS.md` (or the existing override),
+with a sufficient top-level `project_doc_max_bytes`; Claude `@` imports are not
+used. Roles are rendered from `.codex/agents/*.toml`, so fixes to shared role
+contracts reach TraeX without a second hand-maintained copy. Model names are
+mapped explicitly, with Spark roles using their existing portable substitutes.
+TraeX shortcuts link to the same `~/.agents/skills/yct-*` directories used by
+Codex. Open a new session after installing; a running session keeps its snapshot.
+
+Validate through the actual installed TraeX entrypoint:
+
+```bash
+uv run --no-project python tests/test_traex_install.py -v
+uv run --no-project python tests/verify_traex.py --trae-home "$HOME/.trae" --output /absolute/new-evidence-dir --model GPT-5.6-Terra
+```
+
+The live check runs bounded local tasks and uses real subagents for ordered
+commands and worktree switching. It checks terminal events, artifacts, protected
+source preservation, partial blocking, zero-yield recovery, and reuse of an existing generator and
+format validator. The output directory must be new to avoid replaying one-shot
+actions. A model timeout is a failed run, never a pass. Model availability is an
+account/runtime fact; `--model` selects the parent for this test only.
+Command evidence is retained for review without prescribing a shell spelling
+or tool-call count. A loop or a safe wrapper may be appropriate. The tests
+check delivered behavior; they are not a benchmark of general planning ability.
+`checks_passed` reports automated checks only. Inspect `command-evidence.json`
+and the final answer for correct execution scope and accurate claims before
+accepting the workflow. Copied parent history is excluded from command evidence.
+Role scopes describe permitted work; TraeX roles inherit the host permission
+boundary. The installer does not grant broader filesystem or network access.
+
+Backups contain `install.json` with exact changed paths and their originals.
+To recover, stop using that installation, restore the listed originals from
+the backup, and remove only newly created listed files/links after checking
+they have not since been edited. Restore parent directory backups as units;
+do not copy through a current symlink. Keep the backup until fresh sessions
+pass acceptance.
 
 Default targets:
 

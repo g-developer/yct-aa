@@ -1,6 +1,6 @@
 ---
 name: yct-aa
-description: Route an engineering task to the smallest useful Codex agent set and drive it to the requested outcome. Invoke with $yct-aa for change, review, diagnosis, or execution work.
+description: Route an engineering task to the smallest useful agent set and drive it to the requested outcome. Invoke with $yct-aa or /yct-aa for change, review, diagnosis, or execution work.
 ---
 
 # YCT Auto-agent Mode
@@ -9,9 +9,10 @@ Use the task supplied with the invocation and later user corrections.
 
 Follow the applicable `AGENTS.md` for change admission (§3), risk (§4–7),
 delegation and delivery (§8–9), verification (§12), and stopping (§13).
-Use the active Codex role registrations and their agent TOML files. A user-level
-installation keeps these under the Codex configuration directory; do not assume
-every target repository has its own `.codex/agents` directory.
+Use the roles exposed by the current runtime. Codex loads registered agent TOML
+files; TraeX loads its installed Markdown roles and TRAEX.yct.md platform layer.
+Use paths from that runtime, not a guessed file in the business worktree. Shared
+guidance already injected into the conversation does not need another file read.
 
 Invoking this mode requests useful delegation where the runtime permits it.
 Mentioning, reviewing, or editing the skill alone is not a request to spawn.
@@ -32,7 +33,8 @@ A role table does not override a higher-priority restriction.
    a discriminating check; a feature needs its intended entry path and
    observable behavior. Do not demand incident evidence for new functionality.
    Once the cause or edit boundary is clear, implement the smallest working
-   path. Choose only methods triggered by that uncertainty or risk.
+   path. On evidenced drift or repeated waste, use the task-drift guidance in
+   METHODS.yct.md; task duration alone does not trigger it.
 4. Select roles by the question below. Planning and challenge are conditional
    on unresolved design or irreversible risk. A production batch follows the
    canary and concurrency rules in `AGENTS.md`; those rules do not prevent
@@ -40,13 +42,17 @@ A role table does not override a higher-priority restriction.
 5. Give each child a self-contained packet: outcome, absolute worktree,
    allowed files/actions, relevant evidence, preserved behavior, and the
    smallest meaningful check. Read the selected role, not the entire catalog.
+   Repeat the full absolute worktree on follow-ups and reused children.
    Pass `fork_turns: "none"` explicitly. Use a few recent turns only for a
    named dependency that cannot be restated; never use or omit into `"all"`.
    Tell writers they share the worktree and must preserve others' edits.
+   For user-facing writing, include: 按照 ISO 24495-1 和 ASD-STE100 的规则，但使用中文来描述。
 6. Inspect the actual delivery and diff. Use existing checks and the real
    entrypoint; retain the command's terminal result and exit status. Get
    independent static verification for non-trivial, risky, or uncertain
-   delegated edits. The parent owns final acceptance.
+   delegated edits. An empty or future-tense child final is unfinished work;
+   correct the packet or continue the task before accepting it. The parent
+   owns final acceptance.
 7. Drive to completion. Apply `AGENTS.md` §3: continue independent work
    while a required clarification is pending, treat a status question as an
    update to the active goal, and collect task-critical child results before
