@@ -196,6 +196,8 @@ Read-only work may run in parallel when independent. Write-capable work must use
 - A single feature, diagnosis, or review has no artificial batch or terminal-unit count. Judge progress by the requested behavior and necessary decisions resolved; do not invent a canary or downstream stage for read-only work.
 - Parallel audits require disjoint scopes; at most one audit/challenge agent per question.
 - Distinguish liveness, progress and completion. A running process or existing dirty diff proves presence; progress needs a task-relevant change or checkpoint since the previous observation. Silence alone proves no failure. Check at the operation's expected checkpoint; avoid narration requests and unchanged status polls. Reconcile writes before interruption. Collect finite jobs to terminal results and close owned idle sessions before adding work at capacity.
+- Consume a completed child's result at the next decision point. Keep its handle only for a concrete remaining follow-up; otherwise retire it from scheduling. After reconciling its writes and owned finite jobs, use a real close/shutdown capability when exposed. Confirm release once when it matters to admission; do not keep polling completed children or retain them for hypothetical reuse.
+- Result completion, concurrency-slot availability, in-memory unloading and history visibility are different states. If the runtime exposes no close capability, stop scheduling/polling that child and disclose that unloading is runtime-managed. Interrupting a turn or archiving/deleting history is not proof of resource release.
 
 ---
 

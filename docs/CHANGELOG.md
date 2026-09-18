@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Clarified completed-child lifecycle: consume terminal results promptly, retain
+  handles only for concrete follow-ups, and close only through a real runtime
+  capability. Distinguished concurrency admission, memory unloading and history
+  visibility; interrupt and archive are not resource-release substitutes.
+
 ## v4.21
 
 - Added the explicit TraeX installation path, rendering Markdown roles from

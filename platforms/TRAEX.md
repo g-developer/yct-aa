@@ -28,6 +28,12 @@ Do not start extra agents or shell sessions just to fill capacity. When a
 finite process is still running, collect its terminal output. If capacity is
 exhausted, reconcile owned work before admission; never kill another session's
 processes by name. A status question does not cancel the active goal.
+After consuming a completed child, retain it only for an identified follow-up.
+Use a close/shutdown tool only if this runtime exposes one; interrupt_agent
+stops a turn and leaves the child available, so it is not a close substitute.
+A completed entry in list_agents does not by itself prove slot or process
+retention. When no close tool exists, rely on runtime admission/cleanup and
+report that boundary instead of deleting session history or repeatedly polling.
 
 The parent validates the requested artifact and behavior, not a worker's
 receipt label. A local diagnostic run cannot satisfy an acceptance criterion

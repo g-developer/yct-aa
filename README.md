@@ -103,6 +103,11 @@ account/runtime fact; `--model` selects the parent for this test only.
 Command evidence is retained for review without prescribing a shell spelling
 or tool-call count. A loop or a safe wrapper may be appropriate. The tests
 check delivered behavior; they are not a benchmark of general planning ability.
+The `--case capacity` scenario limits TraeX to two concurrent threads including
+the parent, then starts two different child tasks in sequence. It checks new
+admission after completion; it does not prove immediate memory unloading. A
+completed child may remain visible for reuse. Use a real close/shutdown tool
+when available; interrupting or deleting history is not resource cleanup.
 `checks_passed` reports automated checks only. Inspect `command-evidence.json`
 and the final answer for correct execution scope and accurate claims before
 accepting the workflow. Copied parent history is excluded from command evidence.

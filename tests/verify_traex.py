@@ -95,6 +95,15 @@ def cases(root: Path) -> dict[str, tuple[Path, str, list[tuple[Path, str]]]]:
                        '然后以 one 作代表性验证；通过后完成剩余单元。不得改 Python 源码，'
                        '不需要额外批准，不要重复已成功单元。最终检查三个 .done 与 attempts.txt。')
 
+    capacity = root/'capacity'
+    write(capacity/'mark.sh', NL.join([
+        '#!/bin/sh', 'set -eu', 'test "$1" = first || test "$1" = second',
+        'test ! -e "$1.done"', 'printf "%s" "$1" > "$1.done"', '']))
+    capacity_prompt = (f'/yct-aa 在 {capacity} 依次派发两个不同的 verify-runner-agent。'
+                       '第一个运行 sh mark.sh first，收取终态结果后，新建第二个运行 sh mark.sh second；不要复用第一个。'
+                       '总并发上限为2，包含主线程。按当前生命周期能力处理已完成代理，不得提高并发或删除历史。'
+                       '不要修改 mark.sh。核对两个产物，报告第二次派发是否成功以及仍存在的回收限制。')
+
     return {
         'ordered': (ordered, ordered_prompt, [(ordered/'results'/f'{i}.ok', str(i)) for i in range(1,10)]),
         'worktree': (decoy, worktree_prompt, [(a/'checked.txt','alpha'),(b/'checked.txt','beta'),
@@ -102,6 +111,7 @@ def cases(root: Path) -> dict[str, tuple[Path, str, list[tuple[Path, str]]]]:
         'partial': (partial, partial_prompt, [(partial/'total.txt','12')]),
         'reuse': (reuse, reuse_prompt, []),
         "recovery": (recovery, recovery_prompt, [(recovery/(name+".done"), "accepted") for name in ("one", "two", "three")]),
+        "capacity": (capacity, capacity_prompt, [(capacity/"first.done", "first"), (capacity/"second.done", "second")]),
     }
 
 
@@ -159,11 +169,15 @@ def run(cli: str, model: str | None, case: str, cwd: Path, prompt: str,
         protected += [cwd/"DESIGN.md", cwd/"verify.py"]
     if case == "recovery":
         protected += [cwd/"run_unit.py", cwd/"repair.py"]
+    if case == "capacity":
+        protected += [cwd/"mark.sh"]
     originals = {path: path.read_bytes() for path in protected}
     command = [cli, 'exec', '--json', '--skip-git-repo-check', '-C', str(cwd),
                '-o', str(result_dir/'final.txt')]
     if model:
         command += ['-m', model, '-c', 'model_reasoning_effort="medium"']
+    if case == "capacity":
+        command += ["-c", "features.multi_agent_v2.max_concurrent_threads_per_session=2"]
     command += ['-']
     started = time.monotonic()
     with (result_dir/'events.jsonl').open('w') as out, (result_dir/'stderr.txt').open('w') as err:
@@ -199,6 +213,11 @@ def run(cli: str, model: str | None, case: str, cwd: Path, prompt: str,
     delegated = case not in ("ordered", "worktree") or any(
         event.get("type") == "item.completed" and event.get("item", {}).get("tool") == "spawn_agent"
         and event["item"].get("receiver_thread_ids") for event in events)
+    if case == "capacity":
+        child_ids = {sid for event in events if event.get("type") == "item.completed"
+                     and event.get("item", {}).get("tool") == "spawn_agent"
+                     for sid in event["item"].get("receiver_thread_ids", [])}
+        delegated = len(child_ids) == 2
     callback_check = None
     commands = runtime_commands(events, trae_home)
     write(result_dir/"command-evidence.json", json.dumps(commands, indent=2) + NL)
@@ -226,7 +245,7 @@ def main() -> int:
     parser.add_argument('--cli', default='traex')
     parser.add_argument('--model')
     parser.add_argument("--trae-home", type=Path, required=True)
-    parser.add_argument('--case', choices=('ordered','worktree','partial','reuse','recovery','all'), default='all')
+    parser.add_argument('--case', choices=('ordered','worktree','partial','reuse','recovery','capacity','all'), default='all')
     parser.add_argument('--timeout', type=int, default=600)
     args = parser.parse_args()
     trae_home = args.trae_home.absolute()
