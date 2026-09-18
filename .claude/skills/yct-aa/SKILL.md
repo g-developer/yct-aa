@@ -32,8 +32,8 @@ A role table does not override a higher-priority restriction.
 3. Explore a named uncertainty using existing evidence first. Debugging needs
    a discriminating check; a feature needs its entry path and observable
    behavior, not a prior incident. Once the cause or edit boundary is clear,
-   implement the smallest working path. Select only methods triggered by the
-   current uncertainty or risk.
+   implement the smallest working path. On evidenced drift or repeated waste,
+   use the task-drift guidance in METHODS.yct.md; duration alone is no trigger.
 4. Choose roles from `CLAUDE.md`. Planning and challenge depend on unresolved
    design or irreversible risk. Use `verify-agent` for completion and wiring,
    `code-reviewer-agent` for correctness findings; do not duplicate the same
@@ -45,6 +45,7 @@ A role table does not override a higher-priority restriction.
    smallest meaningful check. Read only the selected role. Spawn with fresh
    context; restate required facts instead of inheriting parent history.
    Tell writers they share the worktree and must preserve others' edits.
+   For user-facing writing, include: 按照 ISO 24495-1 和 ASD-STE100 的规则，但使用中文来描述。
 6. Inspect the actual delivery and diff. Use existing checks and the real
    entrypoint; retain the terminal result and exit status. Obtain independent
    static verification for non-trivial, risky, or uncertain delegated edits.

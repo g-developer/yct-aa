@@ -1,6 +1,6 @@
 # MANIFEST
 
-Package: agent-system-pack-v4.20-yct-methods
+Package: agent-system-pack-v4.21-yct-methods
 Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, agents, rules, and shortcut skills with merge-safe macOS/Linux installer.
 
 ## Install policy
@@ -88,3 +88,7 @@ Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, a
 - docs/CLEAN_CONTEXT_AUDIT.md
 - tests/verify_deploy.sh
 - tests/verify_pack.sh
+- platforms/TRAEX.md
+- scripts/install_traex.py
+- tests/test_traex_install.py
+- tests/verify_traex.py

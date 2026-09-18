@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.21
+
+- Added the explicit TraeX installation path, rendering Markdown roles from
+  current shared contracts and linking shortcuts to one canonical source.
+- Replaced legacy Claude imports with inline TraeX guidance, preserved user
+  config, and added reviewed backup migration for duplicate YCT discovery
+  entries. Added installation and real `traex exec` behavioral checks.
+- Tightened absolute-worktree packets on follow-up, recurring-design reuse,
+  incomplete child acceptance, and owned command-session collection based on
+  the 2026-09-16 devbox session audit.
+- Added conditional drift correction, observable-progress distinctions and
+  cumulative-change acceptance to the existing shared method guidance. Made
+  Chinese plain-language output explicit and removed exact shell-spelling
+  tests and artificial tool-call counts from live workflow checks.
+- Fixed physical install-root overlap, stale managed skill resources and
+  quoted TOML document-limit keys. Excluded inherited parent execution from
+  native command evidence and distinguished automated checks from acceptance.
+
 ## v4.20.1
 
 Documentation only. `docs/NOTES.md` records the verified result of the
