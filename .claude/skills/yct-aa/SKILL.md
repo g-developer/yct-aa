@@ -72,7 +72,8 @@ required independence and write boundaries; stop only the work that lacks
 them. Report the failed dispatch and actual route; do not claim an unverified
 model ran.
 
-Harvest results before dependent work. A role's expected size is a scope
+Harvest completed results promptly and apply AGENTS.md §8 lifecycle closure
+before new admission or final delivery. A role's expected size is a scope
 estimate, not a stop; do not relay a child's receipt labels to the user.
 Reconcile partial or malformed writer delivery against the actual worktree
 before another writer starts. Continue a

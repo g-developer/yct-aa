@@ -118,7 +118,9 @@ independence and write boundaries; stop only the work that lacks them.
 Report a failed dispatch and the route actually used. A requested model is
 not proof of the model that ran.
 
-Harvest a child's result before assigning dependent work. Partial or malformed
+Harvest a completed child's result promptly and apply AGENTS.md §8 lifecycle
+closure before new admission or final delivery; preserve a handle only for a
+concrete follow-up. Partial or malformed
 writer delivery requires worktree reconciliation before another writer starts.
 A role's expected size is a scope estimate, not a stop; a child that runs
 over it delivers the result or a concise remainder, never a false `BLOCKED`.
