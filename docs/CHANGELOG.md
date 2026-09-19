@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Preserve installed TraeX model/effort overrides and default new roles to
+  inherit. Clarify task-local undo in dirty worktrees, closed-transport
+  recovery boundaries, and same-execution evidence for historical claims.
+
 - Clarified completed-child lifecycle: consume terminal results promptly, retain
   handles only for concrete follow-ups, and close only through a real runtime
   capability. Distinguished concurrency admission, memory unloading and history

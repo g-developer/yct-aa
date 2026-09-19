@@ -82,8 +82,10 @@ then remove `--dry-run` to retire that file after backup.
 TraeX guidance is embedded in `$TRAE_HOME/AGENTS.md` (or the existing override),
 with a sufficient top-level `project_doc_max_bytes`; Claude `@` imports are not
 used. Roles are rendered from `.codex/agents/*.toml`, so fixes to shared role
-contracts reach TraeX without a second hand-maintained copy. Model names are
-mapped explicitly, with Spark roles using their existing portable substitutes.
+contracts reach TraeX without a second hand-maintained copy. New roles use
+`model: inherit`; upgrades preserve each installed role's model and effort
+settings. This includes user overrides and avoids reintroducing unavailable
+model pins. The Codex role models are unchanged.
 TraeX shortcuts link to the same `~/.agents/skills/yct-*` directories used by
 Codex. Open a new session after installing; a running session keeps its snapshot.
 

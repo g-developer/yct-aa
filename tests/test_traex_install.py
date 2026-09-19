@@ -59,6 +59,38 @@ class TraeXInstallTest(unittest.TestCase):
         expected.pop("project_doc_max_bytes")
         self.assertEqual(actual, expected)
 
+    def test_role_upgrade_preserves_local_model_and_effort(self):
+        role = self.home/"agents/executor-agent.md"
+        role.parent.mkdir()
+        for model in ("inherit", "GPT-5.6-Terra"):
+            role.write_text(NL.join(["---", "name: executor-agent", f"model: {model}",
+                                     "effort: low", "---", "old instructions",
+                                     "model: body-only-value", "effort: xhigh"]))
+            result = self.run_install()
+            self.assertEqual(result.returncode, 0, result.stderr)
+            header = role.read_text().split("---", 2)[1]
+            settings = dict(line.split(": ", 1) for line in header.splitlines() if ": " in line)
+            self.assertEqual((settings["model"], settings["effort"]), (model, "low"))
+        fresh = (self.home/"agents/planner-agent.md").read_text().split("---", 2)[1]
+        settings = dict(line.split(": ", 1) for line in fresh.splitlines() if ": " in line)
+        self.assertEqual(settings["model"], "inherit")
+
+    def test_role_settings_reject_nonregular_targets_before_install(self):
+        role = self.home/"agents/executor-agent.md"
+        role.parent.mkdir()
+        role.mkdir()
+        result = self.run_install()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.home/"AGENTS.md").exists())
+        role.rmdir()
+        outside = self.base/"outside-role"
+        outside.write_text("external content")
+        role.symlink_to(outside)
+        result = self.run_install()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.home/"AGENTS.md").exists())
+        self.assertEqual(outside.read_text(), "external content")
+
     def test_physical_overlap_is_rejected_but_system_path_alias_is_allowed(self):
         physical = self.base/"physical"
         physical.mkdir()

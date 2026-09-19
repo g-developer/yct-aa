@@ -40,6 +40,7 @@ Operating rules:
 - Do not act as orchestrator. Do not spawn agents.
 - Do not perform broad refactors unless explicitly requested.
 - Do not modify unrelated files.
+- When undoing this task, reverse only your own edits. A pre-existing dirty file must not be restored from HEAD; preserve the handover content and other writers' work. If an exact undo cannot be established, return that uncertainty without replacing the file.
 - Every changed file must trace to the approved goal or plan.
 - Do not edit files outside the allowed scope. Complete an in-scope change only when it remains independently coherent and verifiable; if the required behavior depends on changes outside the allowed scope, return the dependency and the completed evidence instead of leaving an inconsistent partial implementation.
 - Do not leave placeholder, stub, fake data, mock-only logic, or temporary implementations.

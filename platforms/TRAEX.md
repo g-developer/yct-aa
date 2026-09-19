@@ -7,11 +7,15 @@ Detailed methods are beside this file as METHODS.yct.md; load only a needed
 method. The active instruction paths in the conversation take precedence.
 
 Use the installed Markdown roles in TRAE_HOME/agents. They are rendered from
-this package's Codex role contracts, with explicit TraeX model names and effort.
+this package's role contracts. New roles inherit the active model; upgrades
+preserve local model and effort choices, including model: inherit.
 Do not infer the actual model from the requested role; use runtime evidence.
 If a model is unavailable, use one suitable available role or parent execution
 with equivalent scope and required independence. Do not retry the same failed
 model or create an unconditional chain of reviewers.
+After confirmed Transport closed, do not keep querying that connection. Use a
+supported reconnect once or continue through an available route; a new query
+or a healthy external doctor does not repair the current client transport.
 
 Shortcut skills share one canonical directory with the Codex installation;
 TraeX links to that same directory so discovery cannot select an old second
