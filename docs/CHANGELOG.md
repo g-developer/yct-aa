@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Keep parent-created verification packets within the shared and role rules;
+  do not add hashes or extra preflight solely to prove a file stayed unchanged.
+
 - Preserve installed TraeX model/effort overrides and default new roles to
   inherit. Clarify task-local undo in dirty worktrees, closed-transport
   recovery boundaries, and same-execution evidence for historical claims.
