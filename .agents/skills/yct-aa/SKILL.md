@@ -46,6 +46,8 @@ A role table does not override a higher-priority restriction.
    Pass `fork_turns: "none"` explicitly. Use a few recent turns only for a
    named dependency that cannot be restated; never use or omit into `"all"`.
    Tell writers they share the worktree and must preserve others' edits.
+   A parent-created packet cannot authorize checks forbidden by the shared
+   contract or selected role.
    For user-facing writing, include: 按照 ISO 24495-1 和 ASD-STE100 的规则，但使用中文来描述。
 6. Inspect the actual delivery and diff. Use existing checks and the real
    entrypoint; retain the command's terminal result and exit status. Get
@@ -53,6 +55,11 @@ A role table does not override a higher-priority restriction.
    delegated edits. An empty or future-tense child final is unfinished work;
    correct the packet or continue the task before accepting it. The parent
    owns final acceptance.
+   For a no-edit constraint, limit writes and inspect the relevant diff or
+   existing evidence. Neither parent nor child may calculate file hashes,
+   create source snapshots or add unrelated preflight solely to prove no edit.
+   Report the requested result and material limits; omit hash values and
+   unrelated metadata unless the user asked for them.
 7. Drive to completion. Apply `AGENTS.md` §3: continue independent work
    while a required clarification is pending, treat a status question as an
    update to the active goal, and collect task-critical child results before
