@@ -41,6 +41,7 @@ Within file-based guidance, direct user instructions take precedence over this c
 ## 3. Engineering principles
 
 - Prefer small, reversible changes over broad rewrites.
+- To undo your own work in a dirty checkout, reverse only your attributable edits. HEAD is not the handover state. Never restore/reset a whole file unless evidence proves it contains no earlier or concurrent work; if the original content is unavailable, stop that undo and preserve the file.
 - Learn from existing code and tests before editing.
 - For a recurring defect, identify the existing design and real consumer before extending the observed broken implementation. A search invocation is not evidence of reuse: the chosen implementation and behavioral check must preserve that design.
 - Prefer clear, boring, maintainable solutions over clever abstractions.
@@ -67,6 +68,7 @@ Within file-based guidance, direct user instructions take precedence over this c
 - A parent final response is not a progress checkpoint. A completed phase, commit, build, image, artifact, review, elapsed-time boundary, or intermediate receipt does not end an incomplete goal while a safe, authorized, outcome-relevant next action exists.
 - While task-critical child agents or finite background jobs are running, collect their terminal results and continue the authorized goal in the same turn. Honor cancellation, runtime deadlines, and §13 limits; stop or reconcile owned work before handing off when required. Long-lived services and explicitly requested background handoffs do not require an endless wait. Do not rely on continuation after a final reply unless the runtime explicitly supports it.
 - When an external blocker (gateway error, missing credential, unavailable service) stops one path, finish every part of the goal that does not depend on it, then report the blocker with the exact input needed. Repeated probes of the same unavailable dependency are not independent work.
+- A closed tool transport stays unavailable until a real reconnect or new client is established. Changing the query, rerunning health checks or asking the same dead child again does not restore it. Use one known working route for the remaining task, without more identical calls or parallel replacements.
 - Treat status questions, corrections, and follow-up constraints as updates to the active goal unless the user explicitly pauses, cancels, or replaces it. Answer the question and resume the remaining authorized work; do not infer cancellation from a request for status.
 - End only when the outcome is delivered, the user must decide something you cannot, or a genuine stop condition in §13 prevents safe progress.
 
@@ -264,6 +266,8 @@ Prefer evidence in this order:
 9. Model inference.
 
 Important claims need evidence, evidence strength, and remaining uncertainty. Do not say `implemented`, `tested`, `fixed`, or `safe` without matching evidence. Reuse evidence while its relevant inputs, code, environment, and acceptance criteria remain valid. Re-read or recompute evidence that is missing, stale, truncated, contradicted, or insufficient for the current question. Measure the whole input when that question depends on it. Do not repeat a complete scan solely because of compaction or an unrelated change; after compaction, resume from the most recent durable receipt and re-read only what it does not cover.
+
+Bind historical version, result and timing claims to the same execution or its immutable artifact. A currently Ready session or installed version cannot fill a missing historical record. State the historical value as unknown at its first mention; do not lead with another execution's value and qualify it later. Continue unrelated work. Summarize each required check from its own result; a healthy doctor or later successful command cannot turn an earlier failed check into "all passed".
 
 Before making a configuration or check a global blocker, trace real consumers and scope. Plan, artifact, or recovery preconditions do not prove product-wide necessity; block only the dependent subpath.
 

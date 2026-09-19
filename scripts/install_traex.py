@@ -17,8 +17,6 @@ NL = chr(10)
 WORKFLOWS = ('yct-aa', 'yct-direct', 'yct-fix', 'yct-review', 'yct-risk')
 LEGACY_FILES = ("CLAUDE.yct.md", "rules/claude-model-routing.md", "rules/method-orchestration.md",
                 "rules/subagent-orchestration.md", "rules/instruction-system-maintenance.md")
-MODEL_NAMES = {'gpt-6-astra': 'GPT-6-Astra', 'gpt-5.6-sol': 'GPT-5.6-Sol',
-               'gpt-5.6-terra': 'GPT-5.6-Terra', 'gpt-5.6-luna': 'GPT-5.6-Luna'}
 
 
 def marker(text: str, name: str, body: str | None) -> str:
@@ -77,17 +75,24 @@ def skill_name(path: Path) -> str | None:
     return None
 
 
-def role_markdown(path: Path) -> str:
+def role_markdown(path: Path, existing: Path | None = None) -> str:
     role = tomllib.loads(path.read_text())
-    model = role['model']
-    if model == 'gpt-5.3-codex-spark':
-        # TraeX exposes no Spark: use the existing portable substitute.
-        substitute = 'batch-agent' if role['name'] == 'batch-spark-agent' else 'focused-fixer-agent'
-        model = tomllib.loads((path.parent / (substitute + '.toml')).read_text())['model']
+    settings = {"model": "inherit", "effort": role["model_reasoning_effort"]}
+    if existing is not None:
+        if existing.is_symlink() or (existing.exists() and not existing.is_file()):
+            raise ValueError(f"role settings require a regular file: {existing}")
+        lines = read_text(existing).splitlines()
+        if lines and lines[0] == "---":
+            for line in lines[1:]:
+                if line == "---":
+                    break
+                key, separator, value = line.partition(":")
+                if separator and key in settings and value.strip():
+                    settings[key] = value.strip()
     body = role['developer_instructions'].replace('AGENTS/CLAUDE rules', 'AGENTS/TraeX rules')
     return NL.join(('---', f'name: {role["name"]}',
                     f'description: {json.dumps(role["description"])}',
-                    f'model: {MODEL_NAMES[model]}', f'effort: {role["model_reasoning_effort"]}',
+                    f'model: {settings["model"]}', f'effort: {settings["effort"]}',
                     '---', '', 'Use the already injected shared AGENTS.md contract and TraeX operating layer.',
                     'Do not search the business cwd for AGENTS.yct.md or CLAUDE.yct.md.', '', body.rstrip(), ''))
 
@@ -156,7 +161,8 @@ class Installer:
         minimum = max(131072, len(text.encode()) + len(shared_contract.encode()) + 32768)
         minimum = ((minimum + 4095)//4096)*4096
         self.write(cfg, config_with_size(read_text(cfg), minimum))
-        roles = {p.stem:role_markdown(p) for p in sorted((ROOT/'.codex/agents').glob('*.toml'))}
+        roles = {p.stem:role_markdown(p, self.home/"agents"/(p.stem + ".md"))
+                 for p in sorted((ROOT/'.codex/agents').glob('*.toml'))}
         for path in (self.home/'agents').glob('*.md'):
             name = skill_name(path)
             if name in roles and path.name != name + '.md':

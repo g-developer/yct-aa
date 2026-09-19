@@ -132,8 +132,8 @@ verification required by the actual risk.
 ## Portability boundaries
 
 - TraeX uses `platforms/TRAEX.md` and Markdown roles rendered at installation
-  from the current Codex role bodies. The installer maps the four supported
-  model families explicitly; Spark uses the declared portable substitute.
+  from the current Codex role bodies. Fresh roles inherit the active model;
+  upgrades preserve local model and effort overrides, including inherit.
   Native runtime evidence, not the template, proves the actual model.
 - TraeX receives inline shared guidance instead of Claude `@` references. Its
   shortcuts resolve to the same canonical directories as Codex. Reinstall
