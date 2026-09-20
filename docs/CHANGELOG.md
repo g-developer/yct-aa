@@ -1,38 +1,50 @@
 # Changelog
 
-## v4.20.2
+## Unreleased
 
-Serena/CodeGraph and prior-art wiring for worker roles. `yct-ca audit-sessions`
-on the Mac and NAS logs showed executor and reviewer subagents editing or
-reviewing indexed repositories with `grep`/`rg` only and never running
-`yct-ca prior`: role files listed an explicit `tools` set without the MCP
-tools, and the prior-art rule lived only in the parent's routing layer.
-Changes:
+- Give code-touching roles the Serena/CodeGraph MCP tools and the prior-art
+  rule. `yct-ca audit-sessions` showed executor and reviewer subagents using
+  `grep`/`rg` only in indexed repositories and never running `yct-ca prior`,
+  because explicit Claude `tools` lists omitted the MCP tools and the rule
+  lived only in the parent's routing layer. Claude readers/writers now list
+  `mcp__serena__find_symbol`, `mcp__serena__find_referencing_symbols`,
+  `mcp__serena__get_symbols_overview`, `mcp__codegraph__codegraph_explore`
+  and query the index before text search; write roles on both platforms use
+  the packet's `PRIOR_ART` candidates or `yct-ca prior` (`--root` for
+  directories without Git metadata) before the first edit, treat exit
+  2/`INCOMPLETE` as missing data, and return `PRIOR_ART`/`NEW_IMPLEMENTATION`.
+  Unverified: whether the running Claude Code build honours MCP names in an
+  agent `tools` list when the server is not attached to the child.
 
-- Claude roles that read or change code (`explorer-agent`,
-  `deep-investigator-agent`, `code-reviewer-agent`, `verify-agent`,
-  `planner-agent`, `plan-checker`, `security-reviewer-agent`,
-  `executor-agent`, `focused-fixer-agent`, `batch-agent`, `spark-agent`) now
-  list `mcp__serena__find_symbol`, `mcp__serena__find_referencing_symbols`,
-  `mcp__serena__get_symbols_overview`, and `mcp__codegraph__codegraph_explore`
-  in `tools`, and carry one rule: in a repository with `.serena/project.yml`
-  or `.codegraph/codegraph.db`, query the index before text search and name
-  the source of each finding.
-- Write-capable roles on both platforms (plus Codex `batch-spark-agent`)
-  carry the prior-art rule: use the packet's `PRIOR_ART` candidates or run
-  `yct-ca prior <keyword>...` from the packet's worktree (`--root` when the
-  directory has no Git metadata) before the first edit, read candidates with
-  file-scoped `find_symbol`/`codegraph_explore`, extend or fix instead of
-  re-implementing, treat exit 2/`INCOMPLETE` as missing data rather than
-  `NONE_FOUND`, and return `PRIOR_ART`/`NEW_IMPLEMENTATION` in the handoff.
-- `.claude/rules/subagent-orchestration.md` records the parent side: keep the
-  MCP tools in code-touching tool lists and put the prior candidates or
-  command into every write packet.
+- Keep parent-created verification packets within the shared and role rules;
+  do not add hashes or extra preflight solely to prove a file stayed unchanged.
 
-Unverified: whether the running Claude Code build honours MCP names in an
-agent `tools` list when the server is not attached to the child; the role
-text asks the worker to report an unavailable tool instead of falling back
-silently.
+- Preserve installed TraeX model/effort overrides and default new roles to
+  inherit. Clarify task-local undo in dirty worktrees, closed-transport
+  recovery boundaries, and same-execution evidence for historical claims.
+
+- Clarified completed-child lifecycle: consume terminal results promptly, retain
+  handles only for concrete follow-ups, and close only through a real runtime
+  capability. Distinguished concurrency admission, memory unloading and history
+  visibility; interrupt and archive are not resource-release substitutes.
+
+## v4.21
+
+- Added the explicit TraeX installation path, rendering Markdown roles from
+  current shared contracts and linking shortcuts to one canonical source.
+- Replaced legacy Claude imports with inline TraeX guidance, preserved user
+  config, and added reviewed backup migration for duplicate YCT discovery
+  entries. Added installation and real `traex exec` behavioral checks.
+- Tightened absolute-worktree packets on follow-up, recurring-design reuse,
+  incomplete child acceptance, and owned command-session collection based on
+  the 2026-09-16 devbox session audit.
+- Added conditional drift correction, observable-progress distinctions and
+  cumulative-change acceptance to the existing shared method guidance. Made
+  Chinese plain-language output explicit and removed exact shell-spelling
+  tests and artificial tool-call counts from live workflow checks.
+- Fixed physical install-root overlap, stale managed skill resources and
+  quoted TOML document-limit keys. Excluded inherited parent execution from
+  native command evidence and distinguished automated checks from acceptance.
 
 ## v4.20.1
 

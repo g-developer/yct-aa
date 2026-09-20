@@ -50,6 +50,7 @@ Rules:
 - Every changed file must trace to the goal or approved plan.
 - Do not edit files outside the allowed scope. Complete an in-scope change only when it remains independently coherent and verifiable; if the required behavior depends on changes outside the allowed scope, return the dependency and the completed evidence instead of leaving an inconsistent partial implementation.
 - Make the smallest defensible change.
+- When undoing this task, reverse only your own edits. A pre-existing dirty file must not be restored from HEAD; preserve the handover content and other writers' work. If an exact undo cannot be established, return that uncertainty without replacing the file.
 - Do not broaden formatting, dependencies, generated files, public APIs, migrations, or auth behavior unless explicitly approved.
 - Prefer targeted validation first.
 - Do not claim final completion; hand off to verification.

@@ -131,6 +131,14 @@ verification required by the actual risk.
 
 ## Portability boundaries
 
+- TraeX uses `platforms/TRAEX.md` and Markdown roles rendered at installation
+  from the current Codex role bodies. Fresh roles inherit the active model;
+  upgrades preserve local model and effort overrides, including inherit.
+  Native runtime evidence, not the template, proves the actual model.
+- TraeX receives inline shared guidance instead of Claude `@` references. Its
+  shortcuts resolve to the same canonical directories as Codex. Reinstall
+  through `--traex-only` and start a fresh session to activate rule updates.
+
 - Shortcut skills are explicit-only: Claude uses `disable-model-invocation: true`; Codex uses `policy.allow_implicit_invocation: false` metadata.
 - Browser agents are read-only evidence collectors. Codex requires an available inherited browser tool; Claude requires the browser tool to be exposed in the child profile's allowlist, or an allowed browser CLI through `Bash`.
 - Codex role registrations are explicit in `.codex/config.toml`; the installer appends missing role tables while preserving existing same-name tables and warning on incompatible depth/thread settings.

@@ -16,6 +16,7 @@ BACKUP_DIR="$BACKUP_ROOT/$TS"
 DRY_RUN=0
 INSTALL_CLAUDE=1
 INSTALL_CODEX=1
+INSTALL_TRAEX=0
 REPLACE_CONFLICTS=0
 
 usage() {
@@ -41,6 +42,7 @@ Options:
   --dry-run          Print actions without writing target files (temporary scratch files may be created)
   --claude-only      Install only Claude files
   --codex-only       Install only Codex files
+  --traex-only       Install TraeX guidance/roles and shared shortcut skills
   --replace-conflicts
                      Replace a different-path agent with the same declared name after backup
   --help             Show this help
@@ -58,6 +60,7 @@ while [ "$#" -gt 0 ]; do
     --dry-run) DRY_RUN=1 ;;
     --claude-only) INSTALL_CODEX=0 ;;
     --codex-only) INSTALL_CLAUDE=0 ;;
+    --traex-only) INSTALL_CLAUDE=0; INSTALL_CODEX=0; INSTALL_TRAEX=1 ;;
     --replace-conflicts) REPLACE_CONFLICTS=1 ;;
     --help|-h) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 2 ;;
@@ -717,6 +720,12 @@ main() {
   fi
   if [ "$INSTALL_CODEX" -eq 1 ]; then
     install_codex
+  fi
+  if [ "$INSTALL_TRAEX" -eq 1 ]; then
+    traex_args=(--shared-skills "$CODEX_SKILLS_HOME" --backup-dir "$BACKUP_DIR/traex")
+    [ "$DRY_RUN" -eq 0 ] || traex_args+=(--dry-run)
+    [ "$REPLACE_CONFLICTS" -eq 0 ] || traex_args+=(--replace-conflicts)
+    uv run --no-project --python 3.11 python "$SCRIPT_DIR/scripts/install_traex.py" "${traex_args[@]}"
   fi
 
   log "Done."
