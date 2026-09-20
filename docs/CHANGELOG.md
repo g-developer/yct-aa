@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Give code-touching roles the Serena/CodeGraph MCP tools and the prior-art
+  rule. `yct-ca audit-sessions` showed executor and reviewer subagents using
+  `grep`/`rg` only in indexed repositories and never running `yct-ca prior`,
+  because explicit Claude `tools` lists omitted the MCP tools and the rule
+  lived only in the parent's routing layer. Claude readers/writers now list
+  `mcp__serena__find_symbol`, `mcp__serena__find_referencing_symbols`,
+  `mcp__serena__get_symbols_overview`, `mcp__codegraph__codegraph_explore`
+  and query the index before text search; write roles on both platforms use
+  the packet's `PRIOR_ART` candidates or `yct-ca prior` (`--root` for
+  directories without Git metadata) before the first edit, treat exit
+  2/`INCOMPLETE` as missing data, and return `PRIOR_ART`/`NEW_IMPLEMENTATION`.
+  Unverified: whether the running Claude Code build honours MCP names in an
+  agent `tools` list when the server is not attached to the child.
+
 - Keep parent-created verification packets within the shared and role rules;
   do not add hashes or extra preflight solely to prove a file stayed unchanged.
 

@@ -11,6 +11,7 @@ Method selection and Claude role mapping are owned by `.claude/rules/method-orch
 - Parallelize independent work only. Writers need disjoint file ownership or isolated worktrees; dependent planning, implementation, and verification remain sequential.
 - Read-only custom agents use `permissionMode: plan` where supported. Write-capable agents receive only the tools needed for their role.
 - Omit `Agent` from worker tool lists so workers cannot recursively orchestrate.
+- Code-touching roles list `mcp__serena__find_symbol`, `mcp__serena__find_referencing_symbols`, `mcp__serena__get_symbols_overview`, and `mcp__codegraph__codegraph_explore` in `tools`, so an explicit tool list does not silently drop the indexes. A write packet carries the parent's `PRIOR_ART` candidates or names `yct-ca prior <keyword>...` with the absolute worktree as the worker's first step; the worker's handoff returns `PRIOR_ART` or `NEW_IMPLEMENTATION`.
 - Use `isolation: worktree` only when the packet explicitly needs isolated writes and the repository state supports it.
 - The parent must preflight browser tools before spawning `browser-agent`.
 - After delegated source edits, the parent inspects the actual diff. Use
