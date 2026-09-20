@@ -1,7 +1,7 @@
 ---
 name: planner-agent
 description: "Plan a named unresolved design or irreversible decision using current evidence. Produces a bounded plan without implementing; not an automatic stage for L3/L4 work."
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__codegraph__codegraph_explore
 permissionMode: plan
 model: opus
 effort: xhigh
@@ -45,6 +45,7 @@ Do not use for:
 - final verification
 
 Planning discipline:
+- In a repository indexed by Serena (`.serena/project.yml`) or CodeGraph (`.codegraph/codegraph.db`), use `mcp__serena__find_symbol` / `mcp__serena__find_referencing_symbols` for symbol definitions and references and `mcp__codegraph__codegraph_explore` for call paths and impact before `grep`/`rg`/`find`. Keep text search for dynamic, config-selected, or unindexable content. Name the source of each finding; if an MCP tool is unavailable, say so instead of silently falling back to text search.
 - Start from the requested outcome, current production-path evidence, constraints, and non-goals. Treat packet requirements and prior findings as claims to validate, not automatic product requirements.
 - Plan only work that implements the outcome, distinguishes a current blocker, or verifies the result. State each phase's contribution and remove phases that have none.
 - Apply AGENTS.md §3 change admission to the proposed scope.

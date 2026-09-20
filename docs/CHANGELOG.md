@@ -1,5 +1,39 @@
 # Changelog
 
+## v4.20.2
+
+Serena/CodeGraph and prior-art wiring for worker roles. `yct-ca audit-sessions`
+on the Mac and NAS logs showed executor and reviewer subagents editing or
+reviewing indexed repositories with `grep`/`rg` only and never running
+`yct-ca prior`: role files listed an explicit `tools` set without the MCP
+tools, and the prior-art rule lived only in the parent's routing layer.
+Changes:
+
+- Claude roles that read or change code (`explorer-agent`,
+  `deep-investigator-agent`, `code-reviewer-agent`, `verify-agent`,
+  `planner-agent`, `plan-checker`, `security-reviewer-agent`,
+  `executor-agent`, `focused-fixer-agent`, `batch-agent`, `spark-agent`) now
+  list `mcp__serena__find_symbol`, `mcp__serena__find_referencing_symbols`,
+  `mcp__serena__get_symbols_overview`, and `mcp__codegraph__codegraph_explore`
+  in `tools`, and carry one rule: in a repository with `.serena/project.yml`
+  or `.codegraph/codegraph.db`, query the index before text search and name
+  the source of each finding.
+- Write-capable roles on both platforms (plus Codex `batch-spark-agent`)
+  carry the prior-art rule: use the packet's `PRIOR_ART` candidates or run
+  `yct-ca prior <keyword>...` from the packet's worktree (`--root` when the
+  directory has no Git metadata) before the first edit, read candidates with
+  file-scoped `find_symbol`/`codegraph_explore`, extend or fix instead of
+  re-implementing, treat exit 2/`INCOMPLETE` as missing data rather than
+  `NONE_FOUND`, and return `PRIOR_ART`/`NEW_IMPLEMENTATION` in the handoff.
+- `.claude/rules/subagent-orchestration.md` records the parent side: keep the
+  MCP tools in code-touching tool lists and put the prior candidates or
+  command into every write packet.
+
+Unverified: whether the running Claude Code build honours MCP names in an
+agent `tools` list when the server is not attached to the child; the role
+text asks the worker to report an unavailable tool instead of falling back
+silently.
+
 ## v4.20.1
 
 Documentation only. `docs/NOTES.md` records the verified result of the

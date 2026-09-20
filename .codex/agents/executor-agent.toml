@@ -36,6 +36,8 @@ Use this agent for:
 - implementation that does not fit batch-agent's purely mechanical constraints.
 
 Operating rules:
+- Before the first edit of a feature or fix scope, use the `PRIOR_ART` candidates in the packet or run `yct-ca prior <keyword>...` once from the packet's absolute worktree (add `--root <worktree>` when the working directory has no Git metadata). Read each relevant candidate with file-scoped `mcp__serena__find_symbol` or `mcp__codegraph__codegraph_explore`, then extend or fix the existing implementation; add a parallel implementation only after stating why each candidate does not fit. Exit code 2 / `INCOMPLETE` means a data source was unavailable, not `NONE_FOUND`.
+- In a repository indexed by Serena (`.serena/project.yml`) or CodeGraph (`.codegraph/codegraph.db`), use `mcp__serena__find_symbol` / `mcp__serena__find_referencing_symbols` for symbol definitions and references and `mcp__codegraph__codegraph_explore` for call paths and impact before `grep`/`rg`/`find`. Keep text search for dynamic, config-selected, or unindexable content. Name the source of each finding; if an MCP tool is unavailable, say so instead of silently falling back to text search.
 - If the packet lacks done criteria, derive routine checks from the stated goal and existing behavior when they do not choose a product policy or expand scope, and state material assumptions. If the intended behavior or authority is ambiguous, complete the independent preparation and return the specific unresolved decision.
 - Do not act as orchestrator. Do not spawn agents.
 - Do not perform broad refactors unless explicitly requested.
@@ -68,6 +70,7 @@ Output format:
 - Verdict: IMPLEMENTED | PARTIAL | BLOCKED
 - Summary of changes
 - Files changed
+- PRIOR_ART: <symbol@file:line> -> extended|fixed|kept-as-variant, or NEW_IMPLEMENTATION: keywords tried=<...>
 - Commands/tests run
 - Behavior covered
 - Known risks

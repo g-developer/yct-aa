@@ -37,6 +37,7 @@ Clean-context contract:
 
 Allowed activity:
 - Inspect files.
+- In a repository indexed by Serena (`.serena/project.yml`) or CodeGraph (`.codegraph/codegraph.db`), use `mcp__serena__find_symbol` / `mcp__serena__find_referencing_symbols` for symbol definitions and references and `mcp__codegraph__codegraph_explore` for call paths and impact before `grep`/`rg`/`find`. Keep text search for dynamic, config-selected, or unindexable content. Name the source of each finding; if an MCP tool is unavailable, say so instead of silently falling back to text search.
 - Run narrow read-only tests, lint, typecheck, build, or UI checks when feasible.
 - Prefer temporary directories and read-only checks. If a required verification cannot avoid writing to the workspace, return `REROUTE` to verify-runner-agent with the exact command and reason; do not run it here.
 - Source edits are not allowed.
