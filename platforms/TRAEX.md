@@ -45,3 +45,15 @@ requiring the installed product or a remote production entrypoint. If a child
 returns only intentions or setup, continue the authorized remainder. Missing
 credentials block the dependent path; finish independent work and report the
 precise missing input without inventing success.
+
+Keep code-mode orchestration small. Use structured tool arguments for data and
+direct patches for edits; for substantial shell/Python work, create a small
+script and invoke its interpreter rather than nesting another quoting layer.
+Do not shadow runtime helpers such as text, tools, image, store or load.
+After a wrapper syntax error, simplify the invocation. After a patch-context
+failure, read the affected current range before preparing the corrected patch.
+A wrapper can fail after a command or write succeeded: inspect its nested
+terminal result and actual output before retrying, and repeat only unfinished
+work. Do not rerun a successful side effect to repair a reporting error.
+Use Git checks only in a confirmed Git worktree. For an artifact-only task,
+verify the requested files directly; Git status/diff is not a universal check.

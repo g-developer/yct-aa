@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Keep actor-specific authority in handoffs, verify the real package/build
+  consumer, bind required full regressions to the final implementation, and
+  distinguish nested timing from parallel work. Simplify code-mode recovery
+  and reconcile successful side effects before retrying failed wrappers.
+
+- Distinguish format validation from factual acceptance, total counts from
+  bounded examples, and incomplete analysis from unavailable runtime facts.
+
 - Give code-touching roles the Serena/CodeGraph MCP tools and the prior-art
   rule. `yct-ca audit-sessions` showed executor and reviewer subagents using
   `grep`/`rg` only in indexed repositories and never running `yct-ca prior`,
