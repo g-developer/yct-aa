@@ -60,6 +60,10 @@ A role table does not override a higher-priority restriction.
    create source snapshots or add unrelated preflight solely to prove no edit.
    Report the requested result and material limits; omit hash values and
    unrelated metadata unless the user asked for them.
+   Apply AGENTS.md §11 to validator results: preserve their scope, reconcile
+   contradictory evidence, and distinguish example counts from totals before
+   reporting success. Check supplied direction and completion fields as well
+   as prose; a tool's own status label is not the acceptance decision.
 7. Drive to completion. Apply `AGENTS.md` §3: continue independent work
    while a required clarification is pending, treat a status question as an
    update to the active goal, and collect task-critical child results before
