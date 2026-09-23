@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Wait for owned finite writes before transferring overlapping files, preserve
+  healthy in-flight queries, and retire old batch admission before switching
+  versions. These are lifecycle decisions, not new scheduler infrastructure.
+
+- Replace duplicated explore-first role guidance with the shared yct-ca routing
+  owner. Allow precise CodeGraph and Serena declaration tools in Claude roles,
+  and clarify prior-art lookup for deployments without Git history.
+
+- Preserve the user's repair target across short follow-ups and session-log
+  audits. Inspecting a business failure for evidence does not authorize changing
+  that application when the requested outcome is a skill or workflow fix.
+
 - Keep actor-specific authority in handoffs, verify the real package/build
   consumer, bind required full regressions to the final implementation, and
   distinguish nested timing from parallel work. Simplify code-mode recovery

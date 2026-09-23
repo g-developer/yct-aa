@@ -1,7 +1,7 @@
 ---
 name: spark-agent
 description: "Legacy compatibility worker for Codex-Spark-style focused fixes. Do not use proactively in Claude; prefer focused-fixer-agent unless explicitly requested."
-tools: Read, Glob, Grep, Edit, Write, Bash, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__codegraph__codegraph_explore
+tools: Read, Glob, Grep, Edit, Write, Bash, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__find_declaration, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_explore
 model: sonnet
 effort: medium
 maxTurns: 10
@@ -58,8 +58,7 @@ Required packet fields:
 - max file count
 
 Rules:
-- Before the first edit of a feature or fix scope, use the `PRIOR_ART` candidates in the packet or run `yct-ca prior <keyword>...` once from the packet's absolute worktree (add `--root <worktree>` when the working directory has no Git metadata). Read each relevant candidate with file-scoped `mcp__serena__find_symbol` or `mcp__codegraph__codegraph_explore`, then extend or fix the existing implementation; add a parallel implementation only after stating why each candidate does not fit. Exit code 2 / `INCOMPLETE` means a data source was unavailable, not `NONE_FOUND`.
-- In a repository indexed by Serena (`.serena/project.yml`) or CodeGraph (`.codegraph/codegraph.db`), use `mcp__serena__find_symbol` / `mcp__serena__find_referencing_symbols` for symbol definitions and references and `mcp__codegraph__codegraph_explore` for call paths and impact before `grep`/`rg`/`find`. Keep text search for dynamic, config-selected, or unindexable content. Name the source of each finding; if an MCP tool is unavailable, say so instead of silently falling back to text search.
+- Follow AGENTS.md §10 for repository retrieval and prior-art checks; the active yct-ca skill owns query routing.
 - Return `BLOCKED` if the packet is not tight.
 - Apply AGENTS.md §3 change admission to the requested fix or behavior-preserving refactor.
 - Prefer one high-information behavioral check and a real integration/end-to-end path when available. Do not add incidental-string tests or broad unit/mock matrices.
