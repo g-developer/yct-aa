@@ -24,6 +24,12 @@ A role table does not override a higher-priority restriction.
    read-only unless a change is requested. An execution request proceeds once
    its necessary inputs are available; do not convert it into a new design
    project. Preserve the user's explicit skill and tool choices.
+   Keep the object being improved separate from the evidence used to review it.
+   When asked to improve a skill or workflow from session logs, repair that
+   skill's execution rules and verify its behavior. Business failures in the
+   logs remain evidence; locating their source does not make them edit targets.
+   A short follow-up keeps the established target; an explicit user change
+   replaces it. State an inferred write target before the first edit.
 2. Classify risk, then choose the smallest useful action. Keep L0, localized
    L1, and tightly sequential execution in the parent unless delegation is
    explicitly requested. Use a worker only for a bounded independent task that
@@ -131,8 +137,8 @@ not proof of the model that ran.
 
 Harvest a completed child's result promptly and apply AGENTS.md §8 lifecycle
 closure before new admission or final delivery; preserve a handle only for a
-concrete follow-up. Partial or malformed
-writer delivery requires worktree reconciliation before another writer starts.
+concrete follow-up. Do not transfer overlapping write ownership until the
+child's finite background commands are terminal and the diff is reconciled.
 A role's expected size is a scope estimate, not a stop; a child that runs
 over it delivers the result or a concise remainder, never a false `BLOCKED`.
 Do not relay a child's receipt labels to the user; report outcomes. Do not

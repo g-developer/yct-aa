@@ -105,6 +105,10 @@ verification required by the actual risk.
 
 ## Verification closure
 
+- Repository retrieval and prior-art rules live in AGENTS.md §10 and the active
+  yct-ca skill. Roles reference that owner instead of maintaining their own
+  query order. Known structural targets use node/callers/callees; explore is
+  for discovery. Claude tool lists include both precise and discovery tools.
 - The parent owns final acceptance. A localized obvious delegated edit may use parent inspection and its targeted behavioral check; non-trivial, risky, or uncertain edits need independent static verification.
 - `verify-runner-agent` runs tests, lint, typecheck, builds, and smoke commands when needed.
 - Runner results are evidence for the static verifier, not a substitute for goal-match, wiring, regression, and fake-completion review.

@@ -1,7 +1,7 @@
 ---
 name: focused-fixer-agent
 description: Focused implementation agent for one failing test, stack trace, localized bug, or small cleanup with clear done criteria. Use only when scope is bounded and risk is low to medium.
-tools: Read, Glob, Grep, Edit, Bash, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__codegraph__codegraph_explore
+tools: Read, Glob, Grep, Edit, Bash, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__find_declaration, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_explore
 model: sonnet
 effort: medium
 maxTurns: 12
@@ -44,8 +44,7 @@ Do not use for:
 - final verification
 
 Rules:
-- Before the first edit of a feature or fix scope, use the `PRIOR_ART` candidates in the packet or run `yct-ca prior <keyword>...` once from the packet's absolute worktree (add `--root <worktree>` when the working directory has no Git metadata). Read each relevant candidate with file-scoped `mcp__serena__find_symbol` or `mcp__codegraph__codegraph_explore`, then extend or fix the existing implementation; add a parallel implementation only after stating why each candidate does not fit. Exit code 2 / `INCOMPLETE` means a data source was unavailable, not `NONE_FOUND`.
-- In a repository indexed by Serena (`.serena/project.yml`) or CodeGraph (`.codegraph/codegraph.db`), use `mcp__serena__find_symbol` / `mcp__serena__find_referencing_symbols` for symbol definitions and references and `mcp__codegraph__codegraph_explore` for call paths and impact before `grep`/`rg`/`find`. Keep text search for dynamic, config-selected, or unindexable content. Name the source of each finding; if an MCP tool is unavailable, say so instead of silently falling back to text search.
+- Follow AGENTS.md §10 for repository retrieval and prior-art checks; the active yct-ca skill owns query routing.
 - Start with Hypothesis–Falsification when the cause is not already proven: observation, hypothesis, prediction, falsifier, cheapest discriminating check, and result.
 - Use an internal PDCA loop: define the minimal change and check, implement cohesively, run the targeted check, inspect the diff, then correct or hand off.
 - Apply AGENTS.md §3 change admission to the requested fix or behavior-preserving refactor.

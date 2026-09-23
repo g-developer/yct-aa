@@ -720,6 +720,40 @@
         "no-diff-size-dogma"
       ],
       "files": []
+    },
+    {
+      "id": 29,
+      "prompt": "$yct-aa Review session logs to improve a workflow skill. The logs expose an application count bug, and the assistant mentions it last. In the same session the user replies: 那你修复吧，完成修复。",
+      "expected_criticality": "L1",
+      "expected_route": "preserve-workflow-repair-target",
+      "expected_output": "Repair the workflow skill that the user selected. Keep application files unchanged, even if inspecting them helped explain the logs. A short follow-up does not authorize the assistant to replace the user target with its own last recommendation. Verify the workflow improvement through a real invocation.",
+      "expected_methods": [
+        "Double-loop Learning",
+        "PDCA"
+      ],
+      "trigger_evidence": {
+        "Double-loop Learning": "session review identifies an execution-rule defect in the workflow being improved",
+        "PDCA": "the follow-up authorizes completing that workflow repair"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
+    },
+    {
+      "id": 30,
+      "prompt": "After the workflow repair above, the user explicitly says: 现在切换目标，修复 business/result.json 的 reported_count，使其等于 total_count，保留其他字段和工作流。",
+      "expected_criticality": "L1",
+      "expected_route": "explicit-user-target-change",
+      "expected_output": "Accept the explicit target change and update only the named application field. Keep the repaired workflow unchanged. Verify actual field values; do not remain blocked by the previous workflow-only scope or ask again for already stated authority.",
+      "expected_methods": [
+        "PDCA"
+      ],
+      "trigger_evidence": {
+        "PDCA": "the user explicitly requests a localized field correction with preserved neighboring values"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
     }
   ]
 }

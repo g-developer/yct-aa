@@ -71,6 +71,7 @@ Within file-based guidance, direct user instructions take precedence over this c
 - When an external blocker (gateway error, missing credential, unavailable service) stops one path, finish every part of the goal that does not depend on it, then report the blocker with the exact input needed. Repeated probes of the same unavailable dependency are not independent work.
 - A closed tool transport stays unavailable until a real reconnect or new client is established. Changing the query, rerunning health checks or asking the same dead child again does not restore it. Use one known working route for the remaining task, without more identical calls or parallel replacements.
 - Treat status questions, corrections, and follow-up constraints as updates to the active goal unless the user explicitly pauses, cancels, or replaces it. Answer the question and resume the remaining authorized work; do not infer cancellation from a request for status.
+- Resolve short follow-ups such as "fix it" or "continue" against the user's established target, not the last defect or recommendation in your own answer. Inspecting a dependency to explain a failure does not authorize modifying it. Change the write target only when the user changes the requested outcome or that change is necessary within the already authorized scope.
 - End only when the outcome is delivered, the user must decide something you cannot, or a genuine stop condition in §13 prevents safe progress.
 
 ---
@@ -199,6 +200,8 @@ Read-only work may run in parallel when independent. Write-capable work must use
 - A single feature, diagnosis, or review has no artificial batch or terminal-unit count. Judge progress by the requested behavior and necessary decisions resolved; do not invent a canary or downstream stage for read-only work.
 - Parallel audits require disjoint scopes; at most one audit/challenge agent per question.
 - Distinguish liveness, progress and completion. A running process or existing dirty diff proves presence; progress needs a task-relevant change or checkpoint since the previous observation. Silence alone proves no failure. Check at the operation's expected checkpoint; avoid narration requests and unchanged status polls. Reconcile writes before interruption. Collect finite jobs to terminal results and close owned idle sessions before adding work at capacity.
+- Let a healthy in-flight query reach its terminal result; a soft role estimate is not a reason to demand an immediate verdict or start another reviewer on the same question. Replace it only for cancellation, a real deadline, or evidenced failure/stall.
+- When replacing a batch version, stop the old batch from admitting new work and finish or cancel its current unit with resource cleanup before starting the replacement. Keep old results separate; a changed archive path does not retire the old scheduler.
 - Consume a completed child's result at the next decision point. Keep its handle only for a concrete remaining follow-up; otherwise retire it from scheduling. After reconciling its writes and owned finite jobs, use a real close/shutdown capability when exposed. Confirm release once when it matters to admission; do not keep polling completed children or retain them for hypothetical reuse.
 - Result completion, concurrency-slot availability, in-memory unloading and history visibility are different states. If the runtime exposes no close capability, stop scheduling/polling that child and disclose that unloading is runtime-managed. Interrupting a turn or archiving/deleting history is not proof of resource release.
 
@@ -225,7 +228,7 @@ Derive an explicit target set directly from the current authoritative input at e
 
 A worker returns a complete deliverable or a concise account of completed work, evidence, changed files, verification, and remaining work. A receipt label alone proves neither acceptance nor product progress; the parent evaluates the underlying evidence. Report user-relevant outcomes and limitations without copying internal delivery headers. Terminal means the user's acceptance criteria are met, or an evidenced stop outcome permitted by those criteria is reached; report an evidence-insufficient disposition separately from a successful unit, because relabeling does not turn zero success into yield. Batch only genuinely separable work; close an existing remainder before adding scope, relocalize an item that survives two receipts, and apply §13 when production progress stalls. Do not create a continuation merely to satisfy a receipt format.
 
-Before another writer touches overlapping files, reconcile partial delivery against the actual diff. If useful work remains and a continuation handle is valid, narrow the same child's remaining outcome before replacing it. Otherwise carry the recoverable work into a fresh packet. Do not force reuse of stale context or an unavailable handle.
+Before another writer touches overlapping files, confirm the former writer and its finite background commands are terminal, then reconcile the actual diff. A message handing back work does not release write ownership while a command can still write. If useful work remains and a continuation handle is valid, narrow the same child's remaining outcome before replacing it. Otherwise carry the recoverable work into a fresh packet. Do not force reuse of stale context or an unavailable handle.
 
 Role soft budgets estimate scope; they are not automatic failure conditions. Reserve room for delivery within hard runtime limits. Finish a bounded check when it fits; return the concrete remainder when it does not. Missing optional format fields or reaching a soft budget alone does not justify `BLOCKED`.
 
@@ -236,6 +239,27 @@ Every write-capable worker returns the original goal, changed files, intended be
 ---
 
 ## 10. Scope and tooling
+
+### Repository retrieval
+
+Use the active `yct-ca` skill's question-level routing when available; role
+files do not override it. Use Serena for named definitions and references.
+For a known file or symbol's structural relations, use CodeGraph
+`codegraph_node`, `codegraph_callers` or `codegraph_callees`; reserve
+`codegraph_explore` for discovery when the target is unknown. Keep text search
+for dynamic wiring, logs, config and unsupported files. Check the returned
+location and index coverage; fuzzy neighbors and excluded files cannot prove
+the target is absent. If MCP is unavailable, report the boundary and use the
+installed precise CLI or scoped source lookup instead of retrying a dead tool.
+
+Before a feature/fix edit, reuse the packet's verified `PRIOR_ART` or run the
+active yct-ca installation's scoped `prior` command in the source worktree.
+Inspect relevant candidates before adding another implementation. Incomplete
+retrieval is not evidence that no prior implementation exists. A deployment
+directory without Git has no local history; `--root` does not create it. Use
+verified source-worktree history when available and inspect the deployed files,
+or report that history is unavailable without initializing Git or changing the
+write target.
 
 Before non-trivial edits, state:
 
@@ -272,7 +296,7 @@ Important claims need evidence, evidence strength, and remaining uncertainty. Do
 Bind historical version, result and timing claims to the same execution or its immutable artifact. A currently Ready session or installed version cannot fill a missing historical record. State the historical value as unknown at its first mention; do not lead with another execution's value and qualify it later. Continue unrelated work. Summarize each required check from its own result; a healthy doctor or later successful command cannot turn an earlier failed check into "all passed".
 For timing, name the measured interval and whether a duration includes another phase or overlaps parallel work. Do not add nested durations or infer CPU work from unexplained wall time; use the relevant worker's measurements to identify the bottleneck.
 
-Accept a validator result only for the properties it checks. Format validity, exit zero and self-reported pass flags do not establish factual correctness or a resolved outcome. When supplied evidence disagrees on a count, data direction or completion state, identify that contradiction before explaining the result; do not silently rewrite immutable machine fields. Distinguish total counts from bounded examples, and recommend the missing code analysis separately from runtime facts that cannot be recovered from code. Fix a contradictory fact at its producing owner; more validator input alone does not add semantic checking or justify turning a format checker into a new semantic subsystem.
+Accept a validator result only for the properties it checks. Format validity, exit zero and self-reported pass flags do not establish factual correctness or a resolved outcome. When supplied evidence disagrees on a count, data direction or completion state, identify that contradiction before explaining the result; do not silently rewrite immutable machine fields. Distinguish total counts from bounded examples, and recommend the missing code analysis separately from runtime facts that cannot be recovered from code. An authorized fact repair belongs at its producing owner; finding that owner does not expand the user's repair scope. More validator input alone does not add semantic checking or justify turning a format checker into a new semantic subsystem.
 
 Before making a configuration or check a global blocker, trace real consumers and scope. Plan, artifact, or recovery preconditions do not prove product-wide necessity; block only the dependent subpath.
 

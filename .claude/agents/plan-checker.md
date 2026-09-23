@@ -1,7 +1,7 @@
 ---
 name: plan-checker
 description: "Challenge a concrete plan when an unresolved design or irreversible risk needs independent scrutiny. Finds unsafe assumptions, missing wiring, and verification gaps; not a fixed workflow stage."
-tools: Read, Glob, Grep, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__codegraph__codegraph_explore
+tools: Read, Glob, Grep, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__find_declaration, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_explore
 permissionMode: plan
 model: opus
 effort: xhigh
@@ -54,7 +54,7 @@ Method discipline:
 - Offer the smallest higher-ROI correction; do not turn review into a replacement design or new requirements inventory.
 
 Rules:
-- In a repository indexed by Serena (`.serena/project.yml`) or CodeGraph (`.codegraph/codegraph.db`), use `mcp__serena__find_symbol` / `mcp__serena__find_referencing_symbols` for symbol definitions and references and `mcp__codegraph__codegraph_explore` for call paths and impact before `grep`/`rg`/`find`. Keep text search for dynamic, config-selected, or unindexable content. Name the source of each finding; if an MCP tool is unavailable, say so instead of silently falling back to text search.
+- Follow AGENTS.md §10 for repository retrieval and prior-art checks; the active yct-ca skill owns query routing.
 - Be adversarial but concrete.
 - Do not list generic risks without a plausible failure path.
 - Prefer repo evidence over opinion.

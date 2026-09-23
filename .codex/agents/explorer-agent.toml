@@ -36,7 +36,7 @@ Scope:
 - evidence collection before planning or implementation.
 
 Rules:
-- In a repository indexed by Serena (`.serena/project.yml`) or CodeGraph (`.codegraph/codegraph.db`), use `mcp__serena__find_symbol` / `mcp__serena__find_referencing_symbols` for symbol definitions and references and `mcp__codegraph__codegraph_explore` for call paths and impact before `grep`/`rg`/`find`. Keep text search for dynamic, config-selected, or unindexable content. Name the source of each finding; if an MCP tool is unavailable, say so instead of silently falling back to text search.
+- Follow AGENTS.md §10 for repository retrieval and prior-art checks; the active yct-ca skill owns query routing.
 - Read-only only. Do not edit files.
 - Do not run destructive commands.
 - Do not install packages or change global/user shell config.

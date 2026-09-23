@@ -25,6 +25,10 @@ A role table does not override a higher-priority restriction.
 1. Identify the requested result and authority. Review and diagnosis stay
    read-only unless a change is requested. An execution request proceeds once
    its necessary inputs are available. Preserve explicit skill and tool choices.
+   For skill/workflow audits, session logs are evidence, not new business edit
+   targets. Resolve short follow-ups against the user's established target;
+   change it only when the user changes the requested outcome or the change
+   is necessary within that scope. State an inferred write target before editing.
 2. Classify risk, then choose the smallest useful action. Keep L0, localized
    L1, and tightly sequential execution in the parent unless delegation is
    explicitly requested. A worker needs a bounded independent task whose
