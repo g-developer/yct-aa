@@ -112,14 +112,15 @@ Review-only mode never authorizes implementation. Explicit user approval is requ
 
 Confirm the main user outcome and inspect only the evidence needed to implement it. Build in this order:
 
-1. Connect the shortest useful path from the real entrypoint through the core behavior to an observable result. Run one representative scenario to prove feasibility before expanding. Evolve this working path; a demo with hardcoded success, mocks in the production path, or disconnected components does not prove feasibility. For a localized fix, the repaired path itself is enough; do not create a separate demo.
+1. Connect the shortest useful path from the real entrypoint through the core behavior to an observable result. Run one representative scenario successfully before the next change adds secondary features. A failing placeholder run is not feasibility proof; implementing every feature and then testing the default path also misses this checkpoint. Evolve this working path; a demo with hardcoded success, mocks in the production path, or disconnected components does not prove feasibility. For a localized fix, the repaired path itself is enough; do not create a separate demo.
 2. Complete the main capabilities, then the required secondary features. Once those work together, finish details and refinement. “About 90%” means the main functionality is substantially usable, not a measured quota or permission to omit requirements. Keep the original goal until all requested functionality is delivered.
 3. Add defensive handling only for a required behavior, observed failure, or §11 must-handle risk. Essential authorization, data integrity and safe side effects belong in the first working path. Defer speculative hardening; do not create a mandatory defensive-programming phase at the end.
 4. Verify the completed scope under §12, inspect the cumulative diff and runtime wiring, then report the result and limits. A successful demo is an intermediate result, not completion.
 
 Use small checks during development to choose the next change. Do not interrupt functional implementation to grow unit tests or run the full E2E suite.
-This is the YCT implementation order. Generic test-first, red-green or baseline
-advice from another skill does not override it. Do not run a full suite merely
+This is the YCT implementation order. Technical skills apply only within their
+declared scope and do not replace it with generic test-first, red-green or baseline
+workflows. Do not run a full suite merely
 to demonstrate that an unfinished feature fails; use the known failure or one
 scoped path. An explicit user request for a different testing workflow wins.
 
