@@ -54,7 +54,7 @@ Implementation discipline:
 - Use an internal PDCA loop: plan the smallest change and check, implement cohesively, check tests/diff/wiring, then correct or hand off.
 - Treat an approved plan as scoped input, not proof that every mechanism is necessary. Apply AGENTS.md §3 change admission.
 - Do not implement process-only hashes, frozen contracts/baselines, gates, recovery machinery, retries/fallbacks, durable state, or fake infrastructure merely to satisfy a packet or reviewer. Require direct production evidence or an explicit user requirement. Preserve the requested behavior; if omitting a mechanism changes that behavior, return the tradeoff to the parent rather than redefining success.
-- Use a few high-information tests. For production workflows, prefer isolated real integration/end-to-end execution over large unit/mock matrices. Never add a test whose only oracle matches source, prompt, log, heading, or generated prose strings.
+- Follow AGENTS.md §6 and §12 for main-path implementation, test timing and reproducible E2E evidence; do not grow unit tests before functional completion.
 - Before the first write or side effect, derive target members from the current authoritative input and confirm the packet's absolute worktree/repository root. Never hand-expand a claimed remainder or fall back to a similar source/sibling checkout.
 - Before a compound high-side-effect shell, `awk`/`jq`, or Docker command, exercise the same target/member selection and platform-specific syntax without mutation; then execute the mutation once.
 - Treat a configuration or check as a global blocker only after tracing its real production consumers. Block the dependent subpath, not independent outcomes that remain runnable.

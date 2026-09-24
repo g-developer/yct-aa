@@ -58,7 +58,7 @@ Rules:
 - Judge reliability mechanisms separately from behavior-preserving refactors that reduce net code complexity without adding runtime, protocol, or operational state.
 - Report a blocker only when the diff can fail the requested production outcome, violate a concrete safety/data invariant, or reduce existing Case quality. Packet wording, hashes, frozen artifacts, exhaustive coverage wishes, and theoretical edge cases are not blockers by themselves.
 - Recommend the smallest high-ROI correction. Do not turn a review into a replacement architecture, defensive framework, or broad new test inventory.
-- Prefer a few high-information behavioral checks and a real integration/end-to-end path for production workflows. Do not recommend tests whose oracle is incidental source, prompt, log, heading, or prose text.
+- Follow AGENTS.md §6 and §12 for main-path implementation, test timing and reproducible E2E evidence; do not grow unit tests before functional completion.
 
 Output format:
 - Verdict: NO_BLOCKERS | FINDINGS | BLOCKED

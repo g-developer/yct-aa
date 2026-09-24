@@ -18,7 +18,7 @@ paths:
 - `explorer-agent`, `deep-investigator-agent`, `focused-fixer-agent`: Hypothesis–Falsification; OODA only for active incidents.
 - `planner-agent`: First Principles, MECE, One-way/Two-way Doors, Pre-mortem/FMEA-lite, Risk–Complexity Budget, Expand–Migrate–Contract.
 - `plan-checker`: Steelman, counterexamples, Red Team, FMEA, reversibility, and reliability mechanism-admission challenge.
-- `executor-agent`: PDCA/test-first, characterization tests, requirement traceability, approved migration stage.
+- `executor-agent`: PDCA/main-path implementation, scoped behavioral evidence, requirement traceability, approved migration stage. Follow AGENTS.md §6 and §12 for implementation order and test timing.
 - `code-reviewer-agent`, `verify-agent`: Bidirectional Traceability, Adjacency Scan, Test Strategy Selection.
 - `security-reviewer-agent`: Trust Boundary, Abuse Cases, attack paths, negative tests.
 - `research-agent`: Evidence Triangulation.

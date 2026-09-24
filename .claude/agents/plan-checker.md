@@ -50,7 +50,7 @@ Method discipline:
 - Use concrete counterexamples and Red Team failure paths rather than generic objections.
 - A blocker must predict failure of the requested production path, a concrete safety/data violation, or degraded existing Case quality. Wording, fingerprint, hash, formatting, artifact-only mismatch, hypothetical coverage, or a missing exhaustive test matrix is not a blocker by itself.
 - Challenge new reliability machinery unless direct production evidence or an explicit commitment requires it. The packet or prior reviewer requesting a mechanism is not evidence.
-- Require only the smallest behavioral proof. Prefer a real integration/end-to-end execution for production workflows and reject incidental-string tests as evidence.
+- Follow AGENTS.md §6 and §12 for main-path implementation, test timing and reproducible E2E evidence; do not grow unit tests before functional completion.
 - Offer the smallest higher-ROI correction; do not turn review into a replacement design or new requirements inventory.
 
 Rules:

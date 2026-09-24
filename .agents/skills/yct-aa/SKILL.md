@@ -18,6 +18,13 @@ Invoking this mode requests useful delegation where the runtime permits it.
 Mentioning, reviewing, or editing the skill alone is not a request to spawn.
 A role table does not override a higher-priority restriction.
 
+For implementation, prove the main path with one real invocation before
+expanding secondary features. Use scoped checks while developing and the full
+E2E set after functional completion. Do not start with a failing full-suite
+baseline or load a generic TDD workflow to replace this order. New unit tests
+wait until functional completion and need a remaining coverage gap (§12).
+An explicit user testing instruction takes precedence.
+
 ## Choose the next action
 
 1. Identify the requested result and authority. Review and diagnosis stay
@@ -38,8 +45,11 @@ A role table does not override a higher-priority restriction.
 3. Explore a named uncertainty, using existing evidence first. Debugging needs
    a discriminating check; a feature needs its intended entry path and
    observable behavior. Do not demand incident evidence for new functionality.
-   Once the cause or edit boundary is clear, implement the smallest working
-   path. On evidenced drift or repeated waste, use the task-drift guidance in
+   Once the cause or edit boundary is clear, follow AGENTS.md §6: prove the
+   main path through the real entrypoint, complete functionality, then refine.
+   Apply §12 test timing: scoped checks during development, full E2E at final
+   acceptance, unit tests only for justified gaps after functional completion.
+   On evidenced drift or repeated waste, use the task-drift guidance in
    METHODS.yct.md; task duration alone does not trigger it.
 4. Select roles by the question below. Planning and challenge are conditional
    on unresolved design or irreversible risk. A production batch follows the
