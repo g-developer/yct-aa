@@ -18,11 +18,16 @@ Invoking this mode requests useful delegation where the runtime permits it.
 Mentioning, reviewing, or editing the skill alone is not a request to spawn.
 A role table does not override a higher-priority restriction.
 
-For implementation, prove the main path with one real invocation before
-expanding secondary features. Use scoped checks while developing and the full
-E2E set after functional completion. Do not start with a failing full-suite
-baseline or load a generic TDD workflow to replace this order. New unit tests
-wait until functional completion and need a remaining coverage gap (§12).
+For implementation, choose the main operation and the secondary work to defer.
+Keep the first code change limited to that operation and its necessary safety.
+Run it through the real entrypoint and inspect success before the next edit
+adds secondary work. A failing placeholder probe is not success. Do not put
+all features in the first patch and call a later default-path test a demo.
+Use scoped checks during development; run the full E2E set after functional
+completion. New unit tests then need a remaining coverage gap (§12).
+Other skills supply relevant technical knowledge, not a replacement workflow.
+Check their language/framework scope before running their setup; an unsupported
+language is not a reason to relabel the project to enter another workflow.
 An explicit user testing instruction takes precedence.
 
 ## Choose the next action
