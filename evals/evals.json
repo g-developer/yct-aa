@@ -754,6 +754,35 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [],
       "files": []
+    },
+    {
+      "id": 31,
+      "prompt": "$yct-aa Implement the inventory CLI described in README.md. The main flow reads items.json and reports count and total; also support category filtering and CSV output. Existing e2e.mjs offers core, filter, csv and all selections. Keep its Cases unchanged and deliver runnable code with reproducible evidence.",
+      "expected_criticality": "L1",
+      "expected_route": "main-path-before-test-expansion",
+      "expected_output": "Prove the main CLI path with a scoped real invocation, complete the secondary features, then run the agreed full E2E set on the final implementation. Do not add unit tests during functional work or stop after the demo. Preserve existing Cases and provide commands, inputs, raw results and terminal status for replay.",
+      "expected_methods": ["PDCA"],
+      "trigger_evidence": {
+        "PDCA": "a bounded implementation has a clear main path, secondary features and existing E2E acceptance"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
+    },
+    {
+      "id": 32,
+      "prompt": "$yct-aa Implement the main flow first for a tenant-scoped document download. The draft demo bypasses tenant authorization until later hardening. The download must only return the requesting tenant files. Decide the first working slice and its verification timing.",
+      "expected_criticality": "L3",
+      "expected_route": "main-path-with-required-boundaries",
+      "expected_output": "Include tenant authorization in the first runnable path and prove allowed and denied requests with focused real-entrypoint checks. Defer optional features, speculative hardening and new unit tests while implementing; run the agreed full E2E set after functional completion. Main-path priority does not permit an unsafe demo or an early completion claim.",
+      "expected_methods": ["PDCA", "Trust Boundary + Abuse Cases"],
+      "trigger_evidence": {
+        "PDCA": "main-path implementation needs focused checks before final E2E",
+        "Trust Boundary + Abuse Cases": "the requested download crosses a tenant data boundary"
+      },
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
     }
   ]
 }

@@ -77,18 +77,18 @@ Rules:
 - Modify code only after evidence narrows the cause, unless the change is an explicitly reversible diagnostic experiment.
 - After three distinct failed strategies, stop and reassess the abstraction and missing evidence.
 
-## 4. PDCA and Test-First Implementation
+## 4. PDCA and Main-Path Implementation
 
 Use internally for L1+ implementation:
 
-- Plan: goal, constraints, non-goals, minimal change, verification.
-- Do: one cohesive change; reuse existing coverage or add a focused failing behavioral check when a relevant gap justifies it.
-- Check: targeted tests, diff inspection, wiring, negative path, unrelated changes.
+- Plan: main user outcome, constraints, shortest runnable path and final acceptance.
+- Do: prove that path, complete main and secondary functionality, then refine under AGENTS.md §6.
+- Check: use scoped real-entrypoint checks during development. Apply AGENTS.md §12 for final E2E, reproducible evidence and any unit-test additions after functional completion.
 - Act: finalize, correct the approach, or stop with a blocker.
 
 Do not expose PDCA headings to the user unless requested. The method controls the work loop; it is not a reporting template.
 
-Before restructuring behavior that existing checks do not protect, capture it through a focused characterization or real integration check. This records current observable behavior; it does not prove that the behavior is desirable.
+Before restructuring behavior that existing checks do not protect, observe the relevant path through a focused real-entrypoint check. This records current behavior without starting a unit-test matrix or full E2E run; it does not prove that the behavior is desirable.
 
 ## 5. Pre-mortem and FMEA-lite
 
@@ -333,7 +333,7 @@ Rules:
 | Explorer / focused fixer | Hypothesis–Falsification; OODA for active incidents |
 | Planner | First Principles; MECE; assumptions/invariants; One-way/Two-way; Pre-mortem/FMEA; Risk–Complexity Budget; Expand–Migrate–Contract |
 | Plan checker | Steelman; Counterexamples; Red Team; FMEA and mechanism-admission challenge |
-| Executor | PDCA/test-first; requirement traceability; characterization; approved reliability/migration stage |
+| Executor | PDCA/main-path implementation; requirement traceability; scoped behavioral evidence; approved reliability/migration stage |
 | Code reviewer / verifier | Bidirectional Traceability; Adjacency Scan; Test Strategy Selection; finding classification |
 | Security reviewer | Trust Boundaries; Abuse Cases; Attack Paths; negative tests |
 | Researcher | Evidence Triangulation |

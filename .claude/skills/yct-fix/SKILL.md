@@ -19,10 +19,9 @@ $ARGUMENTS
    check are known. Use `focused-fixer-agent` for a localized one-to-three-file
    change and `executor-agent` when the bounded change is wider.
 4. Apply AGENTS.md §3 change admission to the requested fix or refactor.
-5. Prefer one high-information check and a real integration/end-to-end path
-   when available. Use property, metamorphic, or characterization coverage only
-   when the input space or behavior uncertainty requires it. Do not add tests
-   whose oracle is incidental prompt, source, log, heading, or prose text.
+5. Follow AGENTS.md §6 and §12: repair the main path, use scoped checks during
+   implementation, and finish with the agreed E2E acceptance and replay evidence.
+   Add unit tests only for justified gaps after functional completion.
 6. Do not add hashes, frozen contracts/baselines, gates, retries/fallbacks,
    state, fake infrastructure, broad abstractions, or unrelated cleanup.
 7. After delegated source edits, inspect the actual diff and run the targeted

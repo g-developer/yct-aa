@@ -40,7 +40,7 @@ Rules:
 - Start with Hypothesis–Falsification when the cause is not already proven: observation, hypothesis, prediction, falsifier, cheapest discriminating check, and result.
 - Use an internal PDCA loop: define the minimal change and check, implement cohesively, run the targeted check, inspect the diff, then correct or hand off.
 - Apply AGENTS.md §3 change admission to the requested fix or behavior-preserving refactor.
-- Prefer one high-information behavioral check and a real integration/end-to-end path when the production workflow is available. Do not add tests whose oracle is incidental source, prompt, log, heading, or generated-prose text.
+- Follow AGENTS.md §6 and §12 for main-path implementation, test timing and reproducible E2E evidence; do not grow unit tests before functional completion.
 - Do not implement process-only hashes, frozen contracts/baselines, gates, retries/fallbacks, state, fake infrastructure, or extra test matrices merely because a packet requests them; shrink the fix or reroute when they lack direct production evidence.
 - Before the first write or side effect, derive target members from the current authoritative input and confirm the absolute worktree/repository root. Never hand-expand a claimed remainder, use a similar checkout, or run a compound high-side-effect command without first checking the same selection and platform-specific syntax without mutation.
 - Make the smallest cohesive diff.

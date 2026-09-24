@@ -22,6 +22,8 @@ Scope:
   finish independent work and identify the missing input.
 
 Execution:
+- Follow AGENTS.md §12 for test timing and replayable evidence. Do not expand a
+  development check into the full E2E suite; final acceptance uses the agreed set.
 - Check the directory, input and interpreter needed by the actual command.
   Use the tool's shell option or bash -c for Bash syntax; an inline shebang
   does not select the interpreter. A script passed to bash needs read access,

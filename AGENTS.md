@@ -57,7 +57,7 @@ Within file-based guidance, direct user instructions take precedence over this c
 - Before exploration, design, execution, or delegation, identify the outcome or decision the action changes and compare that benefit with its total cost. Reuse valid evidence; skip a probe whose possible results would not change the next action. Measure the whole input once when the decision depends on it. Keep localized L1 or execution-only work in the parent; expand only for new evidence.
 - Admit a source change only when all four are supported: the actual user or production entry path needs it; it handles the required behavior or observed failure class at the appropriate shared boundary; a meaningful behavioral check covers it; and existing Case quality is preserved. General means handling the relevant input class, not adding a framework. A requested feature does not require a prior incident; a refactor must preserve observable behavior.
 - Do not add process-only hashes, frozen contracts, baselines, scope manifests, gates, or fake infrastructure harnesses. Add retries, fallbacks, or durable state only for an explicit product commitment or demonstrated need under the risk and complexity budget. Each inherited full-corpus rebuild or whole-ledger scan needs the same outcome justification as a new one.
-- Implement the smallest working path before expanding tests or review. Required authorization, data protection, and irreversible-action checks still precede execution. Verification depth and test selection belong to §12.
+- Follow §6: prove the main path, complete the requested functionality, then finish details and verification. Required authorization, data protection, and irreversible-action checks still precede execution. Test timing and selection belong to §12.
 - Plans, packets, manifests, fingerprints, and static counts are aids, not product results. Acceptance returns to the requested production outcome; runtime evidence overrides stale wording.
 
 ### Initiative and follow-through
@@ -110,9 +110,18 @@ Review-only mode never authorizes implementation. Explicit user approval is requ
 
 ## 6. Default work loop
 
-Confirm the goal and scope, inspect the relevant code and evidence, choose the smallest safe change, run the narrowest meaningful check, inspect diff/runtime wiring, and report the result and residual risk.
+Confirm the main user outcome and inspect only the evidence needed to implement it. Build in this order:
 
-Test-first is preferred when practical. Do not create artificial tests when the project lacks infrastructure or a safer direct validation exists.
+1. Connect the shortest useful path from the real entrypoint through the core behavior to an observable result. Run one representative scenario to prove feasibility before expanding. Evolve this working path; a demo with hardcoded success, mocks in the production path, or disconnected components does not prove feasibility. For a localized fix, the repaired path itself is enough; do not create a separate demo.
+2. Complete the main capabilities, then the required secondary features. Once those work together, finish details and refinement. “About 90%” means the main functionality is substantially usable, not a measured quota or permission to omit requirements. Keep the original goal until all requested functionality is delivered.
+3. Add defensive handling only for a required behavior, observed failure, or §11 must-handle risk. Essential authorization, data integrity and safe side effects belong in the first working path. Defer speculative hardening; do not create a mandatory defensive-programming phase at the end.
+4. Verify the completed scope under §12, inspect the cumulative diff and runtime wiring, then report the result and limits. A successful demo is an intermediate result, not completion.
+
+Use small checks during development to choose the next change. Do not interrupt functional implementation to grow unit tests or run the full E2E suite.
+This is the YCT implementation order. Generic test-first, red-green or baseline
+advice from another skill does not override it. Do not run a full suite merely
+to demonstrate that an unfinished feature fails; use the known failure or one
+scoped path. An explicit user request for a different testing workflow wins.
 
 ### Planning
 
@@ -135,7 +144,7 @@ Methods are selected by the decision or failure signal. Use the smallest set tha
 | Unresolved architecture/fundamentals or a one-way L3/L4 decision | First Principles | Goal, current reality, facts, assumptions, constraints, invariants, non-goals, minimal solution, rejection criteria |
 | L2+ decomposition with overlapping surfaces | MECE | Named decomposition lens, non-overlapping scopes, dependencies, uncovered residue |
 | Unknown root cause or repeated failed fix | Hypothesis–Falsification | Observations, ranked hypotheses, prediction, falsifier, cheapest discriminating check, result |
-| Normal implementation | PDCA, with test-first when practical | Plan, cohesive change, targeted check, diff review, next action; keep labels internal unless requested |
+| Normal implementation | PDCA following §6 | Main-path proof, functional completion, scoped checks, final acceptance; keep labels internal unless requested |
 | L3/L4 execution with credible failure modes | Pre-mortem + FMEA-lite | Plausible failure modes converted into mitigations, tests, detection, and recovery |
 | New retry/fallback, durable state, worker, lease/heartbeat, cache protocol, ACK, table/field, or theoretical reliability finding | Risk–Complexity Budget | Product/SLO commitment, evidence, impact, simplest acceptable failure, added state/operations/tests, observability-first option, decision, residual risk |
 | Plan/review challenge | Steelman + Red Team | Strongest plan reconstruction, concrete counterexamples, smaller reversible alternative |
@@ -342,7 +351,11 @@ Check the dimensions relevant to the change:
 
 A file existing, a type compiling, or a mock-based test passing does not prove runtime completion. A child task-complete event or future-tense final message also does not establish completion: inspect the requested artifact or terminal behavior. Keep local diagnostic, installed-entrypoint, and production results distinct in acceptance claims.
 
-Complete the smallest working path, then use a few meaningful checks through the real entrypoint. Prefer real integration/E2E over more unit tests; add a focused unit test only for an important behavior those checks cannot establish cheaply. Do not add low-value comparisons of prompt/source/log/prose strings, mirror implementation details, or require an artificial tool-call count or shell spelling. Preserve required behavior and existing Case quality; lower test volume is not permission to weaken assertions.
+Use real E2E as the primary behavioral evidence, and as the only test layer when it adequately covers the requested behavior. During implementation, run only the current path, a targeted E2E scenario, or an existing focused check needed to diagnose a failure. Do not run the full E2E suite while features remain unfinished. After all requested functionality and known corrections are complete, run the full E2E acceptance set for the agreed scope against the final implementation; do not silently narrow that set or expand it to unrelated products.
+
+Do not write or expand unit tests during functional implementation. After the requested functionality is complete, add a focused unit test only for an important remaining behavior that E2E cannot establish adequately or cheaply, or when the user explicitly requires it. Do not create unit tests merely because code was written. Preserve existing tests; a relevant existing test may still be run during diagnosis. Do not add low-value comparisons of prompt/source/log/prose strings, mirror implementation details, or require an artificial tool-call count or shell spelling.
+
+Keep E2E evidence verifiable and reproducible: record the tested version, working directory, environment prerequisites, exact command and Case selection, reusable input or fixture reference, expected and actual results, terminal summary, exit status and relevant raw artifacts. Use existing report facilities or a concise report with replay instructions; do not add a reporting framework, hashes or frozen manifests. Reference credentials by injection method, never include secret values. If the real environment prevents a replay or E2E run, state that limit rather than substituting unit tests or a mock run and declaring acceptance.
 
 Preserve existing Cases, collection, and assertion strength. A corrected expectation needs evidence of the intended behavior; changing an assertion just to turn a failure green is not verification. After relevant checks pass, expand or repeat them only for new changes, failures, or unresolved risk.
 When acceptance requires a whole Case set on one version, complete that set against the final changed implementation. A representative rerun or per-Case successes from older versions cannot establish that acceptance. Reuse unaffected evidence only with an explicit dependency argument; distinguish first-attempt failures from successful retries.

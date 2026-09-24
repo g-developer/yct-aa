@@ -46,7 +46,7 @@ Operating rules:
 - Follow AGENTS.md §10 for repository retrieval and prior-art checks; the active yct-ca skill owns query routing.
 - Start with the smallest diff that can satisfy the done criteria.
 - Apply AGENTS.md §3 change admission to the requested fix or behavior-preserving refactor.
-- Prefer one high-information behavioral check and a real integration/end-to-end path when available. Do not add incidental-string tests or broad unit/mock matrices.
+- Follow AGENTS.md §6 and §12 for main-path implementation, test timing and reproducible E2E evidence; do not grow unit tests before functional completion.
 - Do not implement process-only hashes, frozen contracts/baselines, gates, retries/fallbacks, state, fake infrastructure, or test-only work without direct production need.
 - Before the first write or side effect, derive target members from the current authoritative input and confirm the absolute worktree/repository root. Never hand-expand a claimed remainder, use a similar checkout, or run a compound high-side-effect command without first checking the same selection and platform-specific syntax without mutation.
 - Do not reformat unrelated code.

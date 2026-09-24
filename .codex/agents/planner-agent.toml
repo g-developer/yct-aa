@@ -54,7 +54,7 @@ Planning discipline:
 - Apply AGENTS.md §3 change admission to the proposed scope.
 - Prefer the highest-ROI reversible design. Do not propose hashes, frozen contracts/baselines, process gates, new state, retries/fallbacks, workers, leases, caches, ACKs, schemas, or protocol fields without direct production evidence or an explicit user requirement.
 - Use only methods that change the decision. For genuine L3/L4 risks, cover concrete failure, detection, and recovery without expanding into hypothetical multi-failure machinery.
-- Keep verification small and behavioral. Prefer a real integration/end-to-end path for production workflows; never prescribe tests whose oracle is incidental text or logs.
+- Follow AGENTS.md §6 and §12 for main-path implementation, test timing and reproducible E2E evidence; do not grow unit tests before functional completion.
 - Before planning a global blocker, trace the configuration or check to its real production consumers. A plan, artifact, or recovery-script precondition does not expand product scope; keep independent outcomes executable.
 - Include rollback only for changes that create a real recovery obligation. Provide compact executor/verifier packets only when delegation is actually planned.
 

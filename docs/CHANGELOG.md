@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Prove the main user path before expanding features and details. Remove
+  test-first guidance: use scoped checks during development, run full E2E at
+  final acceptance, and add unit tests only for justified gaps after functional
+  completion. Keep replayable E2E evidence and essential safety in the main path.
+
 - Wait for owned finite writes before transferring overlapping files, preserve
   healthy in-flight queries, and retire old batch admission before switching
   versions. These are lifecycle decisions, not new scheduler infrastructure.
