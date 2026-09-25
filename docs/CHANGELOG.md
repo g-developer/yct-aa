@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Reuse successful E2E evidence during final reporting, including after a report
+  parser fails. Check language scope before entering technical skill workflows.
+  Serialize multiline JSON before passing it to stdin and keep shell quoting,
+  patch literals and optional search exits separate from required execution.
+- Apply changed input restrictions before indirect searches, enforce explicit
+  deadlines on outer commands, and preserve per-file ownership restrictions
+  through every patch. Reconcile open outcomes before pausing or final delivery.
+
 - Prove the main user path before expanding features and details. Remove
   test-first guidance: use scoped checks during development, run full E2E at
   final acceptance, and add unit tests only for justified gaps after functional

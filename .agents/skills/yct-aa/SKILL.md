@@ -26,8 +26,10 @@ all features in the first patch and call a later default-path test a demo.
 Use scoped checks during development; run the full E2E set after functional
 completion. New unit tests then need a remaining coverage gap (§12).
 Other skills supply relevant technical knowledge, not a replacement workflow.
-Check their language/framework scope before running their setup; an unsupported
-language is not a reason to relabel the project to enter another workflow.
+Identify the target language/framework before running skill setup (§6); Node
+does not turn JavaScript into TypeScript. Skip workflows outside that scope.
+After a passing full E2E, reuse its terminal evidence through final reporting
+unless relevant inputs changed (§12); a report-command error does not rerun it.
 An explicit user testing instruction takes precedence.
 
 ## Choose the next action
@@ -85,7 +87,9 @@ An explicit user testing instruction takes precedence.
    contradictory evidence, and distinguish example counts from totals before
    reporting success. Check supplied direction and completion fields as well
    as prose; a tool's own status label is not the acceptance decision.
-7. Drive to completion. Apply `AGENTS.md` §3: continue independent work
+7. Drive to completion. Before a final reply, apply `AGENTS.md` §3 to the
+   remaining user outcomes: execute a known safe next action rather than
+   announcing a pause or returning only intentions. Continue independent work
    while a required clarification is pending, treat a status question as an
    update to the active goal, and collect task-critical child results before
    final delivery, subject to cancellation, runtime deadlines, and §13 limits.
