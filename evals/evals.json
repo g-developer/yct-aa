@@ -783,6 +783,42 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [],
       "files": []
+    },
+    {
+      "id": 33,
+      "prompt": "$yct-aa The JavaScript .mjs CLI and its full E2E have completed successfully. The later report renderer failed with a syntax error. Repair the renderer and finish delivery; the CLI, fixtures and runtime are unchanged.",
+      "expected_criticality": "L1",
+      "expected_route": "reuse-passing-e2e-after-report-failure",
+      "expected_output": "Use the saved terminal E2E result, repair and run only the report path, and preserve the successful test evidence. Do not rerun the full suite merely for final verification, add unit tests, or relabel JavaScript as TypeScript to enter an unrelated standards workflow.",
+      "expected_methods": ["PDCA"],
+      "trigger_evidence": {"PDCA": "a localized reporting failure leaves the tested product inputs unchanged"},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
+    },
+    {
+      "id": 34,
+      "prompt": "$yct-aa Submit the supplied multiline Chinese text, literal backticks, dollar signs, quotes and Windows path as JSON to the existing stdin-only validator. No intermediate files or additional commands are allowed; preserve the field values exactly.",
+      "expected_criticality": "L1",
+      "expected_route": "serialize-before-stdin",
+      "expected_output": "Serialize the data object, pass valid JSON without shell expansion using the allowed command, and inspect the actual validator result. Preserve actual newlines and literal characters after JSON decoding; do not hand-interpolate multiline prose or treat JSON serialization as shell argument quoting.",
+      "expected_methods": ["PDCA"],
+      "trigger_evidence": {"PDCA": "a bounded serialization task is accepted by the actual stdin consumer"},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
+    },
+    {
+      "id": 35,
+      "prompt": "$yct-aa Fix the incorrect summary through node main.mjs using current files only. Do not read memory, history or FAQ, including indirectly through prior. Keep main.mjs free of new calculation responsibilities; fix stats.mjs. Do not add unit tests or stop at diagnosis.",
+      "expected_criticality": "L1",
+      "expected_route": "preserve-live-constraints-through-repair",
+      "expected_output": "Repair the allowed calculation module and run the real entrypoint to the expected result. Do not run history-reading helpers, add responsibilities to the protected file, or pause after identifying a safe repair. Preserve existing tests.",
+      "expected_methods": ["PDCA"],
+      "trigger_evidence": {"PDCA": "the localized repair has an allowed owner and direct behavioral acceptance"},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
     }
   ]
 }

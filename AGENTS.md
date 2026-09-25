@@ -70,9 +70,9 @@ Within file-based guidance, direct user instructions take precedence over this c
 - While task-critical child agents or finite background jobs are running, collect their terminal results and continue the authorized goal in the same turn. Honor cancellation, runtime deadlines, and §13 limits; stop or reconcile owned work before handing off when required. Long-lived services and explicitly requested background handoffs do not require an endless wait. Do not rely on continuation after a final reply unless the runtime explicitly supports it.
 - When an external blocker (gateway error, missing credential, unavailable service) stops one path, finish every part of the goal that does not depend on it, then report the blocker with the exact input needed. Repeated probes of the same unavailable dependency are not independent work.
 - A closed tool transport stays unavailable until a real reconnect or new client is established. Changing the query, rerunning health checks or asking the same dead child again does not restore it. Use one known working route for the remaining task, without more identical calls or parallel replacements.
-- Treat status questions, corrections, and follow-up constraints as updates to the active goal unless the user explicitly pauses, cancels, or replaces it. Answer the question and resume the remaining authorized work; do not infer cancellation from a request for status.
+- Apply new user constraints to the next action, including indirect tool reads and reused worker packets; do not wait for compaction or a new phase. Treat status questions and corrections as updates to the active goal unless the user explicitly pauses, cancels, or replaces it. Answer and resume remaining authorized work; a status question is not cancellation.
 - Resolve short follow-ups such as "fix it" or "continue" against the user's established target, not the last defect or recommendation in your own answer. Inspecting a dependency to explain a failure does not authorize modifying it. Change the write target only when the user changes the requested outcome or that change is necessary within the already authorized scope.
-- End only when the outcome is delivered, the user must decide something you cannot, or a genuine stop condition in §13 prevents safe progress.
+- Before a final reply, reconcile the still-open user outcomes with the current authority and blockers. If a safe next repair or discriminating check is known, execute it; describing it or having no running processes does not justify pausing or completion. End only when the outcome is delivered, the user must decide something you cannot, or a genuine stop condition in §13 prevents safe progress. A blocker in one environment does not stop independent authorized work in another.
 
 ---
 
@@ -118,9 +118,14 @@ Confirm the main user outcome and inspect only the evidence needed to implement 
 4. Verify the completed scope under §12, inspect the cumulative diff and runtime wiring, then report the result and limits. A successful demo is an intermediate result, not completion.
 
 Use small checks during development to choose the next change. Do not interrupt functional implementation to grow unit tests or run the full E2E suite.
-This is the YCT implementation order. Technical skills apply only within their
-declared scope and do not replace it with generic test-first, red-green or baseline
-workflows. Do not run a full suite merely
+This is the YCT implementation order. Before starting a technical skill workflow,
+identify the actual language and framework from the target files and package
+configuration. Compare those facts with the skill scope; a description saying
+mandatory applies only inside that scope. Plain .js/.mjs/.cjs is JavaScript, not
+TypeScript merely because both use Node. Skip an inapplicable workflow rather
+than adapting its language flag or troubleshooting its unsupported-language
+error; continue the applicable repository checks. Technical skills do not replace
+this order with generic test-first, red-green or baseline workflows. Do not run a full suite merely
 to demonstrate that an unfinished feature fails; use the known failure or one
 scoped path. An explicit user request for a different testing workflow wins.
 
@@ -264,6 +269,10 @@ installed precise CLI or scoped source lookup instead of retrying a dead tool.
 
 Before a feature/fix edit, reuse the packet's verified `PRIOR_ART` or run the
 active yct-ca installation's scoped `prior` command in the source worktree.
+Current input restrictions apply first: if the user forbids history, memory or
+other sources, do not run a prior/aggregate search that reads them indirectly.
+Use permitted current files and already supplied evidence; report only the
+unavailable history boundary, without blocking an otherwise authorized edit.
 Inspect relevant candidates before adding another implementation. Incomplete
 retrieval is not evidence that no prior implementation exists. A deployment
 directory without Git has no local history; `--root` does not create it. Use
@@ -282,6 +291,10 @@ Use the repository's existing build/test/format/lint toolchain. Do not add tools
 When adding or moving files in a shipped package, inspect its existing packaging consumer and run that package/build entrypoint before final delivery. Passing helper tests or a separately assembled archive does not validate the repository's packaging path. Do not add a new inventory or gate.
 
 Before first write/side effect, confirm the absolute target worktree; never use a sibling, source, or historical checkout. For compound shell, `awk`/`jq`, or Docker mutations, dry-run the same target/member/platform logic, then run once. Use explicit scenario/time input directly; do not add a wall-clock wait or rerun a successful side effect to repair wrapper evidence.
+Apply named file restrictions to each edit, not just to the final net diff. If
+the user prohibits new functions or responsibilities in a file, implement them
+in the allowed module and keep only necessary wiring in the restricted file.
+Do not add them there temporarily with a promise to extract later.
 
 Do not commit unless the user explicitly asks. Never use `--no-verify`.
 
@@ -359,6 +372,13 @@ Do not write or expand unit tests during functional implementation. After the re
 Keep E2E evidence verifiable and reproducible: record the tested version, working directory, environment prerequisites, exact command and Case selection, reusable input or fixture reference, expected and actual results, terminal summary, exit status and relevant raw artifacts. Use existing report facilities or a concise report with replay instructions; do not add a reporting framework, hashes or frozen manifests. Reference credentials by injection method, never include secret values. If the real environment prevents a replay or E2E run, state that limit rather than substituting unit tests or a mock run and declaring acceptance.
 
 Preserve existing Cases, collection, and assertion strength. A corrected expectation needs evidence of the intended behavior; changing an assertion just to turn a failure green is not verification. After relevant checks pass, expand or repeat them only for new changes, failures, or unresolved risk.
+Before rerunning a successful check, identify which tested input, implementation,
+environment or acceptance requirement changed, or which required result is missing.
+If none changed and the terminal result is available, reuse it for final delivery.
+Writing a report, rereading a verification skill or entering a final phase does
+not invalidate that result. If a later report/parse command fails after a passing
+E2E, repair only that command and read the saved result; do not repeat the E2E
+unless its own outcome is unknown or a relevant change requires it.
 When acceptance requires a whole Case set on one version, complete that set against the final changed implementation. A representative rerun or per-Case successes from older versions cannot establish that acceptance. Reuse unaffected evidence only with an explicit dependency argument; distinguish first-attempt failures from successful retries.
 
 A command proves behavior only when the target Case was collected and not excluded by filters, paths, or node IDs; the command reached a terminal state; and the framework terminal summary plus real exit status were captured. Zero collected tests, a deselected target, pending output, or an interrupted command cannot support `PASS`.

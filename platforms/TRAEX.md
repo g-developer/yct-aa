@@ -32,6 +32,10 @@ Do not start extra agents or shell sessions just to fill capacity. When a
 finite process is still running, collect its terminal output. If capacity is
 exhausted, reconcile owned work before admission; never kill another session's
 processes by name. A status question does not cancel the active goal.
+For an explicitly time-bounded run, enforce the deadline on the owned outer
+command, including model startup and tool dispatch. yield_time_ms is only a
+poll interval. At the deadline, stop and reconcile owned work; a started TraeX
+session with no runner invocation is not an executed product Case.
 After consuming a completed child, retain it only for an identified follow-up.
 Use a close/shutdown tool only if this runtime exposes one; interrupt_agent
 stops a turn and leaves the child available, so it is not a close substitute.
@@ -47,13 +51,25 @@ credentials block the dependent path; finish independent work and report the
 precise missing input without inventing success.
 
 Keep code-mode orchestration small. Use structured tool arguments for data and
-direct patches for edits; for substantial shell/Python work, create a small
-script and invoke its interpreter rather than nesting another quoting layer.
+direct patches for edits. Build JSON from an object with a serializer, not by
+interpolating multiline prose into a JSON string. A quoted shell heredoc prevents
+shell expansion but does not JSON-escape newlines, quotes or backslashes. For an
+stdin-only command, serialize in the orchestrator and pass that text through an
+unexpanded heredoc with a delimiter absent from the payload; do not create files
+or additional commands when that entrypoint forbids them. JSON serialization
+does not quote shell arguments.
+For substantial shell/Python work, use a small script or quoted interpreter
+heredoc rather than nested shell -c / node -e strings. Pass patch text directly,
+never copied terminal color escapes; preserve literal backticks and dollar signs
+through every interpreter layer. Keep optional searches separate from required
+reads so an ordinary no-match exit cannot skip them. Use task-specific variable
+names such as check_exit, not shell-owned names such as zsh status.
 Do not shadow runtime helpers such as text, tools, image, store or load.
 After a wrapper syntax error, simplify the invocation. After a patch-context
 failure, read the affected current range before preparing the corrected patch.
 A wrapper can fail after a command or write succeeded: inspect its nested
 terminal result and actual output before retrying, and repeat only unfinished
-work. Do not rerun a successful side effect to repair a reporting error.
+work. This includes passing tests: read their saved terminal result after a
+reporting error instead of rerunning them. Do not rerun a successful side effect.
 Use Git checks only in a confirmed Git worktree. For an artifact-only task,
 verify the requested files directly; Git status/diff is not a universal check.
