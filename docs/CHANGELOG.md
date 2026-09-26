@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Bind same-named implementations to the active entrypoint before diagnosis.
+  Check effective inputs before attributing comparative output differences,
+  distinguish deadlines from resource causes, and inspect artifact structure
+  before treating empty queries as missing evidence. Simplify explorer reports.
+
 - Reuse successful E2E evidence during final reporting, including after a report
   parser fails. Check language scope before entering technical skill workflows.
   Serialize multiline JSON before passing it to stdin and keep shell quoting,

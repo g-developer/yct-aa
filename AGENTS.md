@@ -266,6 +266,15 @@ for dynamic wiring, logs, config and unsupported files. Check the returned
 location and index coverage; fuzzy neighbors and excluded files cannot prove
 the target is absent. If MCP is unavailable, report the boundary and use the
 installed precise CLI or scoped source lookup instead of retrying a dead tool.
+Bind findings to the requested entrypoint before following same-named symbols.
+When active, legacy, vendored or generated copies coexist, trace the command,
+import or registration to the implementation actually consumed. A search hit in
+a neighboring copy is not evidence about the active one. Locate within the
+known component first; widen only for an unresolved dependency. Keep historical
+or comparison implementations explicitly separate in the conclusion.
+For structured artifacts, inspect their keys and a representative record before
+extracting fields. Preserve absent, zero and empty as different observations;
+a guessed JSON path returning null is not evidence that the data is missing.
 
 Before a feature/fix edit, reuse the packet's verified `PRIOR_ART` or run the
 active yct-ca installation's scoped `prior` command in the source worktree.
@@ -318,6 +327,19 @@ Important claims need evidence, evidence strength, and remaining uncertainty. Do
 
 Bind historical version, result and timing claims to the same execution or its immutable artifact. A currently Ready session or installed version cannot fill a missing historical record. State the historical value as unknown at its first mention; do not lead with another execution's value and qualify it later. Continue unrelated work. Summarize each required check from its own result; a healthy doctor or later successful command cannot turn an earlier failed check into "all passed".
 For timing, name the measured interval and whether a duration includes another phase or overlaps parallel work. Do not add nested durations or infer CPU work from unexplained wall time; use the relevant worker's measurements to identify the bottleneck.
+An observed deadline proves the execution limit was reached, not resource
+exhaustion or that more capacity will fix it. Distinguish the stopping condition
+from its cause. Recommend a rerun or capacity change only when a concrete changed
+condition or measured bottleneck supports it; otherwise name the unresolved cause
+and the smallest observation that can distinguish it.
+
+Before attributing an output or performance difference to a change, compare the
+effective requests, data/revision, relevant configuration/dependencies and execution
+conditions. Identify the intended variable. If other relevant inputs differ,
+report the observed difference without blaming that variable. Use an authorized
+same-input comparison when needed; do not silently manufacture a new acceptance
+input. Compare the behavior the consumer requires, including meaningful ordering
+and provenance, rather than assuming either byte equality or set equality.
 
 Accept a validator result only for the properties it checks. Format validity, exit zero and self-reported pass flags do not establish factual correctness or a resolved outcome. When supplied evidence disagrees on a count, data direction or completion state, identify that contradiction before explaining the result; do not silently rewrite immutable machine fields. Distinguish total counts from bounded examples, and recommend the missing code analysis separately from runtime facts that cannot be recovered from code. An authorized fact repair belongs at its producing owner; finding that owner does not expand the user's repair scope. More validator input alone does not add semantic checking or justify turning a format checker into a new semantic subsystem.
 

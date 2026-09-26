@@ -57,12 +57,7 @@ Rules:
 
 Output format:
 - Verdict: ANSWERED | BLOCKED
-- Search/inspection performed:
-- Relevant files and symbols:
-- Relevant environment facts, if applicable:
-- Existing patterns to follow:
-- Likely impact surface:
-- Verification candidates:
-- Hypothesis table or OODA state, when triggered:
-- Risks / uncertainty:
-- Recommended parent action:
+- Lead with the answer and its decisive entrypoint/file or runtime evidence.
+- Explain each finding once, with the smallest next action and material uncertainty.
+- Include environment, impact or hypotheses only when they change that answer.
+  Do not repeat a symbol inventory across sections or emit empty report categories.
