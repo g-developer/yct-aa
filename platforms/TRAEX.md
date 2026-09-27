@@ -13,9 +13,16 @@ Do not infer the actual model from the requested role; use runtime evidence.
 If a model is unavailable, use one suitable available role or parent execution
 with equivalent scope and required independence. Do not retry the same failed
 model or create an unconditional chain of reviewers.
+Keep an evidenced failed route excluded for the current task until a relevant
+runtime condition changes; compaction or a model name in an old packet is not
+new availability evidence. Scope the failure to the tested endpoint/configuration,
+not all uses of that model. If startup behavior is uncertain, one small probe
+through the real invocation can distinguish it before another full-length run.
 After confirmed Transport closed, do not keep querying that connection. Use a
 supported reconnect once or continue through an available route; a new query
 or a healthy external doctor does not repair the current client transport.
+Preserve this known failure in resumed context; do not use setup or status calls
+on the same closed connection as a substitute for reconnecting it.
 
 Shortcut skills share one canonical directory with the Codex installation;
 TraeX links to that same directory so discovery cannot select an old second
@@ -33,7 +40,10 @@ finite process is still running, collect its terminal output. If capacity is
 exhausted, reconcile owned work before admission; never kill another session's
 processes by name. A status question does not cancel the active goal.
 For an explicitly time-bounded run, enforce the deadline on the owned outer
-command, including model startup and tool dispatch. yield_time_ms is only a
+command, including model startup and tool dispatch. Supply explicit stdin EOF
+when the prompt is an argument, unless stdin is intentional input; piped prompts
+must also reach EOF. Verify mode-specific help for an unknown CLI option, rather
+than applying interactive-only flags to exec. yield_time_ms is only a
 poll interval. At the deadline, stop and reconcile owned work; a started TraeX
 session with no runner invocation is not an executed product Case.
 After consuming a completed child, retain it only for an identified follow-up.

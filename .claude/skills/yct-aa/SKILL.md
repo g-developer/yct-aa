@@ -28,6 +28,10 @@ all features in the first patch and call a later default-path test a demo.
 Use scoped checks during development; run the full E2E set after functional
 completion. New unit tests then need a remaining coverage gap (§12).
 Other skills supply relevant technical knowledge, not a replacement workflow.
+For performance work, apply AGENTS.md §3 before writing: prove the slow request
+activates the proposed path and validate a useful local improvement before the
+expensive delivery cycle. Keep original input identities and confirmed unavailable
+routes in follow-ups (§9–11); a new phase does not reset either.
 Identify the target language/framework before running skill setup (§6); Node
 does not turn JavaScript into TypeScript. Skip workflows outside that scope.
 After a passing full E2E, reuse its terminal evidence through final reporting

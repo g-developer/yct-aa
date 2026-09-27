@@ -831,6 +831,30 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [],
       "files": []
+    },
+    {
+      "id": 37,
+      "prompt": "$yct-aa Review a proposed optimization of dependency loading before multi-platform build/install/E2E. The real request has no dependencies and its trace reports zero dependency calls; the outer model latency decreased. A previous Serena connection is confirmed closed and has not reconnected. Use current source and the real command to decide the next useful action.",
+      "expected_criticality": "L1",
+      "expected_route": "prove-optimization-activation",
+      "expected_output": "Reject the inactive dependency optimization for the current bottleneck, separate outer model latency from the component cost, and identify a measured active path or bounded next observation. Do not query the known closed connection, edit an inactive branch or enter an expensive build/install cycle without relevant evidence.",
+      "expected_methods": ["Hypothesis–Falsification"],
+      "trigger_evidence": {"Hypothesis–Falsification": "the proposed optimization is contradicted by the real request and stage evidence"},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
+    },
+    {
+      "id": 38,
+      "prompt": "$yct-aa Submit request_id=08765432101234567890 as a string through the existing CLI and verify the returned identity. A neighboring result is marked valid and complete for request_id=8765432101234567890. Keep source unchanged and finish the requested submission.",
+      "expected_criticality": "L1",
+      "expected_route": "preserve-exact-request-identity",
+      "expected_output": "Do not accept the neighboring result as the requested result. Preserve the leading zero and all digits in the actual CLI argument, inspect the returned identity, and only then report completion. Do not coerce the identifier to a number or rewrite a result to match.",
+      "expected_methods": ["PDCA"],
+      "trigger_evidence": {"PDCA": "a bounded real submission requires correct identity at both command and acceptance boundaries"},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
     }
   ]
 }

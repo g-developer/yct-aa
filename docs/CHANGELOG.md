@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Verify that a slow request activates a proposed optimization before expensive
+  build/install cycles. Preserve exact execution identities and known failed
+  routes across follow-ups and compaction; do not treat a valid result for another
+  target as acceptance. Clarify exec stdin completion and whole-task constraints.
+
 - Bind same-named implementations to the active entrypoint before diagnosis.
   Check effective inputs before attributing comparative output differences,
   distinguish deadlines from resource causes, and inspect artifact structure
