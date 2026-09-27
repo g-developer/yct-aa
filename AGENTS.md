@@ -58,6 +58,13 @@ Within file-based guidance, direct user instructions take precedence over this c
 - Admit a source change only when all four are supported: the actual user or production entry path needs it; it handles the required behavior or observed failure class at the appropriate shared boundary; a meaningful behavioral check covers it; and existing Case quality is preserved. General means handling the relevant input class, not adding a framework. A requested feature does not require a prior incident; a refactor must preserve observable behavior.
 - Do not add process-only hashes, frozen contracts, baselines, scope manifests, gates, or fake infrastructure harnesses. Add retries, fallbacks, or durable state only for an explicit product commitment or demonstrated need under the risk and complexity budget. Each inherited full-corpus rebuild or whole-ledger scan needs the same outcome justification as a new one.
 - Follow §6: prove the main path, complete the requested functionality, then finish details and verification. Required authorization, data protection, and irreversible-action checks still precede execution. Test timing and selection belong to §12.
+- For a performance fix, first confirm that the actual slow request enters the
+  proposed branch and identify its measured cost. After a failed optimization,
+  inspect the same input and stage measurements or profile before another patch.
+  Check the smallest real component for output preservation and useful improvement
+  before an expensive multi-platform build, install or full E2E. That diagnostic
+  check does not replace final acceptance. Do not retain an inactive-path change
+  as a fix for the current bottleneck or infer its benefit from outer model latency.
 - Plans, packets, manifests, fingerprints, and static counts are aids, not product results. Acceptance returns to the requested production outcome; runtime evidence overrides stale wording.
 
 ### Initiative and follow-through
@@ -69,7 +76,7 @@ Within file-based guidance, direct user instructions take precedence over this c
 - A parent final response is not a progress checkpoint. A completed phase, commit, build, image, artifact, review, elapsed-time boundary, or intermediate receipt does not end an incomplete goal while a safe, authorized, outcome-relevant next action exists.
 - While task-critical child agents or finite background jobs are running, collect their terminal results and continue the authorized goal in the same turn. Honor cancellation, runtime deadlines, and §13 limits; stop or reconcile owned work before handing off when required. Long-lived services and explicitly requested background handoffs do not require an endless wait. Do not rely on continuation after a final reply unless the runtime explicitly supports it.
 - When an external blocker (gateway error, missing credential, unavailable service) stops one path, finish every part of the goal that does not depend on it, then report the blocker with the exact input needed. Repeated probes of the same unavailable dependency are not independent work.
-- A closed tool transport stays unavailable until a real reconnect or new client is established. Changing the query, rerunning health checks or asking the same dead child again does not restore it. Use one known working route for the remaining task, without more identical calls or parallel replacements.
+- A closed tool transport stays unavailable until a real reconnect or new client is established. Carry that boundary through compaction and task follow-ups using the existing handoff or packet. Reloading a skill, starting a new phase, calling initial_instructions/activate/get-config, or a successful external health check does not reset it. Use one known working route for the remaining task.
 - Apply new user constraints to the next action, including indirect tool reads and reused worker packets; do not wait for compaction or a new phase. Treat status questions and corrections as updates to the active goal unless the user explicitly pauses, cancels, or replaces it. Answer and resume remaining authorized work; a status question is not cancellation.
 - Resolve short follow-ups such as "fix it" or "continue" against the user's established target, not the last defect or recommendation in your own answer. Inspecting a dependency to explain a failure does not authorize modifying it. Change the write target only when the user changes the requested outcome or that change is necessary within the already authorized scope.
 - Before a final reply, reconcile the still-open user outcomes with the current authority and blockers. If a safe next repair or discriminating check is known, execute it; describing it or having no running processes does not justify pausing or completion. End only when the outcome is delivered, the user must decide something you cannot, or a genuine stop condition in §13 prevents safe progress. A blocker in one environment does not stop independent authorized work in another.
@@ -233,6 +240,9 @@ Include only facts that change the worker's decision:
 - the full absolute worktree on every new task and follow-up, including reused children; never use "same as above", an abbreviated path, or inherited cwd as the target;
 - allowed scope, explicit non-goals, and relevant constraints;
 - smallest meaningful verification and genuine stop conditions;
+- current input identity, prohibited actions and confirmed unavailable routes
+  when they affect execution; a child phase finishing does not lift whole-task
+  restrictions such as deferring new unit tests until functional completion;
 - batch identity/remainder only when the work is actually batched.
 
 Do not paste method catalogs, full parent history, stale plans, hashes, frozen manifests, or exhaustive packet schemas unless that item is necessary to the product outcome. Workers complete independently useful work within the packet first. When remaining required work cannot proceed safely or usefully because scope, authority, evidence, or a tool is missing, they return that remainder as `BLOCKED` or `REROUTE` with the exact prerequisite. Optional formatting fields and the size estimate are not blockers. Partial delivery is not acceptance, and a worker blocker does not by itself terminate the parent goal. Workers do not expand scope or redefine success.
@@ -345,6 +355,13 @@ Accept a validator result only for the properties it checks. Format validity, ex
 
 Before making a configuration or check a global blocker, trace real consumers and scope. Plan, artifact, or recovery preconditions do not prove product-wide necessity; block only the dependent subpath.
 
+Preserve the exact user-selected IDs, paths, revision and environment at execution
+and acceptance boundaries. Copy them from the current authoritative input into
+commands and reused-child packets; do not reconstruct them from memory or a nearby
+result. Confirm the invocation and returned identity before accepting even a valid
+or blocked result. A different target is a routing failure for the requested task,
+not its result; keep the evidence and correct only the unfinished authorized work.
+
 Never backfill missing authoritative input without a verified source and consumer need; otherwise preserve the honest per-item insufficiency path.
 
 For architecture or L3/L4 work, separate facts, assumptions, constraints, invariants, non-goals, minimal solution, and rejection criteria. Low-confidence assumptions must not drive irreversible decisions.
@@ -404,6 +421,9 @@ unless its own outcome is unknown or a relevant change requires it.
 When acceptance requires a whole Case set on one version, complete that set against the final changed implementation. A representative rerun or per-Case successes from older versions cannot establish that acceptance. Reuse unaffected evidence only with an explicit dependency argument; distinguish first-attempt failures from successful retries.
 
 A command proves behavior only when the target Case was collected and not excluded by filters, paths, or node IDs; the command reached a terminal state; and the framework terminal summary plus real exit status were captured. Zero collected tests, a deselected target, pending output, or an interrupted command cannot support `PASS`.
+Run a producer to its terminal result before reading the output it creates.
+Dependent readback is not independent parallel work. If a premature read fails,
+wait for the original producer and repeat only that read, not the successful write.
 
 Acceptance must use the installed product/skill through the user's real entrypoint, working directory, and command-level environment/auth injection. Direct internal tools or a temporary runner are diagnostic only; do not bypass a broken real invocation and call the substitute an end-to-end result.
 
