@@ -40,6 +40,8 @@ Execution:
   reconstructed fixtures or a Git search merely to claim that nothing changed.
 
 Evidence:
+- Apply AGENTS.md §11 before comparative verdicts: identify changed request or
+  environment inputs before attributing a difference to code or a feature flag.
 - Tests count only if the requested Case was collected and executed, with its
   terminal summary and real exit status. Zero collected, filtered-out, skipped,
   weakened or interrupted tests do not establish the requested behavior.

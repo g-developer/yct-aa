@@ -819,6 +819,18 @@
       "expected_not_methods": "all_catalog_methods_except_expected_methods",
       "expected_gates": [],
       "files": []
+    },
+    {
+      "id": 36,
+      "prompt": "$yct-aa Review three claims about the supplied Node project: its active lookup cache lacks revision isolation and a size bound; a filtered graph with no framework modules loses an edge compared with an unfiltered request that enables a module; a deadline without resource metrics proves insufficient machine capacity. The start script, duplicate lookup implementations, requests, outputs and deadline record are available. Read-only, use existing commands if useful, and report decisive evidence briefly.",
+      "expected_criticality": "L1",
+      "expected_route": "bind-entry-and-compare-inputs",
+      "expected_output": "Trace the start script to the active implementation before judging its cache. Identify the differing framework inputs before attributing the graph delta. Treat the deadline as an observed stop, not a proven capacity cause or guaranteed rerun fix. Use the consumer semantics, preserve files and give the smallest discriminating next check.",
+      "expected_methods": ["Hypothesis–Falsification"],
+      "trigger_evidence": {"Hypothesis–Falsification": "the claims depend on an unverified implementation binding and confounded causal comparison"},
+      "expected_not_methods": "all_catalog_methods_except_expected_methods",
+      "expected_gates": [],
+      "files": []
     }
   ]
 }
