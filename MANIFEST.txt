@@ -15,6 +15,7 @@ Purpose: YCT-prefixed Claude/Codex routing, task-selected engineering methods, a
 - .gitignore
 - .agents/skills/yct-aa/SKILL.md
 - .agents/skills/yct-aa/agents/openai.yaml
+- .agents/skills/yct-aa/references/orchestration.md
 - .agents/skills/yct-direct/SKILL.md
 - .agents/skills/yct-direct/agents/openai.yaml
 - .agents/skills/yct-fix/SKILL.md

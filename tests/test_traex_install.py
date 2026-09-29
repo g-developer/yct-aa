@@ -10,6 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 NL = chr(10)
+TRAE_HOT_RELOAD_BUDGET_BYTES = 3_800
 
 
 class TraeXInstallTest(unittest.TestCase):
@@ -27,6 +28,10 @@ class TraeXInstallTest(unittest.TestCase):
                                '--trae-home', str(self.home), '--shared-skills', str(self.shared),
                                '--backup-dir', str(self.backup), *args], capture_output=True, text=True)
 
+    def test_yct_aa_entry_fits_traex_hot_reload_budget(self) -> None:
+        skill = ROOT/'.agents/skills/yct-aa/SKILL.md'
+        self.assertLessEqual(len(skill.read_bytes()), TRAE_HOT_RELOAD_BUDGET_BYTES)
+
     def test_fresh_repeat_and_config_preservation(self):
         config = 'model = "user-choice"' + NL + '[mcp_servers.local]' + NL + 'command = "retained"' + NL
         (self.home/'traecli.toml').write_text(config)
@@ -39,6 +44,9 @@ class TraeXInstallTest(unittest.TestCase):
         self.assertIn((ROOT/'AGENTS.md').read_text().rstrip(), (self.home/'AGENTS.md').read_text())
         for name in ('yct-aa','yct-fix','yct-risk','yct-review','yct-direct'):
             self.assertEqual((self.home/'skills'/name).resolve(), self.shared/name)
+        source_reference = ROOT/'.agents/skills/yct-aa/references/orchestration.md'
+        installed_reference = self.shared/'yct-aa/references/orchestration.md'
+        self.assertEqual(installed_reference.read_bytes(), source_reference.read_bytes())
         before = {p:p.read_bytes() for p in self.home.rglob('*') if p.is_file()}
         result = self.run_install()
         self.assertEqual(result.returncode, 0, result.stderr)
