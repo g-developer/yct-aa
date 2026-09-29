@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Keep the TraeX/Codex `yct-aa` entry below the hot-reload safety budget and
+  move role/dispatch detail into an on-demand reference. Require runtime
+  evidence before claiming the shortcut was loaded, and document literal
+  `/yct-aa` recovery from a pre-model reload rejection.
+
 - Verify that a slow request activates a proposed optimization before expensive
   build/install cycles. Preserve exact execution identities and known failed
   routes across follow-ups and compaction; do not treat a valid result for another

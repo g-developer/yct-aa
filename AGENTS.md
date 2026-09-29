@@ -483,6 +483,13 @@ Platform skills provide the concrete agent/model mapping.
 
 Shortcuts do not broaden authorization or permit destructive action. After compaction, re-read the active shortcut's installed `SKILL.md` before routing more work, and resume from the most recent durable receipt or state file; re-scan only what no intact receipt covers. Create a handoff file only when the user asks or another session genuinely needs durable state.
 
+Do not claim a shortcut was loaded merely because the user named it or an
+assistant status message says it is active. Loading evidence is a structured
+skill invocation supplied by the runtime or a successful read of the installed
+`SKILL.md` after the user named it. If TraeX rejects an updated skill before
+model execution, require the literal `/skill-name <task>` invocation or a fresh
+session; natural-language “reload” cannot satisfy that pre-model check.
+
 ---
 
 ## 15. Final answer contract
