@@ -278,12 +278,18 @@ A long task by itself is not a trigger.
 1. Recover the current target from the original request, later authorized
    changes and acceptance criteria. Preserve verified work whose inputs remain
    valid; do not restart because an old handoff is incomplete.
+   Reconcile summary-derived restrictions with original instructions. Preserve
+   the user's milestone order and distinguish loading a workflow from authority
+   to execute it; a prior parent-only decision is not a permanent user ban.
 2. Compare task-relevant changes since the previous checkpoint. A live process,
    existing diff or new status message alone is not progress. A normal long
    operation may be progressing before it yields final acceptance evidence.
 3. Check goal alignment and value for effort. Reconcile concrete findings in
    one place; prune unsupported scope and choose the smallest useful remaining
    outcome. Use an independent reviewer only for a question that needs it.
+   Reassess independent diagnosis or verification when the bottleneck changes.
+   Do not replace the first unmet milestone with a deferred optimization or
+   repeat a broad acceptance run before its stated prerequisites are satisfied.
 4. Preserve partial work. Reuse a suitable child only with a confirmed handle
    and explicit worktree; otherwise pass recovered evidence to a new packet.
    Stop redundant attempts, not independent work that still advances the goal.

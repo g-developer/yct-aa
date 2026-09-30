@@ -102,6 +102,14 @@ source preservation, partial blocking, zero-yield recovery, and reuse of an exis
 format validator. The output directory must be new to avoid replaying one-shot
 actions. A model timeout is a failed run, never a pass. Model availability is an
 account/runtime fact; `--model` selects the parent for this test only.
+Use `--backend-variant standard|max` when selecting a model variant explicitly;
+do not carry an unsupported variant from the previous model into a resumed run.
+`--case context` selects the three recovery scenarios: an outdated assistant
+summary conflicting with original user instructions, an explicit current
+no-agent restriction, and a reload-only request. They check real delegation,
+unique Case accounting, required report data and preservation of existing
+inputs and plans. These are bounded recovery replays, not a claim that every
+long-session compaction pattern has been reproduced.
 Command evidence is retained for review without prescribing a shell spelling
 or tool-call count. A loop or a safe wrapper may be appropriate. The tests
 check delivered behavior; they are not a benchmark of general planning ability.
