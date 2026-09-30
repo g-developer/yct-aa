@@ -1,7 +1,78 @@
 # YCT orchestration reference
 
-Read this file before the first delegation in an invoked `yct-aa` task. The
+Read this file before the first delegation and when recovering an active task. The
 active `AGENTS.md` remains authoritative when this reference is silent or stale.
+
+Contents: [Recovery](#recovery-and-changed-priorities),
+[Model and MCP changes](#model-and-mcp-changes), [Roles](#role-selection),
+[Dispatch](#dispatch-and-recovery), [Evidence](#evidence-of-use).
+
+## Recovery and changed priorities
+
+After compaction, a model/harness switch or a mode/priority correction, reconcile the next action with
+the original user messages already retained in context. Do not read prohibited
+history or memory to do this. Keep these facts separate:
+
+- Loading: which installed instructions were actually supplied or read.
+- Mode: whether the user currently requests this workflow for the task.
+- Authority: which actors may delegate or write, under which restrictions.
+- Order: the first unmet user milestone and work explicitly deferred until later.
+
+An assistant summary can omit a later correction or expand an earlier choice.
+Before claiming "the user forbids new agents", locate the original restriction
+and reconcile later instructions. "No children are running", an unsuccessful
+dispatch or "keep this step in the parent" is not a permanent delegation ban.
+A request to reload instructions alone is not authorization to execute pending
+work or to override a genuine no-agent instruction. If the original instruction
+is unavailable or contradictory, clarify only the affected action and continue
+independent work whose authority is established.
+
+For an active routing request, choose useful independent work again at a phase
+boundary or repeated failure. Shared write ownership may require one writer;
+it does not prevent disjoint read-only diagnosis or independent verification.
+Name the current question and accept the child's evidence before deciding.
+If parent execution is best, tie that choice to the actual dependency, cost or
+available capability. Do not create agents merely to satisfy a count.
+
+Honor the user's milestone order in actual commands and worker packets. When
+the user defers optimization or a broad rerun, do not let a convenient benchmark
+or one passing representative substitute for the requested completion set.
+If a deferred action appears indispensable, identify the concrete dependency
+and resolve that conflict; do not silently weaken either the order or the
+product's existing safety and timeout constraints.
+
+When reporting progress, explain what the routing decision resolved and what
+remains to reach the current milestone. Repeated "using yct-aa" messages,
+reloads and agent counts do not establish useful application of the workflow.
+Report unique requested Cases, attempts and repeats separately. Preserve the
+full requested set when using a smaller diagnostic sample. Before editing a
+plan or interpreting an earlier run, read its actual existing content or
+recorded invocation; do not replace either with current assumptions.
+
+## Model and MCP changes
+
+A switch changes the model's current context and may change tool exposure; it
+does not by itself prove the MCP connection failed. Reconcile the active workflow
+from current injected instructions; read the installed entry if absent, stale
+or changed. Reconcile task state before new work. Check the selected
+model's supported backend variant and effort, without changing global settings
+or pinned role choices to make a test pass.
+
+Inspect the current tool catalog for the next required capability. If a query
+is needed, use one small real request in the target worktree. A successful
+required call after the switch is enough; do not perform another health scan
+or restart healthy MCP servers. A metadata listing or external doctor alone
+does not prove that the current client can execute a tool.
+
+Keep failure scope precise: an ordinary query timeout is not `Transport closed`.
+A known closed transport requires a supported host reconnect and a successful
+query through the new client; do not send setup probes to that dead connection.
+Without a reconnect capability, use an available route for independent work and
+report the affected dependency. Preserve known failures through model switches
+and compaction, but do not disable all MCPs because one client or file failed.
+
+Runtime and tool notices do not replace the unfinished user task. Acknowledge
+only a material capability change, then continue the next authorized operation.
 
 ## Role selection
 

@@ -55,6 +55,9 @@ extra agents merely to make its use look frequent.
    `AGENTS.md` applies. A phase, build, review, artifact or worker receipt is not
    final delivery by itself.
 
-After compaction, re-read this installed entry before routing more work. Keep
-confirmed unavailable routes and exact target identities. Finish with changed
-files, meaningful verification and remaining limits.
+After compaction, reload this entry. For model/harness or priority changes,
+reuse current injected rules, loading missing/stale instructions as needed.
+Reconcile original user inputs: outcome, order, authority and failed routes.
+Summaries cannot create user bans. Apply `references/orchestration.md` recovery.
+Keep explicit current bans; a reload-only request authorizes no task execution.
+Report the decision improved by routing, verification and remaining limits.

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Reconcile original user instructions after compaction and priority changes.
+  Keep workflow loading, active mode, delegation authority and milestone order
+  separate so stale summaries cannot invent a permanent no-agent restriction.
+  Reassess useful parallel work at phase boundaries and preserve deferred work.
+- Preserve existing plans, unique Case counting and run-specific version
+  evidence. Model and tool updates retain the active task; check the required
+  capability after a switch and reconnect only an actually broken MCP client.
+
 - Keep the TraeX/Codex `yct-aa` entry below the hot-reload safety budget and
   move role/dispatch detail into an on-demand reference. Require runtime
   evidence before claiming the shortcut was loaded, and document literal
