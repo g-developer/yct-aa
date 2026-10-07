@@ -61,6 +61,20 @@ Uncovered residue:
 
 Do not call a list MECE when scopes overlap accidentally. Cross-cutting verification is allowed when labeled as a second lens.
 
+For pipeline, graph or state-machine completeness claims, a node inventory is
+only the starting point. Name the input domain and follow its actual producers,
+enabling conditions, dependency admission, state/certificate creation and
+consumption, rebuild/rebind, early returns, exceptions and final projection.
+Check whether one failed branch suppresses independent ready work. Reuse the
+existing graph or source evidence; do not add a mandatory matrix or new ledger.
+
+Separate enumerated nodes, statically traced paths and dynamically exercised
+paths. Mark unexercised variants and exclusions. Passing one corpus establishes
+that corpus's result, not universal correctness for future inputs. A new
+counterexample reopens the missing input or transition dimension; preserve
+unaffected evidence and repair that shared gap instead of merely adding a Case
+or repeating an unchanged inventory audit.
+
 ## 3. Hypothesis–Falsification Debugging
 
 Use when the root cause is unknown, multiple causes fit the symptoms, or a previous fix failed.

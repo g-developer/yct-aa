@@ -18,6 +18,12 @@ history or memory to do this. Keep these facts separate:
 - Authority: which actors may delegate or write, under which restrictions.
 - Order: the first unmet user milestone and work explicitly deferred until later.
 
+Carry narrow authorization exceptions with their target and completion state;
+do not omit them into an unconditional ban or expand them into general access.
+Reconcile stale plan checkpoints with the actual current inputs and unfinished
+milestone before reuse. A completed earlier candidate or phase does not complete
+a later requirement. Update the existing plan when that state changes.
+
 An assistant summary can omit a later correction or expand an earlier choice.
 Before claiming "the user forbids new agents", locate the original restriction
 and reconcile later instructions. "No children are running", an unsuccessful
@@ -40,6 +46,9 @@ or one passing representative substitute for the requested completion set.
 If a deferred action appears indispensable, identify the concrete dependency
 and resolve that conflict; do not silently weaken either the order or the
 product's existing safety and timeout constraints.
+Keep measurement and tolerance scopes with those milestones. A diagnostic-stage
+tolerance or a fast inner operation does not waive a later deadline for the
+user's complete entrypoint, including its required terminal result.
 
 When reporting progress, explain what the routing decision resolved and what
 remains to reach the current milestone. Repeated "using yct-aa" messages,
@@ -103,6 +112,12 @@ only a material capability change, then continue the next authorized operation.
 - Check the selected role and required tools before spawning. Claim delegation
   only after a successful spawn returns a child identity. Runtime evidence,
   rather than the requested role name, establishes the model that ran.
+- A spawn identity or `task_started` proves admission, not active review or
+  execution. At the expected first-work checkpoint, use a model/tool item or
+  artifact to establish progress. If a route is stalled at startup, inspect one
+  owned native log, preserve its endpoint/configuration boundary and reconcile
+  the owned request before using a confirmed working route. Do not add more
+  workers to the same stalled route or alter global model pins to hide it.
 - Use `batch-agent` and `focused-fixer-agent` as portable defaults. Spark is
   optional. On confirmed Spark quota or entitlement failure, use
   `batch-spark-agent` → `batch-agent` or `spark-agent` →

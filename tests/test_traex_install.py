@@ -203,10 +203,12 @@ class TraeXInstallTest(unittest.TestCase):
 
 
 class SessionEvidenceTest(unittest.TestCase):
-    def test_copied_parent_turns_and_incremental_results_are_not_new_execution(self):
+    def setUp(self):
         spec = importlib.util.spec_from_file_location("verify_traex", ROOT/"tests/verify_traex.py")
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+
+    def test_copied_parent_turns_and_incremental_results_are_not_new_execution(self):
         rows = [
             {"type": "session_meta", "payload": {"id": "child", "timestamp": "2026-09-17T10:00:00Z"}},
             {"type": "turn_context", "payload": {"turn_id": "parent-turn"}},
@@ -219,8 +221,81 @@ class SessionEvidenceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp)/"child.jsonl"
             path.write_text("".join(json.dumps(row) + NL for row in rows))
-            result = module.session_commands(path, "child")
+            result = self.module.session_commands(path, "child")
         self.assertEqual([(x["call_id"], x["exit_code"]) for x in result], [("new", 2)])
+
+    def mcp_events(self):
+        calls = [
+            ('activate', 'serena', 'activate_project', {'project': '/repo'},
+             "The project with name 'test' at /repo is activated."),
+            ('find', 'serena', 'find_symbol', {'relative_path': 'work.py'},
+             json.dumps([{'relative_path': 'work.py', 'name_path': 'work', 'body': 'def work(): pass'}])),
+            ('node', 'codegraph', 'codegraph_node',
+             {'projectPath': '/repo', 'file': 'work.py', 'symbol': 'work', 'includeCode': False},
+             '**work** (function)\n**Location:** work.py:1\n**Called by:** main'),
+        ]
+        events = []
+        for cid, server, tool, arguments, body in calls:
+            item = {'id': cid, 'type': 'mcp_tool_call', 'server': server, 'tool': tool, 'arguments': arguments}
+            events.append({'type': 'item.started', 'item': dict(item, status='in_progress')})
+            events.append({'type': 'item.completed', 'item': dict(item, status='completed', error=None,
+                           result={'content': [{'type': 'text', 'text': body}]})})
+        return events
+
+    def test_mcp_requires_project_binding_and_native_completion(self):
+        check = lambda events: self.module.mcp_results(events, Path('/repo'), 'work.py', 'work')
+        self.assertTrue(check(self.mcp_events())['passed'])
+        self.assertFalse(check(self.mcp_events()[2:])['passed'])
+        wrong_project = self.mcp_events()
+        wrong_project[1]['item']['arguments'] = {'project': '/other'}
+        self.assertFalse(check(wrong_project)['passed'])
+        failed_activation = self.mcp_events()
+        failed_activation[1]['item']['result']['content'][0]['text'] = 'Error: cannot activate /repo'
+        self.assertFalse(check(failed_activation)['passed'])
+        switched = self.mcp_events()
+        switch = self.mcp_events()[:2]
+        for event in switch:
+            event['item']['id'] = 'switch'
+        switched[3:3] = switch
+        self.assertFalse(check(switched)['passed'])
+        pending = self.mcp_events()
+        pending.append({'type': 'item.started', 'item': dict(pending[2]['item'], id='pending')})
+        result = check(pending)
+        self.assertFalse(result['passed'])
+        self.assertEqual(result['pending_call_ids'], ['pending'])
+
+    def test_mcp_errors_never_match_and_recovery_preserves_failure(self):
+        events = self.mcp_events()
+        events[3]['item']['result']['isError'] = True
+        self.assertFalse(self.module.mcp_results(events, Path('/repo'), 'work.py', 'work')['passed'])
+        failed = self.mcp_events()[2:4]
+        for event in failed:
+            event['item']['id'] = 'failed'
+        failed[1]['item'].update(status='failed', error='timeout', result=None)
+        recovered = self.mcp_events()
+        recovered[2:2] = failed
+        result = self.module.mcp_results(recovered, Path('/repo'), 'work.py', 'work')
+        self.assertTrue(result['passed'])
+        self.assertEqual(result['failed_call_ids'], ['failed'])
+
+    def test_delegation_observation_requires_an_actual_child(self):
+        self.assertFalse(self.module.delegation_observed([]))
+        failed = {'type': 'item.completed', 'item': {'tool': 'spawn_agent', 'receiver_thread_ids': []}}
+        self.assertFalse(self.module.delegation_observed([failed]))
+        spawned = {'type': 'item.completed', 'item': {'tool': 'spawn_agent', 'receiver_thread_ids': ['child']}}
+        self.assertTrue(self.module.delegation_observed([spawned]))
+
+    def test_evidence_scope_accepts_explanations_but_requires_all_conclusions(self):
+        report = {'accepted_case_ids': ['B'], 'rejected_case_ids': ['A'],
+                  'universal_claim_supported': False, 'within_deadline_run_ids': ['R3'],
+                  'explanation': 'The independent stage did not run.'}
+        self.assertTrue(self.module.evidence_scope_matches(report))
+        for key, value in [('accepted_case_ids', []), ('rejected_case_ids', []),
+                           ('universal_claim_supported', True), ('within_deadline_run_ids', ['R2', 'R3'])]:
+            with self.subTest(key=key):
+                self.assertFalse(self.module.evidence_scope_matches(dict(report, **{key: value})))
+        del report['within_deadline_run_ids']
+        self.assertFalse(self.module.evidence_scope_matches(report))
 
 
 if __name__ == '__main__':
