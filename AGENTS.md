@@ -144,6 +144,9 @@ error; continue the applicable repository checks. Technical skills do not replac
 this order with generic test-first, red-green or baseline workflows. Do not run a full suite merely
 to demonstrate that an unfinished feature fails; use the known failure or one
 scoped path. An explicit user request for a different testing workflow wins.
+Use a skill's documented fallback when its own resolver or reporting wrapper
+fails. Do not turn that into a separate tool repair unless the user requested it
+or the product's acceptance actually depends on that tool.
 
 ### Planning
 
@@ -299,6 +302,9 @@ or comparison implementations explicitly separate in the conclusion.
 For structured artifacts, inspect their keys and a representative record before
 extracting fields. Preserve absent, zero and empty as different observations;
 a guessed JSON path returning null is not evidence that the data is missing.
+If a diagnostic is known to echo credentials, exclude that invocation with live
+secrets until its producing output is sanitized. Use a supported redacted route;
+do not collect the raw credential output and redact it only after capture.
 
 Before a feature/fix edit, reuse the packet's verified `PRIOR_ART` or run the
 active yct-ca installation's scoped `prior` command in the source worktree.
@@ -374,6 +380,9 @@ input. Compare the behavior the consumer requires, including meaningful ordering
 and provenance, rather than assuming either byte equality or set equality.
 
 Accept a validator result only for the properties it checks. Format validity, exit zero and self-reported pass flags do not establish factual correctness or a resolved outcome. When supplied evidence disagrees on a count, data direction or completion state, identify that contradiction before explaining the result; do not silently rewrite immutable machine fields. Distinguish total counts from bounded examples, and recommend the missing code analysis separately from runtime facts that cannot be recovered from code. An authorized fact repair belongs at its producing owner; finding that owner does not expand the user's repair scope. More validator input alone does not add semantic checking or justify turning a format checker into a new semantic subsystem.
+If a checker or expectation is wrong, preserve its original result, correct the
+producing check and rerun that check against the same inputs. A narrower
+diagnostic or a hand-edited pass flag cannot relabel the original execution.
 
 Before making a configuration or check a global blocker, trace real consumers and scope. Plan, artifact, or recovery preconditions do not prove product-wide necessity; block only the dependent subpath.
 
@@ -425,6 +434,9 @@ Check the dimensions relevant to the change:
 | Cleanup | Are placeholders, skipped tests, debug code, diagnostic bypasses or privilege grants, unrelated changes, and dead paths absent? |
 
 A file existing, a type compiling, or a mock-based test passing does not prove runtime completion. A child task-complete event or future-tense final message also does not establish completion: inspect the requested artifact or terminal behavior. Keep local diagnostic, installed-entrypoint, and production results distinct in acceptance claims.
+Inventory counts and passing samples do not prove complete control-path or
+input coverage. For such claims, apply the MECE method to actual transitions
+and state the verified domain, unexercised paths and remaining counterexamples.
 
 Use real E2E as the primary behavioral evidence, and as the only test layer when it adequately covers the requested behavior. During implementation, run only the current path, a targeted E2E scenario, or an existing focused check needed to diagnose a failure. Do not run the full E2E suite while features remain unfinished. After all requested functionality and known corrections are complete, run the full E2E acceptance set for the agreed scope against the final implementation; do not silently narrow that set or expand it to unrelated products.
 
