@@ -169,6 +169,9 @@ candidate acceptance. This check does not accept the model's own loading claim.
 Command evidence is retained for review without prescribing a shell spelling
 or tool-call count. A loop or a safe wrapper may be appropriate. The tests
 check delivered behavior; they are not a benchmark of general planning ability.
+Native command evidence accepts both legacy `exec_command_end` events and
+`item_completed` command records used by TraeX 0.208. It binds records to the
+executing thread, deduplicates mirrors and excludes background starts.
 The `--case capacity` scenario limits TraeX to two concurrent threads including
 the parent, then starts two different child tasks in sequence. It checks new
 admission after completion; it does not prove immediate memory unloading. A
