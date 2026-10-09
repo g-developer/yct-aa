@@ -223,6 +223,7 @@ def cases(root: Path) -> dict[str, tuple[Path, str, list[tuple[Path, str]]]]:
 
 
 def session_commands(path: Path, sid: str) -> list[dict]:
+    """Read native command terminals from legacy events and current item mirrors."""
     rows = [json.loads(line) for line in path.read_text().splitlines() if line]
     meta = rows[0]["payload"]
     if meta.get("id") != sid:
@@ -236,13 +237,21 @@ def session_commands(path: Path, sid: str) -> list[dict]:
         payload = row.get("payload", {})
         if row["type"] != "event_msg" or payload.get("turn_id") not in own_turns:
             continue
-        if payload.get("type") == "exec_command_end" and payload.get("exit_code") is not None:
+        completed_at = payload.get("completed_at_ms")
+        if payload.get("type") == "item_completed":
+            if payload.get("thread_id") != sid or payload.get("item", {}).get("type") != "CommandExecution":
+                continue
+            if payload["item"].get("status") not in ("completed", "failed"):
+                continue
+            payload = dict(payload["item"], type="exec_command_end", call_id=payload["item"]["id"])
+        if (payload.get("type") == "exec_command_end" and payload.get("exit_code") is not None
+                and payload.get("status") not in ("backgrounded", "in_progress", "running")):
             command = payload.get("command", [])
             by_call[payload["call_id"]] = {
                 "command": " ".join(command) if isinstance(command, list) else command,
                 "argv": command, "cwd": payload.get("cwd"), "exit_code": payload["exit_code"],
                 "thread_id": sid, "call_id": payload["call_id"],
-                "completed_at_ms": payload.get("completed_at_ms"),
+                "completed_at_ms": completed_at,
             }
     return list(by_call.values())
 
@@ -364,6 +373,17 @@ def run(cli: str, model: str | None, case: str, cwd: Path, prompt: str,
         expected: list[tuple[Path, str]], result_dir: Path, timeout: int, trae_home: Path,
         backend_variant: str | None = None, resume: str | None = None,
         mcp_target: tuple[str, str] | None = None) -> dict:
+    """Run one installed TraeX case and retain its commands, output and verdict.
+
+    ``cwd`` owns the fixture or indexed project; ``trae_home`` selects the
+    installation. ``expected`` lists required artifact contents, and an MCP
+    target is a relative file plus symbol. ``resume`` must retain that session.
+    The timeout covers the CLI process group. Protected inputs are compared
+    with their original bytes after execution; the verifier never restores them.
+    The result includes exit status, terminal/skill/behavior checks and evidence
+    paths. ``checks_passed`` covers automated assertions only; the listed
+    ``review_required`` trace checks still need source and execution review.
+    """
     result_dir.mkdir(parents=True, exist_ok=True)
     write(result_dir/'prompt.txt', prompt)
     protected = list(cwd.glob("checks/*.sh"))

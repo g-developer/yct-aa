@@ -224,6 +224,28 @@ class SessionEvidenceTest(unittest.TestCase):
             result = self.module.session_commands(path, "child")
         self.assertEqual([(x["call_id"], x["exit_code"]) for x in result], [("new", 2)])
 
+    def test_item_only_commands_are_bound_deduplicated_and_terminal(self):
+        rows = [
+            {"type": "session_meta", "payload": {"id": "child", "timestamp": "2026-09-17T10:00:00Z"}},
+            {"type": "event_msg", "payload": {"type": "task_started", "turn_id": "turn", "started_at": 1789639201}},
+        ]
+        def item(cid, status, code, thread="child"):
+            return {"type": "event_msg", "payload": {"type": "item_completed", "thread_id": thread,
+                    "turn_id": "turn", "completed_at_ms": 1789639202000,
+                    "item": {"type": "CommandExecution", "id": cid, "command": ["sh", "check.sh"],
+                             "cwd": "/fixture", "exit_code": code, "status": status}}}
+        rows += [item("foreign", "completed", 0, "parent"), item("pending", "backgrounded", 0),
+                 item("actual", "backgrounded", 0), item("actual", "failed", 2),
+                 {"type": "event_msg", "payload": {"type": "exec_command_end", "turn_id": "turn",
+                  "call_id": "actual", "command": ["sh", "check.sh"], "cwd": "/fixture",
+                  "exit_code": 2, "status": "failed"}}, item("item-only", "completed", 0)]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)/"session.jsonl"
+            path.write_text(''.join(json.dumps(row) + NL for row in rows))
+            results = self.module.session_commands(path, "child")
+        self.assertEqual([(x['call_id'], x['exit_code']) for x in results], [('actual', 2), ('item-only', 0)])
+        self.assertEqual(results[-1]['cwd'], '/fixture')
+
     def mcp_events(self):
         calls = [
             ('activate', 'serena', 'activate_project', {'project': '/repo'},
