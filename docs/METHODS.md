@@ -61,19 +61,46 @@ Uncovered residue:
 
 Do not call a list MECE when scopes overlap accidentally. Cross-cutting verification is allowed when labeled as a second lens.
 
-For pipeline, graph or state-machine completeness claims, a node inventory is
-only the starting point. Name the input domain and follow its actual producers,
-enabling conditions, dependency admission, state/certificate creation and
-consumption, rebuild/rebind, early returns, exceptions and final projection.
-Check whether one failed branch suppresses independent ready work. Reuse the
-existing graph or source evidence; do not add a mandatory matrix or new ledger.
+For pipeline, graph or state-machine completeness claims, establish the logical
+argument before using a corpus as acceptance evidence. A node inventory is only
+the starting point. Inspect the existing implementation before proposing another
+registry, scheduler or certificate mechanism. Use these questions to find the
+missing shared boundary:
+
+- Does the claimed input domain reach every required decision, producer and
+  consumer, including preparation and final projection? Trace in both directions
+  from the real entrypoint and implementation. A registry checked only against
+  itself cannot reveal an omitted obligation.
+- Are the partitions exhaustive within that domain? Separate external inputs,
+  derived structure and lifecycle states. Do not assume these are independent
+  dimensions or multiply them into a Cartesian product without evidence. Follow
+  feasible transitions and interactions, including early returns and exceptions.
+- Does each producer's postcondition satisfy its consumer's precondition?
+  Trace actual fields, meanings and rejection branches. A shared node name,
+  schema, digest or successful local check does not prove composition.
+- Does completion cover all required work, or only a selected wave? Distinguish
+  required, enabled, ready, selected and deferred work. If enablement can be
+  unknown, missing evidence is not false. A failed branch or external blocker
+  does not discharge independent obligations; only an evidenced inapplicable
+  branch may be excluded.
+- Do reused results still match current inputs and consumer-visible semantics
+  after rebuild, rebind or projection? Comparing two copies of the same stored
+  payload proves consistency, not validity. Derive the reference independently
+  from authoritative inputs; an equivalence check must not share the disputed
+  shortcut's output or oracle logic.
+
+For every claimed implication, identify source-backed reasoning and a feasible
+counterexample that would falsify it. Use focused checks for those counterexamples
+and the agreed corpus for regression. This is a review method, not a requirement
+to add runtime state, a new ledger, a formal prover or an exhaustive test product.
 
 Separate enumerated nodes, statically traced paths and dynamically exercised
 paths. Mark unexercised variants and exclusions. Passing one corpus establishes
 that corpus's result, not universal correctness for future inputs. A new
 counterexample reopens the missing input or transition dimension; preserve
 unaffected evidence and repair that shared gap instead of merely adding a Case
-or repeating an unchanged inventory audit.
+or repeating an unchanged inventory audit. When a new input fails before later
+stages, its first failure does not establish that the masked stages are correct.
 
 ## 3. Hypothesis–Falsification Debugging
 

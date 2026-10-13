@@ -361,6 +361,11 @@ separately from attempts and repeated runs; repeats do not fill missing Case
 slots unless repetition is the user's acceptance unit. Do not invent a missing
 input list, shrink a required failure set to an easier subset, or extrapolate
 representative success to the full set. Report each set against its own scope.
+Permission to skip a rerun does not establish that the skipped result was
+correct or accepted. Keep skipped, previously verified and newly verified
+outcomes distinct. Before using an earlier terminal label to exclude work or
+claim success, check its reason and evidence against the user's criterion;
+retain contradictions as unresolved rather than accepting the label alone.
 When claiming a run used stale code, use that run's build and invocation
 evidence. A newer working tree or a new candidate label alone is not proof;
 resolve the existing evidence before rebuilding and rerunning for that reason.
