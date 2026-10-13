@@ -24,6 +24,12 @@ Reconcile stale plan checkpoints with the actual current inputs and unfinished
 milestone before reuse. A completed earlier candidate or phase does not complete
 a later requirement. Update the existing plan when that state changes.
 
+A later user instruction may end a repair round and move remaining failures
+to a handoff or review. Preserve that phase exit even when the original goal
+said to repair until green. A subsequent status or evidence question does not
+reopen the completed phase; answer from its results and continue only work
+still authorized by the latest sequence.
+
 An assistant summary can omit a later correction or expand an earlier choice.
 Before claiming "the user forbids new agents", locate the original restriction
 and reconcile later instructions. "No children are running", an unsuccessful

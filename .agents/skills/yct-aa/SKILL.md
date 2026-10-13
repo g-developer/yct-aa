@@ -8,7 +8,7 @@ description: Route an engineering task to the smallest useful agent set and driv
 Use the task supplied with the invocation and later user corrections. Follow
 the active `AGENTS.md`; it owns change admission, implementation order, risk,
 delegation, verification, lifecycle and stop conditions. Use roles exposed by
-the current runtime and the installed TraeX operating layer.
+the current runtime and its installed operating layer.
 
 ## Activation and visibility
 
@@ -38,6 +38,14 @@ extra agents merely to make its use look frequent.
 2. Classify risk and choose the smallest action that changes a decision. Keep
    L0, localized L1 and tightly sequential work in the parent unless useful
    delegation is explicitly requested.
+   For a pipeline/graph completeness claim or recurring failures after a claimed
+   MECE audit, read the MECE section before choosing the audit scope. TraeX
+   installs it at `${TRAE_HOME:-~/.trae}/METHODS.yct.md`; Codex installs it at
+   `${CODEX_HOME:-~/.codex}/METHODS.yct.md`. Resolve the current host's home,
+   not the shared skill directory or a historical checkout found by search.
+   A verified package checkout uses `docs/METHODS.md`. Carry the unresolved
+   implication and its evidence into any review packet; naming MECE is not
+   applying its method.
 3. For implementation, prove the main operation through the real entrypoint,
    complete requested functionality, then add required secondary behavior and
    final verification. For performance work, prove the slow request enters the
